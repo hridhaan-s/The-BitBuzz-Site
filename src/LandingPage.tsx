@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { supabase } from "./lib/supabase";
 
+const HERO_IMAGE = "https://cdn.hackclub.com/01a08fae-80b9-7d9e-99e4-72a22146ff1c/02ac03955d0a3a2cf64e0a388e23b10fe919f71c";
 const HERO_GIF = "https://cdn.hackclub.com/01a0909a-4a98-7483-8658-3438faa0f2e0/a500cea59963d3187152da4b1b5d2981.gif";
 const LOGO_IMAGE = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
 const NEWSROOM_URL = "https://the-bit-buzz-site.vercel.app/home";
@@ -53,7 +54,6 @@ function LandingPage() {
         <section className="landing-hero relative min-h-[760px] overflow-hidden lg:min-h-[850px]">
           <img src={HERO_IMAGE} alt="Earth viewed from space" className="absolute inset-0 h-full w-full object-cover object-center" />
 
-          {/* Keep the animated star field only in the upper atmosphere. The original GIF contains a large BitBuzz wordmark, so it is deliberately clipped before that artwork appears. */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-[34%] overflow-hidden">
             <img src={HERO_GIF} alt="" aria-hidden="true" className="absolute inset-0 h-[250%] w-full object-cover object-top opacity-75 mix-blend-screen" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,transparent_58%,#000000_100%)]" />
