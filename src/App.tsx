@@ -100,7 +100,7 @@ export default function App() {
 
       <header className="sticky top-0 z-50 border-b border-line bg-[#111111]/[0.98] text-white shadow-sm backdrop-blur-md">
         <div className="mx-auto flex h-[54px] max-w-[1440px] items-center px-4 sm:px-6 lg:px-8">
-          <div className="hidden items-center gap-4 lg:flex">
+          <div className="hidden items-center gap-4 xl:flex">
             <div className="flex items-center gap-3 border-r border-white/20 pr-5">
               <a href="#" aria-label="LinkedIn" className="text-white/65 transition hover:text-white"><Icon name="linkedin" /></a>
               <a href="#" aria-label="Instagram" className="text-white/65 transition hover:text-white"><Icon name="instagram" /></a>
@@ -111,7 +111,7 @@ export default function App() {
             </span>
           </div>
 
-          <button className="mr-3 inline-flex min-h-10 min-w-10 items-center justify-center lg:hidden" onClick={() => setMenuOpen(true)} aria-label="Open menu">
+          <button className="mr-3 inline-flex min-h-10 min-w-10 items-center justify-center xl:hidden" onClick={() => setMenuOpen(true)} aria-label="Open menu">
             <Icon name="menu" />
           </button>
 
@@ -120,7 +120,7 @@ export default function App() {
             <span className="font-serif text-[21px] font-semibold tracking-[-0.04em]">BitBuzz</span>
           </a>
 
-          <nav className="ml-auto hidden items-center gap-7 lg:flex" aria-label="Main navigation">
+          <nav className="ml-auto hidden items-center gap-7 xl:flex" aria-label="Main navigation">
             <a href="/" className="relative py-4 text-[13px] text-white/65 transition hover:text-white after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-1 after:-translate-x-1/2 after:rounded-full after:bg-honey">Home</a>
             <div className="relative">
               <button type="button" onClick={() => setExploreOpen(!exploreOpen)} className="flex items-center gap-1 py-4 text-[13px] text-white/65 transition hover:text-white" aria-expanded={exploreOpen}>
@@ -145,7 +145,7 @@ export default function App() {
             </div>
           </nav>
 
-          <div className="ml-auto flex items-center gap-2 lg:hidden">
+          <div className="ml-auto flex items-center gap-2 xl:hidden">
             <button type="button" onClick={toggleTheme} aria-label="Toggle theme" className="flex h-10 w-10 items-center justify-center text-lg">{theme === "dark" ? "☀" : "☾"}</button>
             <a href="#submit" className="rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-black">Submit</a>
           </div>
@@ -153,7 +153,7 @@ export default function App() {
       </header>
 
       {menuOpen && (
-        <div className="fixed inset-0 z-[80] bg-[#111111] text-white lg:hidden">
+        <div className="fixed inset-0 z-[80] bg-[#111111] text-white xl:hidden">
           <div className="flex h-[54px] items-center justify-between border-b border-white/10 px-5">
             <a href="/" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)}><img src={LOGO_URL} alt="BitBuzz" className="h-8 w-8 rounded-full object-cover" /><span className="font-serif text-[21px] font-semibold">BitBuzz</span></a>
             <button onClick={() => setMenuOpen(false)} className="flex h-10 w-10 items-center justify-center" aria-label="Close menu"><Icon name="close" /></button>
