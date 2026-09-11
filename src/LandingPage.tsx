@@ -65,7 +65,10 @@ function LandingPage() {
       <main id="top">
         <section className="landing-hero relative min-h-[760px] overflow-hidden lg:min-h-[850px]">
           <img src={HERO_IMAGE} alt="Earth viewed from space" className="absolute inset-0 h-full w-full object-cover object-center" />
-          <img src={HERO_GIF} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-30 mix-blend-screen" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[76%] overflow-hidden">
+            <img src={HERO_GIF} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-top opacity-75 mix-blend-screen" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_52%_57%,rgba(0,0,0,1)_0%,rgba(0,0,0,.94)_24%,rgba(0,0,0,.55)_42%,rgba(0,0,0,0)_68%)]" />
+          </div>
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.94)_0%,rgba(0,0,0,.75)_36%,rgba(0,0,0,.28)_68%,rgba(0,0,0,.52)_100%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_65%_55%,rgba(47,126,255,.25),transparent_34%)]" />
           <div className="relative mx-auto flex min-h-[760px] max-w-[1480px] items-center px-5 pb-20 pt-28 lg:min-h-[850px] lg:px-8">
