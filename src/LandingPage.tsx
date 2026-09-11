@@ -62,9 +62,6 @@ function LandingPage() {
           <div className="relative mx-auto flex min-h-[760px] max-w-[1480px] items-center px-5 pb-20 pt-28 lg:min-h-[850px] lg:px-8">
             <div className="grid w-full items-center gap-12 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-16">
               <div className="max-w-[760px]">
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#5d98ff]/40 bg-[#5d98ff]/[0.08] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b8d1ff] shadow-[0_0_28px_rgba(93,152,255,.1)]">
-                  <span className="text-[#5d98ff]">✦</span> Student led innovation journal
-                </div>
                 <h1 className="font-serif text-[clamp(4rem,8vw,8rem)] font-medium leading-[.86] tracking-[-.065em]">News for a <span className="block bg-gradient-to-r from-[#72a7ff] via-[#5d98ff] to-[#91baff] bg-clip-text text-transparent">brighter tomorrow.</span></h1>
                 <p className="mt-8 max-w-[650px] text-[clamp(1.05rem,1.5vw,1.3rem)] leading-[1.5] text-white/78">BitBuzz is a student run news and awareness platform covering science, technology, cybersecurity, aviation, biology and innovation, made for curious minds by curious minds.</p>
                 <div className="mt-9 flex flex-wrap gap-3"><a href={NEWSROOM_URL} className="landing-primary landing-primary-large">Explore stories <Arrow /></a><a href={NEWSROOM_URL} className="landing-secondary">Enter the newsroom</a></div>
