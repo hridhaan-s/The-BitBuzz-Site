@@ -3,7 +3,7 @@ import { supabase } from "./lib/supabase";
 
 const HERO_GIF = "https://cdn.hackclub.com/01a0909a-4a98-7483-8658-3438faa0f2e0/a500cea59963d3187152da4b1b5d2981.gif";
 const LOGO_IMAGE = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
-const NEWSROOM_URL = "https://the-bit-buzz-site.vercel.app/home";
+const NEWSROOM_URL = "/home";
 
 function Mark() {
   return <svg width="31" height="31" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="5.5" fill="currentColor"/><ellipse cx="16" cy="16" rx="14" ry="6.5" transform="rotate(-25 16 16)" stroke="currentColor" strokeWidth="2.2"/><circle cx="26.2" cy="10.4" r="1.7" fill="currentColor"/></svg>;
