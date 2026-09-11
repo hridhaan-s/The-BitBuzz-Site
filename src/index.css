@@ -79,3 +79,15 @@
     color: var(--honey);
   }
 }
+
+/* Keep the centered masthead visually clear of the desktop navigation. */
+@media (min-width: 1024px) {
+  header nav[aria-label="Main navigation"] {
+    gap: 1.05rem;
+  }
+
+  header nav[aria-label="Main navigation"] > div:last-child {
+    gap: 0.85rem;
+    padding-left: 1rem;
+  }
+}
