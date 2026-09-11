@@ -32,7 +32,7 @@ export default function MobileAppSection() {
                 <AppIcon store="play" /><span><span className="block text-[9px] uppercase tracking-[0.14em] text-white/35">Coming soon on</span><span className="text-sm font-semibold">Google Play</span></span>
               </div>
             </div>
-            <a href="https://the-bit-buzz-site.vercel.app/home" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-[#8db5ff]">Continue on the website <span aria-hidden="true">↗</span></a>
+            <a href="/home" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-[#8db5ff]">Continue on the website <span aria-hidden="true">↗</span></a>
           </div>
 
           <div className="relative">
