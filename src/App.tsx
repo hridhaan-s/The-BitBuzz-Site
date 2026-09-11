@@ -205,7 +205,7 @@ export default function App() {
           <div className="flex flex-col gap-4 border-t border-white/10 py-5 text-[10px] uppercase tracking-[0.1em] text-white/30 sm:flex-row sm:items-center sm:justify-between">
             <p>© {new Date().getFullYear()} BitBuzz · All rights reserved.</p>
             <p>News for students, by students.</p>
-            <p className="inline-flex items-center gap-1.5">Made with <span className="inline-flex text-honey"><Icon name="heart" /></span> by BitBuzz Squad</p>
+            <p className="inline-flex items-center gap-1.5">Made with <span className="inline-flex text-honey"><Icon name="heart" /></span> by Hridhaan and The BitBuzz Squad</p>
           </div>
         </div>
       </footer>
