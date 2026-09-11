@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap');
+
+@layer base {
+  :root {
+    /* Palette Tokens */
+    --ink: #1B1815;
+    --paper: #F7F7F5;
+    --honey: #C67A05;
+    --alert: #C4111F;
+    --soft: #6A6A66;
+    --line: rgba(27, 24, 21, 0.15);
+
+    /* Fluid Typography (320px to 1440px viewport) */
+    --step--1: clamp(0.875rem, 0.85rem + 0.15vw, 1rem);
+    --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    --step-1: clamp(1.188rem, 1.1rem + 0.45vw, 1.375rem);
+    --step-2: clamp(1.438rem, 1.3rem + 0.7vw, 1.75rem);
+    --step-3: clamp(1.75rem, 1.55rem + 1vw, 2.25rem);
+    --step-4: clamp(2.125rem, 1.85rem + 1.4vw, 2.875rem);
+    --step-5: clamp(2.563rem, 2.15rem + 2.1vw, 3.625rem);
+    --step-6: clamp(3.063rem, 2.5rem + 2.8vw, 4.5rem);
+    --step-7: clamp(3.688rem, 2.9rem + 3.9vw, 5.5rem);
+
+    /* Fluid Spacing Scale */
+    --sp-xs: clamp(0.5rem, 0.45rem + 0.25vw, 0.75rem);
+    --sp-sm: clamp(0.75rem, 0.7rem + 0.25vw, 1rem);
+    --sp-md: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+    --sp-lg: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+    --sp-xl: clamp(2.25rem, 1.95rem + 1.5vw, 3.375rem);
+    --sp-2xl: clamp(3rem, 2.5rem + 2.5vw, 4.75rem);
+    --sp-3xl: clamp(4.5rem, 3.8rem + 3.5vw, 6.5rem);
+  }
+
+  [data-theme="dark"] {
+    --ink: #F1EFEA;
+    --paper: #141210;
+    --honey: #F5A524;
+    --soft: #A3A39E;
+    --line: rgba(241, 239, 234, 0.15);
+  }
+
+  html {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+    overflow-x: hidden;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--honey);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hover-honey:hover {
+    color: var(--honey);
+  }
+}
