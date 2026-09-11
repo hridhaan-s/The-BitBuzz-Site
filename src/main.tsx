@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import LandingPage from "./LandingPage";
+import MobileAppSection from "./MobileAppSection";
 import SubmitPage from "./SubmitPage";
 import "./index.css";
 
@@ -16,7 +17,7 @@ if (isLegacyNewsroom && path === "/") {
 let page;
 
 if (path === "/") {
-  page = <LandingPage />;
+  page = <><LandingPage /><MobileAppSection /></>;
 } else if (path === "/home") {
   page = <App />;
 } else if (path === "/submit") {
