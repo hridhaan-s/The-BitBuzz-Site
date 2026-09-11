@@ -4,10 +4,16 @@ import App from "./App";
 import LandingPage from "./LandingPage";
 import "./index.css";
 
-const isNewsroom = new URLSearchParams(window.location.search).get("view") === "news";
+const url = new URL(window.location.href);
+const isLegacyNewsroom = url.searchParams.get("view") === "news";
+const isHome = url.pathname === "/home";
+
+if (isLegacyNewsroom && !isHome) {
+  window.history.replaceState({}, "", "/home");
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {isNewsroom ? <App /> : <LandingPage />}
+    {isHome || isLegacyNewsroom ? <App /> : <LandingPage />}
   </StrictMode>,
 );
