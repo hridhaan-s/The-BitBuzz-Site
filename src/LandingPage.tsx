@@ -1,7 +1,6 @@
 import { FormEvent, useState } from "react";
 import { supabase } from "./lib/supabase";
 
-const HERO_IMAGE = "https://cdn.hackclub.com/01a08fae-80b9-7d9e-99e4-72a22146ff1c/02ac03955d0a3a2cf64e0a388e23b10fe919f71c";
 const HERO_GIF = "https://cdn.hackclub.com/01a0909a-4a98-7483-8658-3438faa0f2e0/a500cea59963d3187152da4b1b5d2981.gif";
 const LOGO_IMAGE = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
 const NEWSROOM_URL = "https://the-bit-buzz-site.vercel.app/home";
@@ -51,17 +50,14 @@ function LandingPage() {
       </header>
 
       <main id="top">
-        <section className="landing-hero relative min-h-[760px] overflow-hidden lg:min-h-[850px]">
-          <img src={HERO_IMAGE} alt="Earth viewed from space" className="absolute inset-0 h-full w-full object-cover object-center" />
-
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[34%] overflow-hidden">
+        <section className="landing-hero relative min-h-[760px] overflow-hidden bg-[#000000] lg:min-h-[850px]">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[42%] overflow-hidden">
             <img src={HERO_GIF} alt="" aria-hidden="true" className="absolute inset-0 h-[250%] w-full object-cover object-top opacity-75 mix-blend-screen" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,transparent_58%,#000000_100%)]" />
           </div>
 
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.18)_0%,rgba(0,0,0,.35)_25%,rgba(0,0,0,.82)_48%,rgba(0,0,0,.25)_70%,rgba(0,0,0,.5)_100%)]" />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.86)_30%,rgba(0,0,0,.34)_63%,rgba(0,0,0,.48)_100%)]" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_32%_42%,rgba(42,100,210,.17),transparent_31%),radial-gradient(circle_at_74%_42%,rgba(76,130,255,.18),transparent_29%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_32%_42%,rgba(42,100,210,.18),transparent_31%),radial-gradient(circle_at_74%_42%,rgba(76,130,255,.2),transparent_29%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,transparent_15%,rgba(0,0,0,.35)_58%,#000000_100%)]" />
 
           <div className="relative mx-auto flex min-h-[760px] max-w-[1480px] items-center px-5 pb-20 pt-28 lg:min-h-[850px] lg:px-8">
             <div className="grid w-full items-center gap-12 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-16">
