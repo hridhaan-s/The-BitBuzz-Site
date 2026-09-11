@@ -9,11 +9,9 @@ const NEWSROOM_URL = "https://the-bit-buzz-site.vercel.app/home";
 function Mark() {
   return <svg width="31" height="31" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="5.5" fill="currentColor"/><ellipse cx="16" cy="16" rx="14" ry="6.5" transform="rotate(-25 16 16)" stroke="currentColor" strokeWidth="2.2"/><circle cx="26.2" cy="10.4" r="1.7" fill="currentColor"/></svg>;
 }
-
 function Arrow() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m13 6 6 6-6 6"/></svg>;
 }
-
 function SearchIcon() {
   return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>;
 }
@@ -45,45 +43,27 @@ function LandingPage() {
         <div className="mx-auto flex h-[72px] max-w-[1480px] items-center justify-between px-5 lg:px-8">
           <a href="#top" className="flex shrink-0 items-center" aria-label="BitBuzz home"><img src={LOGO_IMAGE} alt="BitBuzz" className="h-9 w-9 rounded-full object-cover object-center" /></a>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Landing navigation">
-            <a href={NEWSROOM_URL} className="landing-nav-link landing-active">Home</a>
-            <a href="#explore" className="landing-nav-link">Explore</a>
-            <a href="#categories" className="landing-nav-link">Categories</a>
-            <a href="#opportunities" className="landing-nav-link">Opportunities</a>
-            <a href="#about" className="landing-nav-link">About</a>
+            <a href={NEWSROOM_URL} className="landing-nav-link landing-active">Home</a><a href="#explore" className="landing-nav-link">Explore</a><a href="#categories" className="landing-nav-link">Categories</a><a href="#opportunities" className="landing-nav-link">Opportunities</a><a href="#about" className="landing-nav-link">About</a>
           </nav>
-          <div className="hidden items-center gap-2 lg:flex">
-            <button type="button" aria-label="Search" className="landing-icon-button"><SearchIcon /></button>
-            <button type="button" onClick={openLogin} className="landing-login">Login</button>
-            <button type="button" onClick={openLogin} className="landing-primary">Get Started <Arrow /></button>
-          </div>
-          <button type="button" onClick={() => setMenuOpen(true)} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 lg:hidden" aria-label="Open menu">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-          </button>
+          <div className="hidden items-center gap-2 lg:flex"><button type="button" aria-label="Search" className="landing-icon-button"><SearchIcon /></button><button type="button" onClick={openLogin} className="landing-login">Login</button><button type="button" onClick={openLogin} className="landing-primary">Get Started <Arrow /></button></div>
+          <button type="button" onClick={() => setMenuOpen(true)} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 lg:hidden" aria-label="Open menu"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
         </div>
       </header>
 
       <main id="top">
         <section className="landing-hero relative min-h-[760px] overflow-hidden lg:min-h-[850px]">
           <img src={HERO_IMAGE} alt="Earth viewed from space" className="absolute inset-0 h-full w-full object-cover object-center" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[76%] overflow-hidden">
-            <img src={HERO_GIF} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-top opacity-75 mix-blend-screen" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_52%_57%,rgba(0,0,0,1)_0%,rgba(0,0,0,.94)_24%,rgba(0,0,0,.55)_42%,rgba(0,0,0,0)_68%)]" />
-          </div>
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.94)_0%,rgba(0,0,0,.75)_36%,rgba(0,0,0,.28)_68%,rgba(0,0,0,.52)_100%)]" />
+          <img src={HERO_GIF} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-75 mix-blend-screen" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,transparent_28%,rgba(0,0,0,.96)_40%,rgba(0,0,0,.96)_63%,transparent_78%,transparent_100%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.94)_0%,rgba(0,0,0,.76)_36%,rgba(0,0,0,.25)_68%,rgba(0,0,0,.52)_100%)]" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[76%] bg-[radial-gradient(ellipse_at_center,transparent_0%,transparent_48%,rgba(0,0,0,.25)_100%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_65%_55%,rgba(47,126,255,.25),transparent_34%)]" />
           <div className="relative mx-auto flex min-h-[760px] max-w-[1480px] items-center px-5 pb-20 pt-28 lg:min-h-[850px] lg:px-8">
             <div className="max-w-[760px]">
               <h1 className="font-serif text-[clamp(4rem,8vw,8rem)] font-medium leading-[.86] tracking-[-.065em]">News for a <span className="block text-[#5d98ff]">brighter tomorrow.</span></h1>
               <p className="mt-8 max-w-[650px] text-[clamp(1.05rem,1.5vw,1.3rem)] leading-[1.45] text-white/65">BitBuzz is a student run news and awareness platform covering science, technology, cybersecurity, aviation, biology and innovation, made for curious minds by curious minds.</p>
-              <div className="mt-9 flex flex-wrap gap-3">
-                <button type="button" onClick={openLogin} className="landing-primary landing-primary-large">Get Started <Arrow /></button>
-                <a href={NEWSROOM_URL} className="landing-secondary">Enter the newsroom</a>
-              </div>
-              <div className="mt-14 flex flex-wrap gap-8 border-t border-white/15 pt-7">
-                <div><strong className="block text-[27px] font-semibold tracking-[-.04em]">24K+</strong><span className="text-[12px] text-white/50">Monthly visitors</span></div>
-                <div className="border-l border-white/15 pl-8"><strong className="block text-[27px] font-semibold tracking-[-.04em]">50+</strong><span className="text-[12px] text-white/50">Countries</span></div>
-                <div className="border-l border-white/15 pl-8"><strong className="block text-[27px] font-semibold tracking-[-.04em]">100%</strong><span className="text-[12px] text-white/50">Student run</span></div>
-              </div>
+              <div className="mt-9 flex flex-wrap gap-3"><button type="button" onClick={openLogin} className="landing-primary landing-primary-large">Get Started <Arrow /></button><a href={NEWSROOM_URL} className="landing-secondary">Enter the newsroom</a></div>
+              <div className="mt-14 flex flex-wrap gap-8 border-t border-white/15 pt-7"><div><strong className="block text-[27px] font-semibold tracking-[-.04em]">24K+</strong><span className="text-[12px] text-white/50">Monthly visitors</span></div><div className="border-l border-white/15 pl-8"><strong className="block text-[27px] font-semibold tracking-[-.04em]">50+</strong><span className="text-[12px] text-white/50">Countries</span></div><div className="border-l border-white/15 pl-8"><strong className="block text-[27px] font-semibold tracking-[-.04em]">100%</strong><span className="text-[12px] text-white/50">Student run</span></div></div>
             </div>
             <div className="absolute bottom-20 right-8 hidden max-w-[230px] text-right xl:block"><p className="font-serif text-[31px] italic leading-[1.05] text-white/70">A more informed generation.</p><div className="ml-auto mt-4 h-px w-28 rotate-[-7deg] bg-white/45"/><p className="mt-5 text-[9px] font-bold uppercase tracking-[0.25em] text-white/45">Real news. Brighter minds.</p></div>
           </div>
