@@ -40,75 +40,28 @@
     --line: rgba(241, 239, 234, 0.15);
   }
 
-  html {
-    background-color: var(--paper);
-    color: var(--ink);
-    font-family: "Inter Tight", system-ui, sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  body {
-    min-height: 100dvh;
-    padding-bottom: env(safe-area-inset-bottom);
-    overflow-x: hidden;
-  }
-
-  :focus-visible {
-    outline: 2px solid var(--honey);
-    outline-offset: 2px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, ::before, ::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
+  html { background-color: var(--paper); color: var(--ink); font-family: "Inter Tight", system-ui, sans-serif; font-size: 16px; line-height: 1.5; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); overflow-x: hidden; }
+  :focus-visible { outline: 2px solid var(--honey); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .hover-honey:hover {
-    color: var(--honey);
-  }
-}
+@media (hover: hover) and (pointer: fine) { .hover-honey:hover { color: var(--honey); } }
 
-/* Desktop navigation: give the controls breathing room without moving the mobile layout. */
 @media (min-width: 1536px) {
-  header > div {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-
-  header > div > a[aria-label="BitBuzz Home"] {
-    left: calc(50% - 22px);
-  }
-
-  header nav[aria-label="Main navigation"] {
-    gap: 0.35rem;
-  }
-
+  header > div { padding-left: 2rem; padding-right: 2rem; }
+  header > div > a[aria-label="BitBuzz Home"] { left: calc(50% - 22px); }
+  header nav[aria-label="Main navigation"] { gap: 0.35rem; }
   header nav[aria-label="Main navigation"] > a,
-  header nav[aria-label="Main navigation"] > div > button {
-    padding-left: 0.85rem;
-    padding-right: 0.85rem;
-    font-size: 13px;
-  }
-
-  header nav[aria-label="Main navigation"] > div:last-child {
-    margin-left: 0.5rem;
-    gap: 0.6rem;
-    padding-left: 1.25rem;
-  }
+  header nav[aria-label="Main navigation"] > div > button { padding-left: 0.85rem; padding-right: 0.85rem; font-size: 13px; }
+  header nav[aria-label="Main navigation"] > div:last-child { margin-left: 0.5rem; gap: 0.6rem; padding-left: 1.25rem; }
 }
 
-/* At narrower desktop widths the menu intentionally remains available so navigation never feels cramped. */
-@media (min-width: 1280px) and (max-width: 1535px) {
-  header > div > a[aria-label="BitBuzz Home"] {
-    left: calc(50% - 18px);
-  }
+@media (min-width: 1280px) and (max-width: 1535px) { header > div > a[aria-label="BitBuzz Home"] { left: calc(50% - 18px); } }
+
+@keyframes bitbuzz-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
+
+@media (prefers-reduced-motion: reduce) { .bitbuzz-ticker { animation: none !important; } }
