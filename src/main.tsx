@@ -16,6 +16,15 @@ if (isLegacyNewsroom && path === "/") window.history.replaceState({}, "", "/home
 const landingRoutes: Record<string, string> = { "#explore": "/explore", "#categories": "/categories", "#opportunities": "/opportunities", "#about": "/about" };
 if (path === "/") window.addEventListener("click", (event) => { const anchor = (event.target as HTMLElement | null)?.closest("a") as HTMLAnchorElement | null; const route = anchor ? landingRoutes[anchor.getAttribute("href") || ""] : undefined; if (route) { event.preventDefault(); window.location.href = route; } });
 
+window.addEventListener("click", (event) => {
+  const anchor = (event.target as HTMLElement | null)?.closest("a") as HTMLAnchorElement | null;
+  const href = anchor?.getAttribute("href") || "";
+  if (href === "#about" || href === "/home#about") {
+    event.preventDefault();
+    window.location.href = "/about";
+  }
+});
+
 let page;
 if (path === "/") page = <><LandingPage /><MobileAppSection /></>;
 else if (path === "/home") page = <App />;
