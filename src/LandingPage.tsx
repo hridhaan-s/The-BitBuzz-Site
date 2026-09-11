@@ -2,8 +2,9 @@ import { FormEvent, useState } from "react";
 import { supabase } from "./lib/supabase";
 
 const HERO_IMAGE = "https://cdn.hackclub.com/01a08fae-80b9-7d9e-99e4-72a22146ff1c/02ac03955d0a3a2cf64e0a388e23b10fe919f71c";
+const HERO_GIF = "https://cdn.hackclub.com/01a0909a-4a98-7483-8658-3438faa0f2e0/a500cea59963d3187152da4b1b5d2981.gif";
 const LOGO_IMAGE = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
-const NEWSROOM_URL = "https://the-bit-buzz-site.vercel.app/?view=news";
+const NEWSROOM_URL = "https://the-bit-buzz-site.vercel.app/home";
 
 function Mark() {
   return <svg width="31" height="31" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="5.5" fill="currentColor"/><ellipse cx="16" cy="16" rx="14" ry="6.5" transform="rotate(-25 16 16)" stroke="currentColor" strokeWidth="2.2"/><circle cx="26.2" cy="10.4" r="1.7" fill="currentColor"/></svg>;
@@ -64,6 +65,7 @@ function LandingPage() {
       <main id="top">
         <section className="landing-hero relative min-h-[760px] overflow-hidden lg:min-h-[850px]">
           <img src={HERO_IMAGE} alt="Earth viewed from space" className="absolute inset-0 h-full w-full object-cover object-center" />
+          <img src={HERO_GIF} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-30 mix-blend-screen" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.94)_0%,rgba(0,0,0,.75)_36%,rgba(0,0,0,.28)_68%,rgba(0,0,0,.52)_100%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_65%_55%,rgba(47,126,255,.25),transparent_34%)]" />
           <div className="relative mx-auto flex min-h-[760px] max-w-[1480px] items-center px-5 pb-20 pt-28 lg:min-h-[850px] lg:px-8">
