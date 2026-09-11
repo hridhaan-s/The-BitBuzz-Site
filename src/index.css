@@ -29,9 +29,9 @@
     --sp-2xl: clamp(3rem, 2.5rem + 2.5vw, 4.75rem);
     --sp-3xl: clamp(4.5rem, 3.8rem + 3.5vw, 6.5rem);
   }
-  [data-theme="dark"] { --ink: #F1EFEA; --paper: #141210; --honey: #F5A524; --soft: #A3A39E; --line: rgba(241,239,234,.15); }
+  [data-theme="dark"] { --ink: #F1EFEA; --paper: #000000; --honey: #F5A524; --soft: #A3A39E; --line: rgba(241,239,234,.15); }
   html { background-color: var(--paper); color: var(--ink); font-family: "Inter Tight", system-ui, sans-serif; font-size: 16px; line-height: 1.5; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
-  body { min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); overflow-x: hidden; }
+  body { min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); overflow-x: hidden; background-color: var(--paper); }
   :focus-visible { outline: 2px solid var(--honey); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 }
