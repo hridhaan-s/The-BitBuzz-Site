@@ -60,7 +60,7 @@ const stories = [
   },
 ];
 
-function Icon({ name }: { name: "linkedin" | "instagram" | "youtube" | "search" | "menu" | "close" }) {
+function Icon({ name }: { name: "linkedin" | "instagram" | "youtube" | "search" | "menu" | "close" | "arrow-up-right" | "heart" }) {
   const common = {
     width: 17,
     height: 17,
@@ -78,6 +78,8 @@ function Icon({ name }: { name: "linkedin" | "instagram" | "youtube" | "search" 
   if (name === "youtube") return <svg {...common}><rect x="3" y="6" width="18" height="12" rx="3" /><path d="m10 9 5 3-5 3V9Z" fill="currentColor" stroke="none" /></svg>;
   if (name === "search") return <svg {...common}><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>;
   if (name === "menu") return <svg {...common}><path d="M3 6h18M3 12h18M3 18h18" /></svg>;
+  if (name === "arrow-up-right") return <svg {...common}><path d="M7 17 17 7M8 7h9v9" /></svg>;
+  if (name === "heart") return <svg {...common}><path d="M20.8 8.8c0 5.2-8.8 10.1-8.8 10.1S3.2 14 3.2 8.8A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.6Z" /></svg>;
   return <svg {...common}><path d="m6 6 12 12M18 6 6 18" /></svg>;
 }
 
@@ -190,8 +192,8 @@ export default function App() {
                 <img src={LOGO_URL} alt="BitBuzz" className="h-10 w-10 rounded-xl object-cover ring-1 ring-white/15 transition group-hover:ring-honey/50" />
                 <span className="font-serif text-[30px] font-semibold tracking-[-0.04em]">BitBuzz</span>
               </a>
-              <p className="mt-5 max-w-sm text-[14px] leading-6 text-white/45">News, ideas and opportunities worth knowing — built for the next generation.</p>
-              <a href="#submit" className="mt-7 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[12px] font-bold text-black transition hover:bg-honey">Submit an article <span aria-hidden="true">↗</span></a>
+              <p className="mt-5 max-w-sm text-[14px] leading-6 text-white/45">News, ideas and opportunities worth knowing, built for the next generation.</p>
+              <a href="#submit" className="mt-7 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[12px] font-bold text-black transition hover:bg-honey">Submit an article <Icon name="arrow-up-right" /></a>
             </div>
             <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
               <div><p className="mb-4 text-[10px] font-bold uppercase tracking-[0.16em] text-white/30">Explore</p>{genres.map((genre) => <a key={genre.slug} href={`#${genre.slug}`} className="mb-2.5 block text-[13px] text-white/55 transition hover:text-white">{genre.label}</a>)}</div>
@@ -203,7 +205,7 @@ export default function App() {
           <div className="flex flex-col gap-4 border-t border-white/10 py-5 text-[10px] uppercase tracking-[0.1em] text-white/30 sm:flex-row sm:items-center sm:justify-between">
             <p>© {new Date().getFullYear()} BitBuzz · All rights reserved.</p>
             <p>News for students, by students.</p>
-            <p>Made with <span className="text-honey">♥</span> by BitBuzz Squad</p>
+            <p className="inline-flex items-center gap-1.5">Made with <span className="inline-flex text-honey"><Icon name="heart" /></span> by BitBuzz Squad</p>
           </div>
         </div>
       </footer>
