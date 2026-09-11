@@ -81,6 +81,13 @@ function Icon({ name }: { name: "linkedin" | "instagram" | "youtube" | "search" 
   return <svg {...common}><path d="m6 6 12 12M18 6 6 18" /></svg>;
 }
 
+const navLinks = [
+  ["About Us", "#about"],
+  ["Flag It", "#flag-it"],
+  ["Chanakya AI", "#chanakya-ai"],
+  ["Tool Box", "#tool-box"],
+] as const;
+
 export default function App() {
   const [theme, setTheme] = useState<"light" | "dark">(() => getInitialTheme());
   const [menuOpen, setMenuOpen] = useState(false);
@@ -92,78 +99,114 @@ export default function App() {
     applyTheme(next);
   };
 
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setExploreOpen(false);
+  };
+
   return (
     <div className="min-h-[100dvh] bg-paper text-ink">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">
         Skip to main content
       </a>
 
-      <header className="sticky top-0 z-50 border-b border-line bg-[#111111]/[0.98] text-white shadow-sm backdrop-blur-md">
-        <div className="mx-auto flex h-[54px] max-w-[1440px] items-center px-4 sm:px-6 lg:px-8">
-          <div className="hidden items-center gap-4 xl:flex">
-            <div className="flex items-center gap-3 border-r border-white/20 pr-5">
-              <a href="#" aria-label="LinkedIn" className="text-white/65 transition hover:text-white"><Icon name="linkedin" /></a>
-              <a href="#" aria-label="Instagram" className="text-white/65 transition hover:text-white"><Icon name="instagram" /></a>
-              <a href="#" aria-label="YouTube" className="text-white/65 transition hover:text-white"><Icon name="youtube" /></a>
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#161617]/95 text-white shadow-sm backdrop-blur-xl">
+        <div className="mx-auto flex min-h-[58px] max-w-[1480px] items-center gap-3 px-4 sm:px-6 lg:px-8">
+          <div className="hidden shrink-0 items-center gap-4 2xl:flex">
+            <div className="flex items-center gap-3 border-r border-white/15 pr-5">
+              <a href="https://www.linkedin.com/company/bitbuzzspace/" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="text-white/55 transition hover:text-white"><Icon name="linkedin" /></a>
+              <a href="https://www.instagram.com/bitbuzz_CLUB/" target="_blank" rel="noreferrer" aria-label="Instagram" className="text-white/55 transition hover:text-white"><Icon name="instagram" /></a>
+              <a href="https://www.youtube.com/@Bitbuzz-club" target="_blank" rel="noreferrer" aria-label="YouTube" className="text-white/55 transition hover:text-white"><Icon name="youtube" /></a>
             </div>
-            <span className="whitespace-nowrap text-[11px] font-medium tracking-[0.08em] text-white/55">
-              FRIDAY, SEPTEMBER 11, 2026
+            <span className="whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.08em] text-white/45">
+              {new Date().toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).toUpperCase()}
             </span>
           </div>
 
-          <button className="mr-3 inline-flex min-h-10 min-w-10 items-center justify-center xl:hidden" onClick={() => setMenuOpen(true)} aria-label="Open menu">
+          <button
+            type="button"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white 2xl:hidden"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={menuOpen}
+          >
             <Icon name="menu" />
           </button>
 
-          <a href="/" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2.5" aria-label="BitBuzz Home">
+          <a
+            href="/"
+            className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2.5 rounded-full px-2 py-1.5 transition hover:bg-white/5"
+            aria-label="BitBuzz Home"
+          >
             <img src={LOGO_URL} alt="BitBuzz" className="h-8 w-8 rounded-full object-cover ring-1 ring-white/20" />
             <span className="font-serif text-[21px] font-semibold tracking-[-0.04em]">BitBuzz</span>
           </a>
 
-          <nav className="ml-auto hidden items-center gap-7 xl:flex" aria-label="Main navigation">
-            <a href="/" className="relative py-4 text-[13px] text-white/65 transition hover:text-white after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-1 after:-translate-x-1/2 after:rounded-full after:bg-honey">Home</a>
+          <nav className="ml-auto hidden items-center gap-1 2xl:flex" aria-label="Main navigation">
+            <a href="/" className="relative rounded-lg px-3 py-3 text-[13px] text-white transition hover:bg-white/5 after:absolute after:bottom-1 after:left-1/2 after:h-0.5 after:w-1 after:-translate-x-1/2 after:rounded-full after:bg-honey" aria-current="page">Home</a>
             <div className="relative">
-              <button type="button" onClick={() => setExploreOpen(!exploreOpen)} className="flex items-center gap-1 py-4 text-[13px] text-white/65 transition hover:text-white" aria-expanded={exploreOpen}>
-                Explore <span className="text-[9px]">▾</span>
+              <button
+                type="button"
+                onClick={() => setExploreOpen((open) => !open)}
+                className="flex items-center gap-1 rounded-lg px-3 py-3 text-[13px] text-white/65 transition hover:bg-white/5 hover:text-white"
+                aria-expanded={exploreOpen}
+                aria-haspopup="true"
+              >
+                Explore <span className={`text-[9px] transition-transform ${exploreOpen ? "rotate-180" : ""}`}>▼</span>
               </button>
               {exploreOpen && (
-                <div className="absolute right-0 top-[47px] w-52 border border-white/10 bg-[#181818] p-2 shadow-2xl">
-                  {genres.map((genre) => <a key={genre.slug} href={`/#${genre.slug}`} className="block px-3 py-2.5 text-[13px] text-white/70 transition hover:bg-white/5 hover:text-honey">{genre.label}</a>)}
+                <div className="absolute right-0 top-[calc(100%+7px)] w-56 rounded-xl border border-white/10 bg-[#181819]/98 p-2 shadow-2xl backdrop-blur-xl">
+                  {genres.map((genre) => (
+                    <a key={genre.slug} href={`/#${genre.slug}`} onClick={() => setExploreOpen(false)} className="block rounded-lg px-3 py-2.5 text-[13px] text-white/70 transition hover:bg-white/5 hover:text-honey">
+                      {genre.label}
+                    </a>
+                  ))}
                 </div>
               )}
             </div>
-            {[
-              ["About Us", "#about"],
-              ["Flag It", "#flag-it"],
-              ["Chanakya AI", "#chanakya-ai"],
-              ["Tool Box", "#tool-box"],
-            ].map(([label, href]) => <a key={label} href={href} className="py-4 text-[13px] text-white/65 transition hover:text-white">{label}</a>)}
-            <div className="ml-1 flex items-center gap-4 border-l border-white/20 pl-6">
-              <button type="button" aria-label="Search" className="text-white/70 transition hover:text-white"><Icon name="search" /></button>
-              <button type="button" onClick={toggleTheme} aria-label="Toggle theme" className="text-lg leading-none text-white/80 transition hover:text-honey">{theme === "dark" ? "☀" : "☾"}</button>
-              <a href="#submit" className="rounded-full bg-white px-5 py-2 text-[13px] font-semibold text-black transition hover:bg-honey">Submit</a>
+            {navLinks.map(([label, href]) => (
+              <a key={label} href={href} className="rounded-lg px-3 py-3 text-[13px] text-white/65 transition hover:bg-white/5 hover:text-white">{label}</a>
+            ))}
+            <div className="ml-2 flex items-center gap-2 border-l border-white/15 pl-4">
+              <button type="button" aria-label="Search" className="flex h-10 w-10 items-center justify-center rounded-full text-white/60 transition hover:bg-white/5 hover:text-white"><Icon name="search" /></button>
+              <button type="button" onClick={toggleTheme} aria-label="Toggle theme" className="flex h-10 w-10 items-center justify-center rounded-full text-[17px] text-white/70 transition hover:bg-white/5 hover:text-honey">{theme === "dark" ? "☀" : "☾"}</button>
+              <a href="#submit" className="ml-1 rounded-full bg-white px-5 py-2.5 text-[12px] font-bold text-black transition hover:bg-honey hover:text-black">Submit</a>
             </div>
           </nav>
 
-          <div className="ml-auto flex items-center gap-2 xl:hidden">
-            <button type="button" onClick={toggleTheme} aria-label="Toggle theme" className="flex h-10 w-10 items-center justify-center text-lg">{theme === "dark" ? "☀" : "☾"}</button>
-            <a href="#submit" className="rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-black">Submit</a>
+          <div className="ml-auto flex items-center gap-1 2xl:hidden">
+            <button type="button" onClick={toggleTheme} aria-label="Toggle theme" className="flex h-10 w-10 items-center justify-center rounded-full text-[17px] text-white/75 transition hover:bg-white/10">{theme === "dark" ? "☀" : "☾"}</button>
+            <a href="#submit" className="rounded-full bg-white px-4 py-2.5 text-[12px] font-bold text-black transition hover:bg-honey">Submit</a>
           </div>
         </div>
       </header>
 
       {menuOpen && (
-        <div className="fixed inset-0 z-[80] bg-[#111111] text-white xl:hidden">
-          <div className="flex h-[54px] items-center justify-between border-b border-white/10 px-5">
-            <a href="/" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)}><img src={LOGO_URL} alt="BitBuzz" className="h-8 w-8 rounded-full object-cover" /><span className="font-serif text-[21px] font-semibold">BitBuzz</span></a>
-            <button onClick={() => setMenuOpen(false)} className="flex h-10 w-10 items-center justify-center" aria-label="Close menu"><Icon name="close" /></button>
+        <div className="fixed inset-0 z-[90] overflow-y-auto bg-[#111112] text-white 2xl:hidden" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+          <div className="sticky top-0 flex h-[58px] items-center justify-between border-b border-white/10 bg-[#111112]/95 px-4 backdrop-blur-xl sm:px-6">
+            <a href="/" className="flex items-center gap-2.5" onClick={closeMenu}>
+              <img src={LOGO_URL} alt="BitBuzz" className="h-8 w-8 rounded-full object-cover ring-1 ring-white/20" />
+              <span className="font-serif text-[21px] font-semibold tracking-[-0.04em]">BitBuzz</span>
+            </a>
+            <button type="button" onClick={closeMenu} className="flex h-10 w-10 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white" aria-label="Close menu"><Icon name="close" /></button>
           </div>
-          <nav className="px-5 py-7" aria-label="Mobile navigation">
-            <a href="/" onClick={() => setMenuOpen(false)} className="block border-l-2 border-honey px-4 py-3 text-[16px] font-semibold text-honey">Home</a>
-            <p className="mt-5 px-4 pb-2 text-[10px] font-bold tracking-[0.16em] text-white/35">EXPLORE</p>
-            {genres.map((genre) => <a key={genre.slug} href={`/#${genre.slug}`} onClick={() => setMenuOpen(false)} className="block px-4 py-2.5 text-[15px] text-white/75 hover:text-white">{genre.label}</a>)}
-            {[["About Us", "#about"], ["Flag It", "#flag-it"], ["Chanakya AI", "#chanakya-ai"], ["Tool Box", "#tool-box"]].map(([label, href]) => <a key={label} href={href} onClick={() => setMenuOpen(false)} className="block px-4 py-2.5 text-[15px] text-white/75 hover:text-white">{label}</a>)}
-            <div className="mt-8 flex items-center gap-4 border-t border-white/10 px-4 pt-5 text-white/55"><Icon name="linkedin" /><Icon name="instagram" /><Icon name="youtube" /><span className="text-[10px] tracking-[0.08em]">FRIDAY, SEPTEMBER 11, 2026</span></div>
+          <nav className="mx-auto max-w-xl px-5 py-8 sm:px-8" aria-label="Mobile navigation">
+            <a href="/" onClick={closeMenu} className="block rounded-xl border-l-2 border-honey bg-white/[0.03] px-4 py-3.5 text-[16px] font-semibold text-honey">Home</a>
+            <p className="mt-8 px-4 pb-2 text-[10px] font-bold tracking-[0.18em] text-white/35">EXPLORE</p>
+            {genres.map((genre) => (
+              <a key={genre.slug} href={`/#${genre.slug}`} onClick={closeMenu} className="block rounded-xl px-4 py-3 text-[15px] text-white/70 transition hover:bg-white/5 hover:text-white">{genre.label}</a>
+            ))}
+            <div className="my-6 border-t border-white/10" />
+            {navLinks.map(([label, href]) => (
+              <a key={label} href={href} onClick={closeMenu} className="block rounded-xl px-4 py-3 text-[15px] text-white/70 transition hover:bg-white/5 hover:text-white">{label}</a>
+            ))}
+            <a href="#submit" onClick={closeMenu} className="mt-5 block rounded-full bg-white px-5 py-3 text-center text-[13px] font-bold text-black transition hover:bg-honey">Submit an Article</a>
+            <div className="mt-8 flex flex-wrap items-center gap-5 border-t border-white/10 px-4 pt-5 text-white/45">
+              <a href="https://www.linkedin.com/company/bitbuzzspace/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Icon name="linkedin" /></a>
+              <a href="https://www.instagram.com/bitbuzz_CLUB/" target="_blank" rel="noreferrer" aria-label="Instagram"><Icon name="instagram" /></a>
+              <a href="https://www.youtube.com/@Bitbuzz-club" target="_blank" rel="noreferrer" aria-label="YouTube"><Icon name="youtube" /></a>
+              <span className="text-[10px] uppercase tracking-[0.08em]">{new Date().toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).toUpperCase()}</span>
+            </div>
           </nav>
         </div>
       )}
@@ -184,7 +227,7 @@ export default function App() {
         <section className="py-10 lg:py-14">
           <div className="grid gap-8 lg:grid-cols-[1.65fr_1fr]">
             <article className="group min-w-0">
-              <a href="#space" className="block overflow-hidden bg-[#ddd] aspect-[16/9] sm:aspect-[2/1]"><img src={stories[0].image} alt="" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]" /></a>
+              <a href="#space" className="block aspect-[16/9] overflow-hidden bg-[#ddd] sm:aspect-[2/1]"><img src={stories[0].image} alt="" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]" /></a>
               <div className="pt-5">
                 <p className="text-[10px] font-bold tracking-[0.16em] text-honey">{stories[0].category}</p>
                 <h2 className="mt-2 max-w-4xl font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[0.98] tracking-[-0.04em] transition group-hover:text-honey">{stories[0].title}</h2>
