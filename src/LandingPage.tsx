@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { supabase } from "./lib/supabase";
 
-const HERO_GIF = "https://cdn.hackclub.com/01a09276-4d33-7dd7-8a3d-5645b3673a22/white_modern_business_startup_pitch_deck_presentation__3_.gif";
+const HERO_GIF = "https://cdn.hackclub.com/01a09276-4d33-7dd7-8a3d-5645b3673a22/white_modern_business_startup_pitch_deck_presentation__3_.gif?v=2";
 const LOGO_IMAGE = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
 const NEWSROOM_URL = "/home";
 
