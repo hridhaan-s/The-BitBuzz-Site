@@ -2,11 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,400..600&display=swap');
 
 @layer base {
   :root {
-    /* Palette Tokens */
     --ink: #1B1815;
     --paper: #F7F7F5;
     --honey: #C67A05;
@@ -14,7 +13,6 @@
     --soft: #6A6A66;
     --line: rgba(27, 24, 21, 0.15);
 
-    /* Fluid Typography (320px to 1440px viewport) */
     --step--1: clamp(0.875rem, 0.85rem + 0.15vw, 1rem);
     --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
     --step-1: clamp(1.188rem, 1.1rem + 0.45vw, 1.375rem);
@@ -25,7 +23,6 @@
     --step-6: clamp(3.063rem, 2.5rem + 2.8vw, 4.5rem);
     --step-7: clamp(3.688rem, 2.9rem + 3.9vw, 5.5rem);
 
-    /* Fluid Spacing Scale */
     --sp-xs: clamp(0.5rem, 0.45rem + 0.25vw, 0.75rem);
     --sp-sm: clamp(0.75rem, 0.7rem + 0.25vw, 1rem);
     --sp-md: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
@@ -80,14 +77,38 @@
   }
 }
 
-/* Keep the centered masthead visually clear of the desktop navigation. */
-@media (min-width: 1024px) {
+/* Desktop navigation: give the controls breathing room without moving the mobile layout. */
+@media (min-width: 1536px) {
+  header > div {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  header > div > a[aria-label="BitBuzz Home"] {
+    left: calc(50% - 22px);
+  }
+
   header nav[aria-label="Main navigation"] {
-    gap: 1.05rem;
+    gap: 0.35rem;
+  }
+
+  header nav[aria-label="Main navigation"] > a,
+  header nav[aria-label="Main navigation"] > div > button {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+    font-size: 13px;
   }
 
   header nav[aria-label="Main navigation"] > div:last-child {
-    gap: 0.85rem;
-    padding-left: 1rem;
+    margin-left: 0.5rem;
+    gap: 0.6rem;
+    padding-left: 1.25rem;
+  }
+}
+
+/* At narrower desktop widths the menu intentionally remains available so navigation never feels cramped. */
+@media (min-width: 1280px) and (max-width: 1535px) {
+  header > div > a[aria-label="BitBuzz Home"] {
+    left: calc(50% - 18px);
   }
 }
