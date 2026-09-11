@@ -60,7 +60,7 @@ function LandingPage() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,transparent_15%,rgba(0,0,0,.35)_58%,#000000_100%)]" />
 
           <div className="relative mx-auto flex min-h-[760px] max-w-[1480px] items-center px-5 pb-20 pt-28 lg:min-h-[850px] lg:px-8">
-            <div className="grid w-full items-center gap-12 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-16">
+            <div className="w-full">
               <div className="max-w-[760px]">
                 <h1 className="font-serif text-[clamp(4rem,8vw,8rem)] font-medium leading-[.86] tracking-[-.065em]">News for a <span className="block bg-gradient-to-r from-[#72a7ff] via-[#5d98ff] to-[#91baff] bg-clip-text text-transparent">brighter tomorrow.</span></h1>
                 <p className="mt-8 max-w-[650px] text-[clamp(1.05rem,1.5vw,1.3rem)] leading-[1.5] text-white/78">BitBuzz is a student run news and awareness platform covering science, technology, cybersecurity, aviation, biology and innovation, made for curious minds by curious minds.</p>
@@ -69,20 +69,6 @@ function LandingPage() {
                   <div><strong className="block text-[27px] font-semibold tracking-[-.04em]">50K</strong><span className="text-[12px] text-white/55">Visits</span></div>
                   <div className="border-l border-white/15 pl-8"><strong className="block text-[27px] font-semibold tracking-[-.04em]">50+</strong><span className="text-[12px] text-white/55">Countries</span></div>
                   <div className="border-l border-white/15 pl-8"><strong className="block text-[27px] font-semibold tracking-[-.04em]">100%</strong><span className="text-[12px] text-white/55">Student run</span></div>
-                </div>
-              </div>
-
-              <div className="hidden xl:block">
-                <div className="relative ml-auto w-full max-w-[350px] overflow-hidden rounded-[28px] border border-white/15 bg-black/55 p-6 shadow-[0_20px_80px_rgba(0,0,0,.45)] backdrop-blur-xl">
-                  <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#5d98ff]/20 blur-3xl" />
-                  <div className="relative">
-                    <div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#8db5ff]">Latest dispatch</span><span className="flex items-center gap-1.5 text-[10px] text-white/45"><span className="h-1.5 w-1.5 rounded-full bg-[#62e68a] shadow-[0_0_10px_#62e68a]"/>Live</span></div>
-                    <div className="mt-7 rounded-2xl border border-white/10 bg-white/[0.035] p-5">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">BitBuzz / 01</p>
-                      <p className="mt-3 font-serif text-[30px] leading-[1.05] tracking-[-.035em] text-white/95">Curiosity is the beginning of every breakthrough.</p>
-                    </div>
-                    <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-5"><span className="text-xs text-white/40">Science · Tech · Space</span><span className="text-xs text-white/65">Read latest <span className="ml-1">↗</span></span></div>
-                  </div>
                 </div>
               </div>
             </div>
