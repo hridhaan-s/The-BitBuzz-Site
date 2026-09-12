@@ -2,6 +2,7 @@ import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import LandingPage from "./LandingPage";
+import LandingPageFinalizer from "./LandingPageFinalizer";
 import SubmitPage from "./SubmitPage";
 import InfoPage from "./InfoPage";
 import Blog, { ArticlePage } from "./Blog";
@@ -56,7 +57,7 @@ const genreRoutes: Record<string, string> = {
 
 let page;
 let pageHasFooter = false;
-if (path === "/") { page = <LandingPage />; pageHasFooter = true; }
+if (path === "/") { page = <><LandingPage /><LandingPageFinalizer /></>; pageHasFooter = true; }
 else if (path === "/home") { page = <><App /><AuthNav /></>; pageHasFooter = true; }
 else if (path === "/signup") { page = <AuthPage />; pageHasFooter = true; }
 else if (path === "/privacy") page = <PrivacyPage />;
