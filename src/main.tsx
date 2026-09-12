@@ -2,6 +2,7 @@ import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import LandingPage from "./LandingPage";
 import LandingPageFinalizer from "./LandingPageFinalizer";
+import ResearchLibrary, { mountResearchLibrary, unmountResearchLibrary } from "./ResearchLibrary";
 import HomeNewsroom from "./HomeNewsroom";
 import SubmitPage from "./SubmitPage";
 import InfoPage from "./InfoPage";
@@ -46,6 +47,15 @@ function AdminGreeting() {
   }, []); return null;
 }
 
+function LandingResearchMount() {
+  useEffect(() => {
+    if (path !== "/") return;
+    const frame = window.requestAnimationFrame(() => mountResearchLibrary());
+    return () => { window.cancelAnimationFrame(frame); unmountResearchLibrary(); };
+  }, []);
+  return null;
+}
+
 const genreRoutes: Record<string, string> = {
   "/space": "space",
   "/cybersecurity": "cybersecurity",
@@ -58,7 +68,7 @@ const genreRoutes: Record<string, string> = {
 
 let page;
 let pageHasFooter = false;
-if (path === "/") { page = <><LandingPage /><LandingPageFinalizer /></>; pageHasFooter = true; }
+if (path === "/") { page = <><LandingPage /><LandingPageFinalizer /><LandingResearchMount /></>; pageHasFooter = true; }
 else if (path === "/home" || path === "/blog") { page = <><HomeNewsroom /><AuthNav /></>; pageHasFooter = true; }
 else if (path === "/signup") { page = <AuthPage />; pageHasFooter = true; }
 else if (path === "/privacy") page = <PrivacyPage />;
