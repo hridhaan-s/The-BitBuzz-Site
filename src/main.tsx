@@ -2,6 +2,7 @@ import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import LandingPage from "./LandingPage";
 import LandingPageFinalizer from "./LandingPageFinalizer";
+import HomeNewsroom from "./HomeNewsroom";
 import SubmitPage from "./SubmitPage";
 import InfoPage from "./InfoPage";
 import Blog, { ArticlePage } from "./Blog";
@@ -60,8 +61,8 @@ const genreRoutes: Record<string, string> = {
 let page;
 let pageHasFooter = false;
 if (path === "/") { page = <><LandingPage /><LandingPageFinalizer /></>; pageHasFooter = true; }
-// /home is the primary BitBuzz newsroom/blog experience.
-else if (path === "/home" || path === "/blog") { page = <><Blog /><AuthNav /></>; pageHasFooter = true; }
+// /home is the primary BitBuzz newsroom experience.
+else if (path === "/home" || path === "/blog") { page = <><HomeNewsroom /><AuthNav /></>; pageHasFooter = true; }
 else if (path === "/signup") { page = <AuthPage />; pageHasFooter = true; }
 else if (path === "/privacy") page = <PrivacyPage />;
 else if (path === "/profile") page = <ProfilePage />;
