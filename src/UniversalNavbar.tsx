@@ -1,0 +1,105 @@
+import { useEffect, useState } from "react";
+
+const LOGO_IMAGE = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
+
+const NAV_LINKS = [
+  { href: "/home", label: "Home" },
+  { href: "/explore", label: "Explore" },
+  { href: "/categories", label: "Categories" },
+  { href: "/opportunities", label: "Opportunities" },
+  { href: "/about", label: "About" },
+];
+
+function SearchIcon() {
+  return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>;
+}
+
+function MenuIcon() {
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16" /></svg>;
+}
+
+function CloseIcon() {
+  return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>;
+}
+
+export default function UniversalNavbar() {
+  const [stuck, setStuck] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+
+  useEffect(() => {
+    const onScroll = () => setStuck(window.scrollY > 12);
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setMenuOpen(false); };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("scroll", onScroll); document.removeEventListener("keydown", onKey); };
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
+  const isActive = (href: string) => href === "/home" ? path === "/home" || path === "/blog" || path.startsWith("/blog/") : path === href;
+
+  return <>
+    <style>{`
+      .bb-universal-nav { position: fixed; inset: 0 0 auto 0; z-index: 100; border-bottom: 1px solid transparent; transition: background-color .5s cubic-bezier(.22,1,.36,1), border-color .5s cubic-bezier(.22,1,.36,1); }
+      .bb-universal-nav[data-stuck="true"] { background: rgba(0,0,0,.72); border-bottom-color: rgba(255,255,255,.1); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+      .bb-universal-link { position: relative; padding: .5rem .8rem; font-size: .875rem; color: rgba(255,255,255,.7); transition: color .25s cubic-bezier(.22,1,.36,1); }
+      .bb-universal-link:hover, .bb-universal-link[data-active="true"] { color: #fff; }
+      .bb-universal-link::after { content:""; position:absolute; left:.8rem; right:.8rem; bottom:.15rem; height:1px; background:currentColor; transform:scaleX(0); transform-origin:left; transition:transform .4s cubic-bezier(.22,1,.36,1); }
+      .bb-universal-link:hover::after, .bb-universal-link[data-active="true"]::after { transform:scaleX(1); }
+      .bb-universal-btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; border-radius:999px; font-size:.875rem; font-weight:560; padding:.68rem 1.25rem; line-height:1; transition:transform .35s cubic-bezier(.22,1,.36,1), background-color .3s, border-color .3s, opacity .3s; }
+      .bb-universal-btn:active { transform:scale(.97); }
+      .bb-universal-ghost { border:1px solid rgba(255,255,255,.18); color:#fff; }
+      .bb-universal-ghost:hover { border-color:rgba(255,255,255,.4); background:rgba(255,255,255,.05); }
+      .bb-universal-solid { background:#fff; color:#000; }
+      .bb-universal-solid:hover { background:#ffe2c9; }
+      .bb-universal-icon { display:inline-flex; align-items:center; justify-content:center; height:2.3rem; width:2.3rem; border-radius:999px; border:1px solid rgba(255,255,255,.1); color:rgba(255,255,255,.7); transition:color .3s, border-color .3s; }
+      .bb-universal-icon:hover { color:#fff; border-color:rgba(255,255,255,.18); }
+      .bb-universal-sheet { animation:bbUniversalSheet .35s cubic-bezier(.22,1,.36,1); }
+      @keyframes bbUniversalSheet { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:none; } }
+      @media (max-width: 1023px) { .bb-universal-desktop { display:none !important; } }
+      @media (min-width: 1024px) { .bb-universal-mobile { display:none !important; } }
+      @media (prefers-reduced-motion: reduce) { .bb-universal-nav, .bb-universal-link, .bb-universal-btn, .bb-universal-icon { transition:none !important; } .bb-universal-sheet { animation:none; } }
+    `}</style>
+
+    <header className="bb-universal-nav" data-stuck={stuck}>
+      <div className="mx-auto flex h-[70px] max-w-[1480px] items-center justify-between px-5 lg:px-8">
+        <a href="/home" className="flex shrink-0 items-center" aria-label="BitBuzz home">
+          <img src={LOGO_IMAGE} alt="BitBuzz" className="h-9 w-9 rounded-full object-cover object-center" />
+        </a>
+
+        <nav className="bb-universal-desktop flex items-center gap-1" aria-label="Primary">
+          {NAV_LINKS.map((link) => <a key={link.href} href={link.href} className="bb-universal-link" data-active={isActive(link.href)}>{link.label}</a>)}
+        </nav>
+
+        <div className="bb-universal-desktop flex items-center gap-1.5">
+          <button type="button" aria-label="Search BitBuzz" className="bb-universal-icon"><SearchIcon /></button>
+          <a href="/signup" className="bb-universal-btn bb-universal-ghost">Sign In</a>
+          <a href="/submit" className="bb-universal-btn bb-universal-solid">Submit</a>
+        </div>
+
+        <button type="button" onClick={() => setMenuOpen(true)} className="bb-universal-icon bb-universal-mobile" aria-label="Open menu" aria-expanded={menuOpen}>
+          <MenuIcon />
+        </button>
+      </div>
+
+      {menuOpen && <div className="bb-universal-mobile bb-universal-sheet border-t border-white/10 bg-black/95 px-5 py-5 backdrop-blur-2xl">
+        <div className="mx-auto max-w-[1480px]">
+          <div className="mb-5 flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-[.2em] text-white/35">BitBuzz</span>
+            <button type="button" onClick={() => setMenuOpen(false)} className="bb-universal-icon" aria-label="Close menu"><CloseIcon /></button>
+          </div>
+          <nav className="grid grid-cols-2 gap-2" aria-label="Mobile navigation">
+            {NAV_LINKS.map((link) => <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className={`rounded-xl border px-4 py-3 text-sm transition ${isActive(link.href) ? "border-white bg-white text-black" : "border-white/10 text-white/70 hover:border-white/25 hover:text-white"}`}>{link.label}</a>)}
+            <a href="/signup" onClick={() => setMenuOpen(false)} className="bb-universal-btn bb-universal-ghost mt-1">Sign In</a>
+            <a href="/submit" onClick={() => setMenuOpen(false)} className="bb-universal-btn bb-universal-solid mt-1">Submit</a>
+          </nav>
+        </div>
+      </div>}
+    </header>
+  </>;
+}
