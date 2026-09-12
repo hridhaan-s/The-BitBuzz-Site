@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import LandingPage from "./LandingPage";
@@ -7,6 +7,7 @@ import SubmitPage from "./SubmitPage";
 import InfoPage from "./InfoPage";
 import Blog, { ArticlePage } from "./Blog";
 import Admin from "./Admin";
+import { supabase } from "./lib/supabase";
 import "./index.css";
 
 const path = window.location.pathname.replace(/\/+$/, "") || "/";
@@ -25,12 +26,54 @@ window.addEventListener("click", (event) => {
   }
 });
 
+function AdminGreeting() {
+  useEffect(() => {
+    if (path !== "/admin") return;
+    let active = true;
+    let observer: MutationObserver | null = null;
+
+    const setup = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!active || !session?.user?.id) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", session.user.id)
+        .single();
+
+      if (!active) return;
+      const name = profile?.display_name || session.user.email?.split("@")[0] || "Editor";
+
+      const updateGreeting = () => {
+        const heading = Array.from(document.querySelectorAll("h1")).find(
+          (element) => element.textContent?.trim() === "Good morning."
+        );
+        if (!heading) return;
+        heading.textContent = `Good morning, ${name}.`;
+      };
+
+      updateGreeting();
+      observer = new MutationObserver(updateGreeting);
+      observer.observe(document.body, { childList: true, subtree: true });
+    };
+
+    setup();
+    return () => {
+      active = false;
+      observer?.disconnect();
+    };
+  }, []);
+
+  return null;
+}
+
 let page;
 if (path === "/") page = <><LandingPage /><MobileAppSection /></>;
 else if (path === "/home") page = <App />;
 else if (path === "/blog") page = <Blog />;
 else if (path.startsWith("/blog/")) page = <ArticlePage slug={decodeURIComponent(path.slice("/blog/".length))} />;
-else if (path === "/admin") page = <Admin />;
+else if (path === "/admin") page = <><Admin /><AdminGreeting /></>;
 else if (path === "/explore") page = <InfoPage kind="explore" />;
 else if (path === "/categories") page = <InfoPage kind="categories" />;
 else if (path === "/opportunities") page = <InfoPage kind="opportunities" />;
