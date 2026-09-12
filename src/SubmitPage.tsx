@@ -1,4 +1,5 @@
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { supabase } from "./lib/supabase";
 
 const LOGO_URL =
   "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
@@ -28,16 +29,35 @@ export default function SubmitPage() {
   const [content, setContent] = useState("");
   const [fileName, setFileName] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const [dragging, setDragging] = useState(false);
+  const [sessionUserId, setSessionUserId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    let active = true;
+    const loadAccount = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!active) return;
+      if (!session?.user) return;
+      setSessionUserId(session.user.id);
+      setEmail(session.user.email || "");
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", session.user.id)
+        .single();
+      if (active && profile?.display_name) setName(profile.display_name);
+    };
+    loadAccount();
+    return () => { active = false; };
+  }, []);
+
   const insertMarkdown = (command: string) => {
-    const start = document.activeElement === document.getElementById("article-content")
-      ? (document.getElementById("article-content") as HTMLTextAreaElement).selectionStart
-      : content.length;
-    const end = document.activeElement === document.getElementById("article-content")
-      ? (document.getElementById("article-content") as HTMLTextAreaElement).selectionEnd
-      : content.length;
+    const textarea = document.getElementById("article-content") as HTMLTextAreaElement | null;
+    const start = textarea ? textarea.selectionStart : content.length;
+    const end = textarea ? textarea.selectionEnd : content.length;
     const selected = content.slice(start, end);
     const replacements: Record<string, string> = {
       bold: `**${selected || "bold text"}**`,
@@ -48,10 +68,8 @@ export default function SubmitPage() {
       link: `[${selected || "link text"}](https://)`,
     };
     const replacement = replacements[command] || "";
-    const next = content.slice(0, start) + replacement + content.slice(end);
-    setContent(next);
+    setContent(content.slice(0, start) + replacement + content.slice(end));
     requestAnimationFrame(() => {
-      const textarea = document.getElementById("article-content") as HTMLTextAreaElement | null;
       textarea?.focus();
       const cursor = start + replacement.length;
       textarea?.setSelectionRange(cursor, cursor);
@@ -62,9 +80,56 @@ export default function SubmitPage() {
     if (file) setFileName(file.name);
   };
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
-    setSubmitted(true);
+    setError("");
+    setBusy(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id || sessionUserId || null;
+      const normalizedEmail = email.trim().toLowerCase();
+
+      if (!name.trim() || !normalizedEmail || !title.trim() || !category || !content.trim()) {
+        setError("Please complete all required fields.");
+        return;
+      }
+
+      const { data: publication, error: publicationError } = await supabase
+        .from("bitbuzz_publications")
+        .select("id")
+        .eq("slug", "srgs")
+        .eq("status", "active")
+        .single();
+
+      if (publicationError || !publication) {
+        throw new Error("BitBuzz is temporarily unable to accept submissions. Please try again shortly.");
+      }
+
+      const { error: insertError } = await supabase
+        .from("bitbuzz_submissions")
+        .insert({
+          publication_id: publication.id,
+          author_id: userId,
+          author_email: normalizedEmail,
+          author_name: name.trim(),
+          headline: title.trim(),
+          body: content.trim(),
+          status: "pending",
+          media: {
+            category,
+            age: age || null,
+            file_name: fileName || null,
+          },
+        });
+
+      if (insertError) throw new Error(insertError.message);
+      setSubmitted(true);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Something went wrong. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -92,8 +157,11 @@ export default function SubmitPage() {
               <div className="py-12 text-center">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#f5c84b]/30 bg-[#f5c84b]/10 text-[#f5c84b]">✓</div>
                 <h2 className="mt-5 font-serif text-3xl">Story received.</h2>
-                <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/45">Thanks for sharing your work with BitBuzz. Our editorial team can review your submission from here.</p>
-                <button type="button" onClick={() => setSubmitted(false)} className="mt-7 rounded-full bg-white px-5 py-3 text-xs font-bold text-black transition hover:bg-[#f5c84b]">Submit another story</button>
+                <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/45">Your submission is now in the BitBuzz editorial queue. You can check its review status from your profile.</p>
+                <div className="mt-7 flex justify-center gap-3">
+                  <a href="/profile" className="rounded-full bg-white px-5 py-3 text-xs font-bold text-black transition hover:bg-[#f5c84b]">View profile</a>
+                  <button type="button" onClick={() => { setSubmitted(false); setTitle(""); setContent(""); setCategory(""); setFileName(""); }} className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-xs font-bold text-white transition hover:bg-white/10">Submit another</button>
+                </div>
               </div>
             ) : (
               <form onSubmit={submit} className="space-y-5">
@@ -103,6 +171,8 @@ export default function SubmitPage() {
                 </div>
 
                 <Field label="Your Email" required type="email" value={email} onChange={setEmail} placeholder="you@domain.com" />
+                <p className="-mt-2 text-[11px] text-white/30">We use this email to link your submission to your BitBuzz profile and contact you about its review when needed.</p>
+
                 <Field label="Article Title" required value={title} onChange={setTitle} placeholder="Something that makes people stop scrolling" />
 
                 <div>
@@ -133,7 +203,9 @@ export default function SubmitPage() {
                   </div>
                 </div>
 
-                <button type="submit" className="mt-2 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-xs font-bold uppercase tracking-[0.08em] text-black transition hover:bg-[#f5c84b]">Submit Your Story <span aria-hidden="true">→</span></button>
+                {error && <div className="rounded-xl border border-red-400/20 bg-red-400/5 px-4 py-3 text-xs leading-relaxed text-red-300">{error}</div>}
+
+                <button disabled={busy} type="submit" className="mt-2 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-xs font-bold uppercase tracking-[0.08em] text-black transition hover:bg-[#f5c84b] disabled:cursor-not-allowed disabled:opacity-50">{busy ? "Submitting…" : "Submit Your Story"} <span aria-hidden="true">→</span></button>
               </form>
             )}
           </div>
