@@ -4,7 +4,6 @@ const LOGO_IMAGE = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295
 
 const NAV_LINKS = [
   { href: "/home", label: "Home" },
-  { href: "/explore", label: "Explore" },
   { href: "/categories", label: "Categories" },
   { href: "/opportunities", label: "Opportunities" },
   { href: "/about", label: "About" },
