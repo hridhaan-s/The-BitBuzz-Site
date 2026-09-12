@@ -95,21 +95,10 @@ export default function SubmitPage() {
         return;
       }
 
-      const { data: publication, error: publicationError } = await supabase
-        .from("bitbuzz_publications")
-        .select("id")
-        .eq("slug", "srgs")
-        .eq("status", "active")
-        .single();
-
-      if (publicationError || !publication) {
-        throw new Error("BitBuzz is temporarily unable to accept submissions. Please try again shortly.");
-      }
-
       const { error: insertError } = await supabase
         .from("bitbuzz_submissions")
         .insert({
-          publication_id: publication.id,
+          publication_id: null,
           author_id: userId,
           author_email: normalizedEmail,
           author_name: name.trim(),
