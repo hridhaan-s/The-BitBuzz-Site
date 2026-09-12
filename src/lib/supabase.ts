@@ -1,17 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+// Supabase publishable keys are safe to expose in browser code. Prefer Vercel
+// environment variables when present, but keep a production fallback so the
+// static Vite build cannot silently render a broken auth client.
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://cjywdvaitaasxtmgpwas.supabase.co";
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "sb_publishable_Zz3-F6wTEyzViX1CAuktZQ_0wH9yLOV";
 
-const client = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
-
-export const supabase = client ?? ({
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    signInWithPassword: async () => ({
-      data: { user: null, session: null },
-      error: new Error("BitBuzz authentication is not configured yet."),
-    }),
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
   },
-} as unknown as ReturnType<typeof createClient>);
+});
