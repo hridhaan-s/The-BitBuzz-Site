@@ -112,6 +112,7 @@ function updateLandingCopy() {
   const heroTitle = Array.from(document.querySelectorAll("h1")).find((node) => node.textContent?.includes("brighter tomorrow"));
   if (heroTitle) {
     const accent = heroTitle.querySelector("span");
+    if (heroTitle.firstChild) heroTitle.firstChild.nodeValue = "News ";
     if (accent) accent.textContent = "That Matters";
   }
 
