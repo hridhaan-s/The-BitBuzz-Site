@@ -2,15 +2,47 @@ import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
 
 export default function AuthNav() {
-  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [auth, setAuth] = useState<{ signedIn: boolean; name: string }>({ signedIn: false, name: "" });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setSignedIn(!!session));
-    return () => listener.subscription.unsubscribe();
+    let active = true;
+
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!active) return;
+      if (!session) {
+        setAuth({ signedIn: false, name: "" });
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", session.user.id)
+        .single();
+
+      if (!active) return;
+      setAuth({
+        signedIn: true,
+        name: profile?.display_name || session.user.email?.split("@")[0] || "there",
+      });
+    };
+
+    load();
+    const { data: listener } = supabase.auth.onAuthStateChange(() => load());
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
-  if (signedIn !== false) return null;
+  if (auth.signedIn) {
+    return (
+      <div className="fixed right-4 top-[9px] z-[60] rounded-full border border-white/10 bg-black/80 px-4 py-2.5 text-[12px] font-semibold text-white shadow-lg backdrop-blur-xl sm:right-6">
+        Hello, {auth.name}
+      </div>
+    );
+  }
 
   return (
     <a
