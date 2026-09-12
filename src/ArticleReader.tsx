@@ -1,67 +1,16 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
 import { Markdown } from "./Markdown";
+import ArticleReactions from "./ArticleReactions";
 
-type Article = {
-  id: string; slug: string; title: string; standfirst: string | null; body_md: string;
-  cover_image_url: string | null; cover_alt: string | null; read_minutes: number | null;
-  published_at: string | null; view_count: number; seo_title: string | null; seo_description: string | null;
-  categories?: { name: string; slug: string } | null;
-  profiles?: { display_name: string; avatar_url?: string | null } | null;
-};
-
-const date = (v: string | null) => v ? new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(v)) : "";
-
-export default function ArticleReader({ slug }: { slug: string }) {
-  const [article, setArticle] = useState<Article | null>(null);
-  const [related, setRelated] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      setLoading(true); setError("");
-      const { data, error: articleError } = await supabase.from("articles").select("*,categories(name,slug),profiles(display_name,avatar_url)").eq("slug", slug).eq("status", "published").maybeSingle();
-      if (!active) return;
-      if (articleError || !data) { setError(articleError?.message || "Story not found."); setLoading(false); return; }
-      setArticle(data as Article);
-      const category = (data.categories as { slug?: string } | null)?.slug;
-      const { data: relatedData } = await supabase.from("articles").select("id,slug,title,standfirst,cover_image_url,cover_alt,read_minutes,published_at,view_count,categories(name,slug),profiles(display_name)").eq("status", "published").neq("id", data.id).order("published_at", { ascending: false }).limit(30);
-      if (active) setRelated(((relatedData || []) as Article[]).filter(a => !category || a.categories?.slug === category).slice(0, 3));
-      setLoading(false);
-      await supabase.rpc("increment_article_view", { article_id: data.id }).catch(() => undefined);
-    })();
-    return () => { active = false; };
-  }, [slug]);
-
-  if (loading) return <main className="min-h-screen bg-black px-5 pt-[120px] text-center text-[10px] uppercase tracking-[.2em] text-white/25">Loading story…</main>;
-  if (error || !article) return <main className="min-h-screen bg-black px-5 pt-[150px] text-center text-white"><p className="text-[10px] uppercase tracking-[.2em] text-white/30">404 · Story</p><h1 className="mt-4 font-serif text-5xl">{error || "Story not found."}</h1><a href="/home" className="mt-8 inline-flex rounded-full bg-white px-5 py-3 text-xs font-bold text-black">Back to newsroom</a></main>;
-
-  return <main className="min-h-screen overflow-x-hidden bg-black text-white pt-[70px]">
-    <article>
-      <header>
-        <div className="mx-auto max-w-[1180px] border-b border-white/10 px-5 pb-9 pt-12 sm:pb-12 sm:pt-16 lg:px-8 lg:pt-20">
-          <a href={article.categories?.slug ? `/${article.categories.slug}` : "/home"} className="inline-flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.22em] text-white/45 hover:text-white"><span className="h-px w-5 bg-white/35" />{article.categories?.name || "BitBuzz"}</a>
-          <h1 className="mt-6 max-w-[1080px] font-serif text-[clamp(3rem,7.4vw,7.2rem)] leading-[.86] tracking-[-.072em]">{article.title}</h1>
-          {article.standfirst && <p className="mt-6 max-w-[760px] text-[17px] leading-7 text-white/48 sm:mt-8 sm:text-[20px] sm:leading-8">{article.standfirst}</p>}
-          <div className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-2 text-[9px] uppercase tracking-[.14em] text-white/28 sm:mt-9">
-            {article.profiles?.avatar_url ? <img src={article.profiles.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover"/> : <span className="h-7 w-7 rounded-full bg-white/10"/>}
-            <span className="text-white/55">{article.profiles?.display_name || "BitBuzz"}</span><span>·</span><span>{article.published_at ? date(article.published_at) : ""}</span><span>·</span><span>{article.read_minutes || 1} min read</span><span>·</span><span>{article.view_count || 0} views</span>
-          </div>
-        </div>
-      </header>
-
-      {article.cover_image_url && <figure className="mx-auto max-w-[1440px] px-0 sm:px-5 lg:px-8"><img src={article.cover_image_url} alt={article.cover_alt || ""} className="aspect-[16/9] w-full object-cover sm:max-h-[720px] sm:rounded-sm"/></figure>}
-
-      <div className="mx-auto grid max-w-[1120px] gap-12 px-5 py-11 sm:py-16 lg:grid-cols-[minmax(0,740px)_220px] lg:px-8 lg:py-20">
-        <div>
-          <Markdown value={article.body_md} />
-        </div>
-        <aside className="hidden border-l border-white/10 pl-6 lg:block"><p className="text-[9px] font-bold uppercase tracking-[.2em] text-white/25">About this story</p><p className="mt-4 text-xs leading-5 text-white/35">Published by the BitBuzz student newsroom.</p><a href="/submit" className="mt-6 inline-flex rounded-full border border-white/15 px-4 py-2 text-[10px] font-semibold text-white/70 hover:border-white/30 hover:text-white">Write for BitBuzz</a></aside>
-      </div>
-    </article>
-
-    {related.length > 0 && <section className="border-t border-white/10"><div className="mx-auto max-w-[1120px] px-5 py-12 lg:px-8 lg:py-16"><p className="text-[9px] font-bold uppercase tracking-[.2em] text-white/30">More from {article.categories?.name || "BitBuzz"}</p><div className="mt-6 grid gap-7 md:grid-cols-3">{related.map(a => <a key={a.id} href={`/blog/${a.slug}`} className="group"><div className="overflow-hidden bg-[#080808]">{a.cover_image_url ? <img src={a.cover_image_url} alt={a.cover_alt || ""} className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.025]"/> : <div className="aspect-[16/10]"/>}</div><p className="mt-4 font-serif text-2xl leading-[.98] tracking-[-.04em] group-hover:text-white/70">{a.title}</p><p className="mt-3 text-[9px] uppercase tracking-[.12em] text-white/25">{a.read_minutes || 1} min read</p></a>)}</div></div></section>}
-  </main>;
+type Article={id:string;slug:string;title:string;standfirst:string|null;body_md:string;cover_image_url:string|null;cover_alt:string|null;read_minutes:number|null;published_at:string|null;view_count:number;seo_title:string|null;seo_description:string|null;categories?:{name:string;slug:string}|null;profiles?:{display_name:string;avatar_url?:string|null}|null};
+const date=(v:string|null)=>v?new Intl.DateTimeFormat("en-IN",{day:"2-digit",month:"long",year:"numeric"}).format(new Date(v)):"";
+const absolute=(path:string)=>new URL(path,window.location.origin).toString();
+export default function ArticleReader({slug}:{slug:string}){const[article,setArticle]=useState<Article|null>(null);const[related,setRelated]=useState<Article[]>([]);const[loading,setLoading]=useState(true);const[error,setError]=useState("");const[shared,setShared]=useState(false);
+ useEffect(()=>{let active=true;(async()=>{setLoading(true);setError("");const{data,error:articleError}=await supabase.from("articles").select("*,categories(name,slug),profiles(display_name,avatar_url)").eq("slug",slug).eq("status","published").maybeSingle();if(!active)return;if(articleError||!data){setError(articleError?.message||"Story not found.");setLoading(false);return;}const a=data as Article;setArticle(a);const category=a.categories?.slug;const{data:relatedData}=await supabase.from("articles").select("id,slug,title,standfirst,cover_image_url,cover_alt,read_minutes,published_at,view_count,categories(name,slug),profiles(display_name)").eq("status","published").neq("id",a.id).order("published_at",{ascending:false}).limit(40);if(active){const all=(relatedData||[]) as Article[];const same=category?all.filter(x=>x.categories?.slug===category):[];setRelated([...same,...all.filter(x=>!same.some(s=>s.id===x.id))].slice(0,3));}setLoading(false);await supabase.rpc("increment_article_view",{article_id:a.id}).catch(()=>undefined);})();return()=>{active=false}},[slug]);
+ useEffect(()=>{if(!article)return;const title=article.seo_title||article.title;const description=article.seo_description||article.standfirst||`Read ${article.title} on BitBuzz.`;document.title=`${title} · BitBuzz`;const setMeta=(name:string,content:string,property=false)=>{const attr=property?"property":"name";let el=document.head.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement|null;if(!el){el=document.createElement("meta");el.setAttribute(attr,name);document.head.appendChild(el)}el.content=content};setMeta("description",description);setMeta("og:title",title,true);setMeta("og:description",description,true);setMeta("og:type","article",true);setMeta("og:url",window.location.href,true);if(article.cover_image_url)setMeta("og:image",article.cover_image_url,true);setMeta("twitter:card","summary_large_image");setMeta("twitter:title",title);setMeta("twitter:description",description);const old=document.getElementById("bitbuzz-article-jsonld");old?.remove();const script=document.createElement("script");script.id="bitbuzz-article-jsonld";script.type="application/ld+json";script.textContent=JSON.stringify({"@context":"https://schema.org","@type":"NewsArticle",headline:article.title,description,datePublished:article.published_at||undefined,author:{"@type":"Person",name:article.profiles?.display_name||"BitBuzz"},image:article.cover_image_url?[article.cover_image_url]:undefined,url:window.location.href,publisher:{"@type":"Organization",name:"BitBuzz",url:window.location.origin}});document.head.appendChild(script);return()=>{document.title="BitBuzz · Student newsroom";script.remove()}},[article]);
+ const share=async()=>{try{if(navigator.share)await navigator.share({title:article?.title||"BitBuzz",text:article?.standfirst||"",url:window.location.href});else{await navigator.clipboard.writeText(window.location.href);setShared(true);setTimeout(()=>setShared(false),1800)}}catch{}if(article)await supabase.rpc("record_article_event",{p_article_id:article.id,p_event_type:"share"})};
+ if(loading)return <main className="min-h-screen bg-black px-5 pt-[120px] text-center text-[10px] uppercase tracking-[.2em] text-white/25">Loading story…</main>;
+ if(error||!article)return <main className="min-h-screen bg-black px-5 pt-[150px] text-center text-white"><p className="text-[10px] uppercase tracking-[.2em] text-white/30">404 · Story</p><h1 className="mt-4 font-serif text-5xl">{error||"Story not found."}</h1><a href="/home" className="mt-8 inline-flex rounded-full bg-white px-5 py-3 text-xs font-bold text-black">Back to newsroom</a></main>;
+ return <main className="min-h-screen overflow-x-hidden bg-black pt-[70px] text-white"><article><header><div className="mx-auto max-w-[1180px] border-b border-white/10 px-5 pb-9 pt-12 sm:pb-12 sm:pt-16 lg:px-8 lg:pt-20"><a href={article.categories?.slug?`/${article.categories.slug}`:"/home"} className="inline-flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.22em] text-white/45 hover:text-white"><span className="h-px w-5 bg-white/35"/>{article.categories?.name||"BitBuzz"}</a><h1 className="mt-6 max-w-[1080px] font-serif text-[clamp(3rem,7.4vw,7.2rem)] leading-[.86] tracking-[-.072em]">{article.title}</h1>{article.standfirst&&<p className="mt-6 max-w-[760px] text-[17px] leading-7 text-white/48 sm:mt-8 sm:text-[20px] sm:leading-8">{article.standfirst}</p>}<div className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-2 text-[9px] uppercase tracking-[.14em] text-white/28 sm:mt-9">{article.profiles?.avatar_url?<img src={article.profiles.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover"/>:<span className="h-7 w-7 rounded-full bg-white/10"/>}<span className="text-white/55">{article.profiles?.display_name||"BitBuzz"}</span><span>·</span><span>{article.published_at?date(article.published_at):""}</span><span>·</span><span>{article.read_minutes||1} min read</span><span>·</span><span>{article.view_count||0} views</span><button type="button" onClick={share} className="ml-2 rounded-full border border-white/10 px-3 py-1.5 text-[9px] text-white/55 hover:border-white/25 hover:text-white">{shared?"Copied":"Share ↗"}</button></div></div></header>{article.cover_image_url&&<figure className="mx-auto max-w-[1440px] px-0 sm:px-5 lg:px-8"><img src={article.cover_image_url} alt={article.cover_alt||""} className="aspect-[16/9] w-full object-cover sm:max-h-[720px] sm:rounded-sm"/></figure>}<div className="mx-auto grid max-w-[1120px] gap-12 px-5 py-11 sm:py-16 lg:grid-cols-[minmax(0,740px)_220px] lg:px-8 lg:py-20"><div><Markdown value={article.body_md}/><div className="mt-12"><ArticleReactions articleId={article.id}/></div></div><aside className="hidden border-l border-white/10 pl-6 lg:block"><p className="text-[9px] font-bold uppercase tracking-[.2em] text-white/25">About this story</p><p className="mt-4 text-xs leading-5 text-white/35">Published by the BitBuzz student newsroom.</p><a href="/submit" className="mt-6 inline-flex rounded-full border border-white/15 px-4 py-2 text-[10px] font-semibold text-white/70 hover:border-white/30 hover:text-white">Write for BitBuzz</a></aside></div></article>{related.length>0&&<section className="border-t border-white/10"><div className="mx-auto max-w-[1120px] px-5 py-12 lg:px-8 lg:py-16"><p className="text-[9px] font-bold uppercase tracking-[.2em] text-white/30">More stories you may like</p><div className="mt-6 grid gap-7 md:grid-cols-3">{related.map(a=><a key={a.id} href={`/blog/${a.slug}`} className="group"><div className="overflow-hidden bg-[#080808]">{a.cover_image_url?<img src={a.cover_image_url} alt={a.cover_alt||""} className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.025]"/>:<div className="aspect-[16/10]"/>}</div><p className="mt-4 font-serif text-2xl leading-[.98] tracking-[-.04em] group-hover:text-white/70">{a.title}</p><p className="mt-3 text-[9px] uppercase tracking-[.12em] text-white/25">{a.read_minutes||1} min read</p></a>)}</div></div></section>}</main>;
 }
