@@ -185,15 +185,17 @@ export default function HomeNewsroom() {
         </div>
       )}
 
-      <section className="relative isolate min-h-[475px] overflow-hidden border-b border-white/10 sm:min-h-[500px] lg:min-h-[475px]">
+      <section className="relative isolate min-h-[475px] overflow-hidden border-b border-white/10 bg-black sm:min-h-[500px] lg:min-h-[475px]">
         <img
           src={HERO_GIF}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover opacity-55 mix-blend-screen"
+          className="pointer-events-none absolute inset-0 -z-20 h-full w-full scale-[1.04] object-cover object-center opacity-75 mix-blend-screen"
         />
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,#000000_0%,rgba(0,0,0,.84)_30%,rgba(0,0,0,.54)_62%,rgba(0,0,0,.68)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_50%,rgba(93,152,255,.18),transparent_38%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,#000000_0%,rgba(0,0,0,.88)_24%,rgba(0,0,0,.50)_58%,rgba(0,0,0,.58)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(0,0,0,.18)_0%,transparent_38%,rgba(0,0,0,.55)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_50%,rgba(93,152,255,.22),transparent_40%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,.05),transparent_34%)]" />
         <div className="mx-auto flex min-h-[475px] max-w-[1480px] items-start px-8 pb-14 pt-5 sm:min-h-[500px] sm:px-10 sm:pt-6 lg:min-h-[475px] lg:px-8">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-honey">
