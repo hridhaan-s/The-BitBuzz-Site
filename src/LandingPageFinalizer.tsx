@@ -109,6 +109,12 @@ function updateLandingCopy() {
     heroKicker.appendChild(document.createTextNode("100% Run by Students for Students"));
   }
 
+  const heroTitle = Array.from(document.querySelectorAll("h1")).find((node) => node.textContent?.includes("brighter tomorrow"));
+  if (heroTitle) {
+    const accent = heroTitle.querySelector("span");
+    if (accent) accent.textContent = "That Matters";
+  }
+
   const heroDescription = Array.from(document.querySelectorAll("main p")).find((node) => node.textContent?.includes("BitBuzz covers science, technology, cybersecurity, aviation, biology and innovation"));
   if (heroDescription) heroDescription.textContent = "BitBuzz covers science, technology, cybersecurity, aviation, biology and innovation for people who want the story underneath the headline. Curious minds writing for other curious minds. 0 Sponsorship or Politics";
 
