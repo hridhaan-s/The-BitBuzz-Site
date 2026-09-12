@@ -43,6 +43,7 @@ const FLAG_IT_CSS = `
 
 function addStyles() { const style = document.createElement("style"); style.dataset.bitbuzzFlagIt = "true"; style.textContent = FLAG_IT_CSS; document.head.appendChild(style); }
 function addFontLink() { if (document.querySelector('link[data-bitbuzz-flag-fonts="true"]')) return; const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono&display=swap"; link.dataset.bitbuzzFlagFonts = "true"; document.head.appendChild(link); }
+function removeLandingFooter() { document.querySelector(".bb footer")?.remove(); }
 function replaceFlagItSection() {
   const heading = Array.from(document.querySelectorAll("h2")).find((node) => node.textContent?.trim() === "Flag It");
   const section = heading?.closest("section");
@@ -61,10 +62,8 @@ function updateLandingCopy() {
   if (howWorks) { howWorks.style.backgroundColor = "rgba(255,255,255,.1)"; howWorks.style.borderColor = "rgba(255,255,255,.45)"; howWorks.style.color = "#fff"; howWorks.style.boxShadow = "0 0 0 1px rgba(255,255,255,.04) inset"; }
   const writeLink = Array.from(document.querySelectorAll("a")).find((node) => node.textContent?.trim() === "Write for BitBuzz");
   if (writeLink) { writeLink.textContent = "Sign Up now"; writeLink.setAttribute("href", "/signup"); }
-  const footer = document.querySelector("footer nav");
-  if (footer && !Array.from(footer.querySelectorAll("a")).some((node) => node.getAttribute("href") === "/privacy")) { const privacy = document.createElement("a"); privacy.href = "/privacy"; privacy.textContent = "Privacy Policy"; privacy.className = "transition-colors hover:text-white"; footer.appendChild(privacy); }
 }
 export default function LandingPageFinalizer() {
-  useEffect(() => { if (window.location.pathname !== "/") return; addFontLink(); addStyles(); const apply = () => { updateLandingCopy(); replaceFlagItSection(); }; const frame = window.requestAnimationFrame(apply); return () => { window.cancelAnimationFrame(frame); document.querySelector('style[data-bitbuzz-flag-it="true"]')?.remove(); document.querySelector('link[data-bitbuzz-flag-fonts="true"]')?.remove(); }; }, []);
+  useEffect(() => { if (window.location.pathname !== "/") return; addFontLink(); addStyles(); const apply = () => { removeLandingFooter(); updateLandingCopy(); replaceFlagItSection(); }; const frame = window.requestAnimationFrame(apply); return () => { window.cancelAnimationFrame(frame); document.querySelector('style[data-bitbuzz-flag-it="true"]')?.remove(); document.querySelector('link[data-bitbuzz-flag-fonts="true"]')?.remove(); }; }, []);
   return null;
 }
