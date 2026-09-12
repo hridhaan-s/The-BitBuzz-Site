@@ -63,7 +63,7 @@ else if (path === "/home" || path === "/blog") { page = <><HomeNewsroom /><AuthN
 else if (path === "/signup") { page = <AuthPage />; pageHasFooter = true; }
 else if (path === "/privacy") page = <PrivacyPage />;
 else if (path === "/profile") page = <ProfilePage />;
-else if (genreRoutes[path]) page = <Blog initialCategory={genreRoutes[path]} />;
+else if (genreRoutes[path]) page = <><HomeNewsroom initialCategory={genreRoutes[path]} /><AuthNav /></>;
 else if (path.startsWith("/blog/")) page = <ArticlePage slug={decodeURIComponent(path.slice("/blog/".length))} />;
 else if (path === "/admin") page = <><Admin /><AdminGreeting /></>;
 else if (path === "/explore") page = <InfoPage kind="explore" />;
