@@ -17,11 +17,23 @@ type Props = {
 
 type Topic = { topic: string; why: string; niche: string; sourceUrls?: string[] };
 type ImageResult = { title: string; url: string; thumbnail: string; source: string; pageUrl: string };
-
 type Tab = "assist" | "trending" | "images";
 
 function ActionButton({ children, onClick, disabled = false, primary = false }: { children: React.ReactNode; onClick: () => void; disabled?: boolean; primary?: boolean }) {
   return <button type="button" disabled={disabled} onClick={onClick} className={`rounded-lg px-3 py-2 text-[10px] font-bold transition disabled:cursor-not-allowed disabled:opacity-35 ${primary ? "bg-white text-black hover:bg-[#83adff]" : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"}`}>{children}</button>;
+}
+
+async function getFunctionError(error: any) {
+  let message = error?.message || "Edge Function request failed.";
+  try {
+    if (error?.context && typeof error.context.json === "function") {
+      const body = await error.context.json();
+      message = body?.error || body?.message || message;
+    }
+  } catch {
+    // The response body may already have been consumed; keep the original message.
+  }
+  return message;
 }
 
 export default function ChanakyaAssist({ article, onChange }: Props) {
@@ -39,7 +51,7 @@ export default function ChanakyaAssist({ article, onChange }: Props) {
 
   const invoke = async (body: Record<string, unknown>) => {
     const { data, error } = await supabase.functions.invoke("chanakya-assist", { body });
-    if (error) throw error;
+    if (error) throw new Error(await getFunctionError(error));
     if (data?.error) throw new Error(data.error);
     return data;
   };
