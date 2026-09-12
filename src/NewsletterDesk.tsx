@@ -1,0 +1,75 @@
+import { FormEvent, useEffect, useState } from "react";
+import { supabase } from "./lib/supabase";
+
+type Campaign = { id: string; subject: string; preview_text: string | null; body_html: string; status: string; created_at: string; sent_at: string | null };
+
+export default function NewsletterDesk({ session }: { session: any }) {
+  const [subject, setSubject] = useState("");
+  const [previewText, setPreviewText] = useState("");
+  const [bodyHtml, setBodyHtml] = useState("<h1>BitBuzz Brief</h1>\n<p>Your latest stories from the BitBuzz newsroom.</p>");
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [subscriberCount, setSubscriberCount] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+
+  const load = async () => {
+    const [{ data: publication }, { count }] = await Promise.all([
+      supabase.from("bitbuzz_publications").select("id").eq("slug", "srgs").eq("status", "active").maybeSingle(),
+      supabase.from("bitbuzz_newsletter_subscribers").select("id", { count: "exact", head: true }).is("unsubscribed_at", null),
+    ]);
+    setSubscriberCount(count || 0);
+    if (publication) {
+      const { data } = await supabase.from("bitbuzz_newsletter_campaigns").select("id,subject,preview_text,body_html,status,created_at,sent_at").eq("publication_id", publication.id).order("created_at", { ascending: false }).limit(8);
+      setCampaigns((data || []) as Campaign[]);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const saveDraft = async (send: boolean) => {
+    if (!subject.trim() || !bodyHtml.trim()) { setMessage("Subject and newsletter body are required."); return; }
+    setBusy(true); setMessage("");
+    try {
+      const { data: publication } = await supabase.from("bitbuzz_publications").select("id").eq("slug", "srgs").eq("status", "active").maybeSingle();
+      if (!publication) throw new Error("Active BitBuzz publication not found.");
+      const { data: campaign, error } = await supabase.from("bitbuzz_newsletter_campaigns").insert({ publication_id: publication.id, subject: subject.trim(), preview_text: previewText.trim() || null, body_html: bodyHtml, status: "draft", created_by: session.user.id }).select("id").single();
+      if (error || !campaign) throw error || new Error("Could not save newsletter.");
+      if (send) {
+        const { data, error: fnError } = await supabase.functions.invoke("bitbuzz-send-newsletter", { body: { campaign_id: campaign.id } });
+        if (fnError) throw fnError;
+        if (data?.error) throw new Error(data.error);
+        setMessage(`Newsletter sent: ${data?.sent || 0} delivered${data?.failed ? `, ${data.failed} failed` : ""}.`);
+      } else {
+        setMessage("Newsletter draft saved.");
+      }
+      setSubject(""); setPreviewText(""); setBodyHtml("<h1>BitBuzz Brief</h1>\n<p>Your latest stories from the BitBuzz newsroom.</p>");
+      await load();
+    } catch (e) { setMessage(e instanceof Error ? e.message : "Newsletter action failed."); }
+    finally { setBusy(false); }
+  };
+
+  const submit = (e: FormEvent) => { e.preventDefault(); void saveDraft(false); };
+
+  return <section className="rounded-[24px] border border-white/10 bg-[#080809] overflow-hidden">
+    <div className="border-b border-white/10 p-6 sm:p-7">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div><p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#ffe600]">Newsletter desk</p><h1 className="mt-2 font-serif text-4xl tracking-[-.04em]">Publish the BitBuzz Brief.</h1><p className="mt-2 text-sm text-white/35">Write once. Send only to active subscribers. Unsubscribe is built into every edition.</p></div>
+        <div className="rounded-full border border-white/10 bg-white/[.025] px-3 py-2 text-[9px] font-bold uppercase tracking-[.15em] text-white/35">{subscriberCount.toLocaleString("en-IN")} active subscribers</div>
+      </div>
+      <form onSubmit={submit} className="mt-7 space-y-4">
+        <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="w-full rounded-xl border border-white/10 bg-black px-3 py-3 text-sm text-white outline-none focus:border-white/25" />
+        <input value={previewText} onChange={e=>setPreviewText(e.target.value)} placeholder="Preview text (optional)" className="w-full rounded-xl border border-white/10 bg-black px-3 py-3 text-sm text-white outline-none focus:border-white/25" />
+        <textarea value={bodyHtml} onChange={e=>setBodyHtml(e.target.value)} placeholder="Newsletter HTML body..." className="min-h-[260px] w-full resize-y rounded-xl border border-white/10 bg-black px-3 py-3 font-mono text-xs leading-relaxed text-white outline-none focus:border-white/25" />
+        <div className="flex flex-wrap gap-2">
+          <button type="submit" disabled={busy} className="rounded-full bg-white px-5 py-3 text-[10px] font-bold text-black disabled:opacity-40">{busy ? "Saving…" : "Save draft"}</button>
+          <button type="button" disabled={busy} onClick={()=>void saveDraft(true)} className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-[10px] font-bold text-emerald-300 disabled:opacity-40">{busy ? "Working…" : "Send newsletter"}</button>
+          <button type="button" onClick={()=>setShowPreview(v=>!v)} className="rounded-full border border-white/10 bg-white/[.03] px-5 py-3 text-[10px] font-bold text-white/65 hover:text-white">{showPreview ? "Hide preview" : "Preview"}</button>
+        </div>
+        {message && <p className="rounded-xl border border-white/10 bg-white/[.025] p-3 text-xs text-white/55">{message}</p>}
+      </form>
+    </div>
+    {showPreview && <div className="border-b border-white/10 p-5"><p className="mb-3 text-[9px] font-bold uppercase tracking-[.18em] text-white/25">Email preview</p><iframe title="Newsletter preview" sandbox="" srcDoc={`<!doctype html><html><body style="margin:0;background:#f5f5f5;font-family:Arial,sans-serif"><div style="max-width:680px;margin:30px auto;background:white;padding:28px">${bodyHtml}</div></body></html>`} className="h-[420px] w-full rounded-xl border border-white/10 bg-white" /></div>}
+    <div className="p-6"><div className="flex items-center justify-between"><p className="text-[9px] font-bold uppercase tracking-[.18em] text-white/25">Recent editions</p><span className="text-[9px] text-white/20">Resend delivery</span></div><div className="mt-3 space-y-2">{campaigns.map(c=><div key={c.id} className="flex flex-col justify-between gap-2 rounded-xl border border-white/10 bg-black p-4 sm:flex-row sm:items-center"><div><p className="text-sm text-white/75">{c.subject}</p><p className="mt-1 text-[9px] uppercase tracking-[.12em] text-white/25">{new Date(c.created_at).toLocaleString("en-IN")} · {c.status}</p></div>{c.sent_at && <span className="text-[9px] text-emerald-300/70">Sent {new Date(c.sent_at).toLocaleString("en-IN")}</span>}</div>)}{!campaigns.length&&<p className="py-5 text-xs text-white/25">No editions yet.</p>}</div></div>
+  </section>;
+}
