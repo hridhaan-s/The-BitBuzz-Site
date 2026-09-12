@@ -42,7 +42,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="mb-3 text-2xl font-bold">5. Your choices</h2>
             <p>You can ask us what personal information we hold about your account, request correction of inaccurate information, or ask for your account information to be deleted, subject to applicable legal or operational requirements.</p>
-            <p className="mt-4">For privacy requests, contact <a className="underline decoration-[#b4121f] underline-offset-4" href="mailto:study.hridhaan@gmail.com">study.hridhaan@gmail.com</a>.</p>
+            <p className="mt-4">For privacy requests, contact <a className="underline decoration-[#b4121f] underline-offset-4" href="mailto:Hi@Hridhaan.me">Hi@Hridhaan.me</a>.</p>
           </section>
 
           <section>
