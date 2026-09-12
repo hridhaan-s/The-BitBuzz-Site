@@ -109,6 +109,7 @@ function updateLandingCopy() {
     heroKicker.appendChild(document.createTextNode("100% Run by Students for Students"));
   }
 
+  // Deployment marker: keep the locked landing copy in the Cloudflare build.
   const heroTitle = Array.from(document.querySelectorAll("h1")).find((node) => node.textContent?.includes("brighter tomorrow"));
   if (heroTitle) {
     const accent = heroTitle.querySelector("span");
