@@ -2,7 +2,6 @@ import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import LandingPage from "./LandingPage";
-import MobileAppSection from "./MobileAppSection";
 import SubmitPage from "./SubmitPage";
 import InfoPage from "./InfoPage";
 import Blog, { ArticlePage } from "./Blog";
@@ -45,7 +44,7 @@ function AdminGreeting() {
 }
 
 let page;
-if (path === "/") page = <><LandingPage /><MobileAppSection /></>;
+if (path === "/") page = <LandingPage />;
 else if (path === "/home") page = <><App /><AuthNav /></>;
 else if (path === "/signup") page = <AuthPage />;
 else if (path === "/privacy") page = <PrivacyPage />;
