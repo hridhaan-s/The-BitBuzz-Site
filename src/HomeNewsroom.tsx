@@ -23,7 +23,7 @@ const CATEGORY_COPY: Record<string, { kicker: string; title: string; accent: str
   biobuzz: { kicker: "BIOBUZZ", title: "Life, decoded.", accent: "biobuzz", description: "Biology, health science and discoveries reshaping what we know about life." },
 };
 
-type Props = { initialCategory?: string };
+type Props = { initialCategory?: string; hideHeader?: boolean };
 type Article = {
   id: string; slug: string; title: string; standfirst: string | null;
   cover_image_url: string | null; cover_alt: string | null; read_minutes: number | null;
@@ -44,13 +44,12 @@ function FlagItWidget() {
   </a>;
 }
 
-export default function HomeNewsroom({ initialCategory }: Props) {
+export default function HomeNewsroom({ initialCategory, hideHeader = false }: Props) {
   const categorySlug = initialCategory || "";
   const copy = CATEGORY_COPY[categorySlug];
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -76,18 +75,17 @@ export default function HomeNewsroom({ initialCategory }: Props) {
   const rest = useMemo(() => articles.slice(4), [articles]);
 
   return <div className="min-h-screen overflow-x-hidden bg-[#020202] text-white">
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#020202]/90 backdrop-blur-xl">
+    {!hideHeader && <header className="sticky top-0 z-50 border-b border-white/10 bg-[#020202]/90 backdrop-blur-xl">
       <div className="mx-auto flex h-[58px] max-w-[1320px] items-center justify-between px-5 lg:px-8">
         <a href="/home" className="flex items-center gap-3"><img src={LOGO_URL} className="h-8 w-8 rounded-full border border-white/20 object-cover" alt="BitBuzz" /><span className="font-serif text-xl tracking-[-.04em]">BitBuzz</span></a>
         <nav className="hidden items-center gap-7 text-[11px] text-white/50 lg:flex">
           <a className="text-white" href="/home">Home</a><a href="/blog">Journal</a><a href="/space">Space</a><a href="/cybersecurity">Cybersecurity</a><a href="/tech">Tech</a><a href="/aviation">Aviation</a><a href="/innovation">Innovations</a><a href="/biobuzz">BioBuzz</a><a href="/about">About</a>
         </nav>
-        <div className="flex items-center gap-3"><a href="/signup" className="rounded-full bg-white px-5 py-2 text-[11px] font-semibold text-black transition hover:bg-[#dbe5ff]">Sign In</a><button onClick={() => setMenuOpen(!menuOpen)} className="text-xl text-white/60 lg:hidden" aria-label="Menu">☰</button></div>
+        <div className="flex items-center gap-3"><a href="/signup" className="rounded-full bg-white px-5 py-2 text-[11px] font-semibold text-black transition hover:bg-[#dbe5ff]">Sign In</a></div>
       </div>
-      {menuOpen && <div className="border-t border-white/10 bg-[#050505] px-5 py-4 lg:hidden"><div className="grid grid-cols-2 gap-3 text-sm text-white/65">{[["/home","Home"],["/blog","Journal"],...GENRES.map(([s,n])=>[`/${s}`,n] as const),["/about","About"]].map(([href,label])=><a key={href} href={href} onClick={()=>setMenuOpen(false)} className="rounded-xl border border-white/10 px-4 py-3">{label}</a>)}</div></div>}
-    </header>
+    </header>}
 
-    <main>
+    <main className={hideHeader ? "pt-[70px]" : ""}>
       <section className="relative isolate min-h-[560px] overflow-hidden border-b border-white/10">
         <img src={HERO_GIF} alt="" aria-hidden className="pointer-events-none absolute inset-0 -z-20 h-full w-full scale-[1.06] object-cover object-center opacity-65 mix-blend-screen" />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,#020202_0%,rgba(2,2,2,.94)_25%,rgba(2,2,2,.48)_61%,rgba(2,2,2,.72)_100%)]" />
