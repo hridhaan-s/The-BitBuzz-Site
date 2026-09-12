@@ -10,6 +10,7 @@ import AuthPage from "./AuthPage";
 import AuthNav from "./AuthNav";
 import PrivacyPage from "./PrivacyPage";
 import ProfilePage from "./ProfilePage";
+import SiteFooter from "./SiteFooter";
 import { supabase } from "./lib/supabase";
 import "./index.css";
 
@@ -44,9 +45,10 @@ function AdminGreeting() {
 }
 
 let page;
-if (path === "/") page = <LandingPage />;
-else if (path === "/home") page = <><App /><AuthNav /></>;
-else if (path === "/signup") page = <AuthPage />;
+let pageHasFooter = false;
+if (path === "/") { page = <LandingPage />; pageHasFooter = true; }
+else if (path === "/home") { page = <><App /><AuthNav /></>; pageHasFooter = true; }
+else if (path === "/signup") { page = <AuthPage />; pageHasFooter = true; }
 else if (path === "/privacy") page = <PrivacyPage />;
 else if (path === "/profile") page = <ProfilePage />;
 else if (path === "/blog") page = <Blog />;
@@ -59,4 +61,4 @@ else if (path === "/about") page = <InfoPage kind="about" />;
 else if (path === "/submit") page = <SubmitPage />;
 else page = <iframe src="/404.html" title="BitBuzz 404" className="fixed inset-0 h-full w-full border-0" />;
 
-createRoot(document.getElementById("root")!).render(<StrictMode>{page}</StrictMode>);
+createRoot(document.getElementById("root")!).render(<StrictMode>{pageHasFooter ? page : <>{page}<SiteFooter /></>}</StrictMode>);
