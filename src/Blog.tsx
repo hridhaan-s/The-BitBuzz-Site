@@ -31,17 +31,27 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) { return <div className={`rounded-[24px] border border-white/10 bg-[#080809] ${className}`}>{children}</div>; }
 
-export default function Blog() {
+export default function Blog({ initialCategory = "all" }: { initialCategory?: string }) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selected, setSelected] = useState("all");
+  const [selected, setSelected] = useState(initialCategory);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    Promise.all([
-      supabase.from("articles").select("*, categories(name,slug), profiles(display_name)").eq("status", "published").lte("published_at", new Date().toISOString()).order("is_lead", { ascending: false }).order("published_at", { ascending: false }),
-      supabase.from("categories").select("id,name,slug").order("sort_order"),
-    ]).then(([a, c]) => { setArticles((a.data || []) as Article[]); setCategories((c.data || []) as Category[]); setLoading(false); });
+    let active = true;
+    (async () => {
+      const [a, c] = await Promise.all([
+        supabase.from("articles").select("*, categories(name,slug), profiles(display_name)").eq("status", "published").order("is_lead", { ascending: false }).order("published_at", { ascending: false }),
+        supabase.from("categories").select("id,name,slug").order("sort_order"),
+      ]);
+      if (!active) return;
+      if (a.error) setError(a.error.message);
+      setArticles((a.data || []) as Article[]);
+      setCategories((c.data || []) as Category[]);
+      setLoading(false);
+    })();
+    return () => { active = false; };
   }, []);
 
   const filtered = useMemo(() => selected === "all" ? articles : articles.filter(a => a.categories?.slug === selected), [articles, selected]);
@@ -49,6 +59,7 @@ export default function Blog() {
   const rest = filtered.filter(a => a.id !== lead?.id);
 
   if (loading) return <Shell><main className="mx-auto max-w-6xl px-5 py-24 text-white/40">Loading the newsroom…</main></Shell>;
+  if (error) return <Shell><main className="mx-auto max-w-6xl px-5 py-24"><Card className="p-10 text-center"><p className="font-serif text-2xl text-white/75">The newsroom could not load.</p><p className="mt-2 text-sm text-red-300/80">{error}</p><button onClick={() => window.location.reload()} className="mt-6 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-black">Try again</button></Card></main></Shell>;
   return <Shell><main className="mx-auto max-w-6xl px-5 py-14 sm:py-20">
     <div className="max-w-3xl"><p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#83adff]">BitBuzz Journal</p><h1 className="mt-4 font-serif text-[clamp(3.5rem,8vw,7rem)] leading-[.88] tracking-[-.065em]">Stories worth <span className="text-[#83adff]">reading.</span></h1><p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/45">Science, technology, cybersecurity, aviation and innovation — explained without the noise.</p></div>
     <div className="mt-12 flex gap-2 overflow-x-auto pb-2"><button onClick={() => setSelected("all")} className={`shrink-0 rounded-full px-4 py-2 text-xs ${selected === "all" ? "bg-white text-black" : "bg-white/5 text-white/55"}`}>All stories</button>{categories.map(c => <button key={c.id} onClick={() => setSelected(c.slug)} className={`shrink-0 rounded-full px-4 py-2 text-xs ${selected === c.slug ? "bg-white text-black" : "bg-white/5 text-white/55"}`}>{c.name}</button>)}</div>
@@ -61,7 +72,7 @@ export default function Blog() {
 
 export function ArticlePage({ slug }: { slug: string }) {
   const [article, setArticle] = useState<Article | null>(null); const [loading, setLoading] = useState(true); const [notFound, setNotFound] = useState(false);
-  useEffect(() => { (async () => { const { data } = await supabase.from("articles").select("*, categories(name,slug), profiles(display_name)").eq("slug", slug).eq("status", "published").lte("published_at", new Date().toISOString()).single(); if (!data) setNotFound(true); else { setArticle(data as Article); await supabase.rpc("increment_article_view", { article_id: data.id }).then(() => {}); } setLoading(false); })(); }, [slug]);
+  useEffect(() => { (async () => { const { data } = await supabase.from("articles").select("*, categories(name,slug), profiles(display_name)").eq("slug", slug).eq("status", "published").single(); if (!data) setNotFound(true); else { setArticle(data as Article); await supabase.rpc("increment_article_view", { article_id: data.id }).then(() => {}); } setLoading(false); })(); }, [slug]);
   if (loading) return <Shell><main className="mx-auto max-w-4xl px-5 py-24 text-white/40">Loading story…</main></Shell>;
   if (notFound || !article) return <Shell><main className="mx-auto max-w-4xl px-5 py-24"><h1 className="font-serif text-5xl">Story not found.</h1><a href="/blog" className="mt-6 inline-block text-[#83adff]">← Back to Journal</a></main></Shell>;
   return <Shell><article className="mx-auto max-w-4xl px-5 py-14 sm:py-20"><a href="/blog" className="text-xs text-white/35 hover:text-white">← Journal</a><div className="mt-10"><p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#83adff]">{article.categories?.name || "BitBuzz"}</p><h1 className="mt-5 font-serif text-[clamp(3rem,7vw,6.5rem)] leading-[.9] tracking-[-.06em]">{article.title}</h1><p className="mt-7 max-w-3xl text-xl leading-relaxed text-white/50">{article.standfirst}</p><div className="mt-7 flex flex-wrap gap-4 text-xs text-white/30"><span>{article.profiles?.display_name || "BitBuzz"}</span><span>·</span><span>{article.read_minutes || 1} min read</span><span>·</span><span>{article.published_at ? new Date(article.published_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : ""}</span></div></div>{article.cover_image_url && <img src={article.cover_image_url} alt={article.cover_alt || ""} className="mt-10 max-h-[620px] w-full rounded-[28px] object-cover"/>}<div className="prose prose-invert mt-12 max-w-none text-[17px] leading-[1.85] text-white/75" dangerouslySetInnerHTML={{ __html: renderMarkdown(article.body_md) }}/></article></Shell>;
