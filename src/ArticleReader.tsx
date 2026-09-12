@@ -27,7 +27,7 @@ export default function ArticleReader({ slug }: { slug: string }) {
       if (articleError || !data) { setError(articleError?.message || "Story not found."); setLoading(false); return; }
       setArticle(data as Article);
       const category = (data.categories as { slug?: string } | null)?.slug;
-      const { data: relatedData } = await supabase.from("articles").select("id,slug,title,standfirst,cover_image_url,cover_alt,read_minutes,published_at,view_count,categories(name,slug),profiles(display_name)").eq("status", "published").neq("id", data.id).order("published_at", { ascending: false }).limit(8);
+      const { data: relatedData } = await supabase.from("articles").select("id,slug,title,standfirst,cover_image_url,cover_alt,read_minutes,published_at,view_count,categories(name,slug),profiles(display_name)").eq("status", "published").neq("id", data.id).order("published_at", { ascending: false }).limit(30);
       if (active) setRelated(((relatedData || []) as Article[]).filter(a => !category || a.categories?.slug === category).slice(0, 3));
       setLoading(false);
       await supabase.rpc("increment_article_view", { article_id: data.id }).catch(() => undefined);
@@ -40,26 +40,28 @@ export default function ArticleReader({ slug }: { slug: string }) {
 
   return <main className="min-h-screen overflow-x-hidden bg-black text-white pt-[70px]">
     <article>
-      <header className="border-b border-white/10">
-        <div className="mx-auto max-w-[1040px] px-5 pb-10 pt-14 sm:pt-20 lg:px-8 lg:pb-14">
-          <a href={article.categories?.slug ? `/${article.categories.slug}` : "/home"} className="text-[9px] font-bold uppercase tracking-[.22em] text-white/40 hover:text-white">{article.categories?.name || "BitBuzz"}</a>
-          <h1 className="mt-6 max-w-[1000px] font-serif text-[clamp(3.2rem,8vw,7.5rem)] leading-[.84] tracking-[-.07em]">{article.title}</h1>
-          {article.standfirst && <p className="mt-7 max-w-3xl text-[17px] leading-7 text-white/45 sm:text-[19px]">{article.standfirst}</p>}
-          <div className="mt-8 flex flex-wrap items-center gap-3 text-[9px] uppercase tracking-[.14em] text-white/25">
+      <header>
+        <div className="mx-auto max-w-[1180px] border-b border-white/10 px-5 pb-9 pt-12 sm:pb-12 sm:pt-16 lg:px-8 lg:pt-20">
+          <a href={article.categories?.slug ? `/${article.categories.slug}` : "/home"} className="inline-flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.22em] text-white/45 hover:text-white"><span className="h-px w-5 bg-white/35" />{article.categories?.name || "BitBuzz"}</a>
+          <h1 className="mt-6 max-w-[1080px] font-serif text-[clamp(3rem,7.4vw,7.2rem)] leading-[.86] tracking-[-.072em]">{article.title}</h1>
+          {article.standfirst && <p className="mt-6 max-w-[760px] text-[17px] leading-7 text-white/48 sm:mt-8 sm:text-[20px] sm:leading-8">{article.standfirst}</p>}
+          <div className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-2 text-[9px] uppercase tracking-[.14em] text-white/28 sm:mt-9">
             {article.profiles?.avatar_url ? <img src={article.profiles.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover"/> : <span className="h-7 w-7 rounded-full bg-white/10"/>}
-            <span>{article.profiles?.display_name || "BitBuzz"}</span><span>·</span><span>{article.published_at ? date(article.published_at) : ""}</span><span>·</span><span>{article.read_minutes || 1} min read</span><span>·</span><span>{article.view_count || 0} views</span>
+            <span className="text-white/55">{article.profiles?.display_name || "BitBuzz"}</span><span>·</span><span>{article.published_at ? date(article.published_at) : ""}</span><span>·</span><span>{article.read_minutes || 1} min read</span><span>·</span><span>{article.view_count || 0} views</span>
           </div>
         </div>
       </header>
 
-      {article.cover_image_url && <div className="mx-auto max-w-[1320px] px-0 sm:px-5 lg:px-8"><img src={article.cover_image_url} alt={article.cover_alt || ""} className="aspect-[16/8] w-full object-cover sm:rounded-b-[2px]"/></div>}
+      {article.cover_image_url && <figure className="mx-auto max-w-[1440px] px-0 sm:px-5 lg:px-8"><img src={article.cover_image_url} alt={article.cover_alt || ""} className="aspect-[16/9] w-full object-cover sm:max-h-[720px] sm:rounded-sm"/></figure>}
 
-      <div className="mx-auto grid max-w-[1120px] gap-12 px-5 py-12 sm:py-16 lg:grid-cols-[minmax(0,760px)_220px] lg:px-8 lg:py-20">
-        <Markdown value={article.body_md} />
+      <div className="mx-auto grid max-w-[1120px] gap-12 px-5 py-11 sm:py-16 lg:grid-cols-[minmax(0,740px)_220px] lg:px-8 lg:py-20">
+        <div>
+          <Markdown value={article.body_md} />
+        </div>
         <aside className="hidden border-l border-white/10 pl-6 lg:block"><p className="text-[9px] font-bold uppercase tracking-[.2em] text-white/25">About this story</p><p className="mt-4 text-xs leading-5 text-white/35">Published by the BitBuzz student newsroom.</p><a href="/submit" className="mt-6 inline-flex rounded-full border border-white/15 px-4 py-2 text-[10px] font-semibold text-white/70 hover:border-white/30 hover:text-white">Write for BitBuzz</a></aside>
       </div>
     </article>
 
-    {related.length > 0 && <section className="border-t border-white/10"><div className="mx-auto max-w-[1120px] px-5 py-12 lg:px-8 lg:py-16"><p className="text-[9px] font-bold uppercase tracking-[.2em] text-white/30">Keep reading</p><div className="mt-6 grid gap-6 md:grid-cols-3">{related.map(a => <a key={a.id} href={`/blog/${a.slug}`} className="group"><div className="overflow-hidden rounded bg-[#080808]">{a.cover_image_url ? <img src={a.cover_image_url} alt={a.cover_alt || ""} className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.025]"/> : <div className="aspect-[16/10]"/>}</div><p className="mt-4 font-serif text-2xl leading-none tracking-[-.04em] group-hover:text-white/70">{a.title}</p><p className="mt-3 text-[9px] uppercase tracking-[.12em] text-white/25">{a.read_minutes || 1} min read</p></a>)}</div></div></section>}
+    {related.length > 0 && <section className="border-t border-white/10"><div className="mx-auto max-w-[1120px] px-5 py-12 lg:px-8 lg:py-16"><p className="text-[9px] font-bold uppercase tracking-[.2em] text-white/30">More from {article.categories?.name || "BitBuzz"}</p><div className="mt-6 grid gap-7 md:grid-cols-3">{related.map(a => <a key={a.id} href={`/blog/${a.slug}`} className="group"><div className="overflow-hidden bg-[#080808]">{a.cover_image_url ? <img src={a.cover_image_url} alt={a.cover_alt || ""} className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.025]"/> : <div className="aspect-[16/10]"/>}</div><p className="mt-4 font-serif text-2xl leading-[.98] tracking-[-.04em] group-hover:text-white/70">{a.title}</p><p className="mt-3 text-[9px] uppercase tracking-[.12em] text-white/25">{a.read_minutes || 1} min read</p></a>)}</div></div></section>}
   </main>;
 }
