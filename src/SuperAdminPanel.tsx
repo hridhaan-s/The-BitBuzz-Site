@@ -16,7 +16,7 @@ export default function SuperAdminPanel() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [platformAdmins, setPlatformAdmins] = useState<PlatformAdmin[]>([]);
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"admin" | "editor" | "writer">("editor");
+  const [role, setRole] = useState<"admin" | "editor">("editor");
   const [boards, setBoards] = useState<string[]>(["cybersecurity"]);
   const [platformEmail, setPlatformEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -42,7 +42,7 @@ export default function SuperAdminPanel() {
   const saveStaff = async () => {
     if (!email.trim()) return setError("Email is required.");
     setBusy(true); setMessage(""); setError("");
-    const { error: e } = await supabase.rpc("bitbuzz_superadmin_upsert_staff", { target_email: email.trim(), target_role: role, board_slugs: role === "writer" ? [] : boards });
+    const { error: e } = await supabase.rpc("bitbuzz_superadmin_upsert_staff", { target_email: email.trim(), target_role: role, board_slugs: boards });
     if (e) setError(e.message);
     else { setMessage(`${email.trim()} updated.`); setEmail(""); await load(); }
     setBusy(false);
@@ -69,7 +69,7 @@ export default function SuperAdminPanel() {
     <div className="border-b border-white/10 p-6 sm:p-8">
       <p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#ff6a1f]">SuperAdmin</p>
       <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div><h1 className="font-serif text-4xl tracking-[-.045em]">Control the newsroom.</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-white/40">Manage staff, assign editorial boards, and control the platform-level administrators. These controls are database-authorized, not just frontend permissions.</p></div>
+        <div><h1 className="font-serif text-4xl tracking-[-.045em]">Control the newsroom.</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-white/40">Manage staff, assign editorial boards, and control the platform-level administrators. Contributors who submit work remain regular members and never receive admin access unless you explicitly promote them.</p></div>
         <div className="rounded-full border border-white/10 bg-white/[.03] px-3 py-2 text-[9px] font-bold uppercase tracking-[.14em] text-white/35">{assignedCount} assigned staff</div>
       </div>
     </div>
@@ -81,9 +81,9 @@ export default function SuperAdminPanel() {
         <div className="mt-5 space-y-4">
           <input value={email} onChange={e => setEmail(e.target.value)} placeholder="staff@example.com" type="email" className="w-full rounded-xl border border-white/10 bg-white/[.035] px-4 py-3 text-sm text-white outline-none focus:border-white/25" />
           <select value={role} onChange={e => setRole(e.target.value as typeof role)} className="w-full rounded-xl border border-white/10 bg-[#0b0b0c] px-4 py-3 text-sm text-white outline-none focus:border-white/25">
-            <option value="editor">Editor</option><option value="admin">Board Admin</option><option value="writer">Writer / no board</option>
+            <option value="editor">Editor</option><option value="admin">Board Admin</option>
           </select>
-          {role !== "writer" && <div><p className="mb-2 text-[9px] font-bold uppercase tracking-[.16em] text-white/30">Editorial boards</p><div className="grid grid-cols-2 gap-2">{BOARDS.map(([slug, label]) => <button key={slug} type="button" onClick={() => toggleBoard(slug)} className={`rounded-xl border px-3 py-2.5 text-left text-xs transition ${boards.includes(slug) ? "border-white bg-white text-black" : "border-white/10 bg-white/[.025] text-white/45 hover:text-white"}`}>{boards.includes(slug) ? "✓ " : ""}{label}</button>)}</div></div>}
+          <div><p className="mb-2 text-[9px] font-bold uppercase tracking-[.16em] text-white/30">Editorial boards</p><div className="grid grid-cols-2 gap-2">{BOARDS.map(([slug, label]) => <button key={slug} type="button" onClick={() => toggleBoard(slug)} className={`rounded-xl border px-3 py-2.5 text-left text-xs transition ${boards.includes(slug) ? "border-white bg-white text-black" : "border-white/10 bg-white/[.025] text-white/45 hover:text-white"}`}>{boards.includes(slug) ? "✓ " : ""}{label}</button>)}</div></div>
           <button disabled={busy} onClick={() => void saveStaff()} className="w-full rounded-xl bg-white px-4 py-3 text-xs font-bold text-black transition hover:bg-[#ff6a1f] disabled:opacity-40">{busy ? "Saving…" : "Save staff access"}</button>
         </div>
       </div>
