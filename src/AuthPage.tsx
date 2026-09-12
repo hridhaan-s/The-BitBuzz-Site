@@ -107,7 +107,7 @@ export default function AuthPage() {
         <div className="w-full max-w-md rounded-[28px] border border-white/10 bg-[#080809] p-7 shadow-2xl sm:p-9">
           <p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#83adff]">BitBuzz account</p>
           <h1 className="mt-3 font-serif text-5xl tracking-[-.05em]">{mode === "signup" ? "Join BitBuzz." : "Welcome back."}</h1>
-          <p className="mt-3 text-sm leading-relaxed text-white/40">Use your email and password to access the BitBuzz newsroom.</p>
+          <p className="mt-3 text-sm leading-relaxed text-white/40">{mode === "signup" ? "Create your account to write, edit and publish." : "Sign in to write, edit and publish."}</p>
 
           <div className="mt-7 grid grid-cols-2 rounded-xl border border-white/10 bg-white/[.025] p-1">
             <button type="button" onClick={() => switchMode("signin")} className={`rounded-lg px-3 py-2.5 text-xs font-bold transition ${mode === "signin" ? "bg-white text-black" : "text-white/40 hover:text-white"}`}>Sign In</button>
@@ -139,6 +139,15 @@ export default function AuthPage() {
               {busy ? (mode === "signup" ? "Creating account…" : "Signing in…") : mode === "signup" ? "Create account" : "Sign in"}
             </button>
           </form>
+
+          {mode === "signin" && (
+            <div className="mt-7 flex items-center gap-3 text-[12px] text-white/30">
+              <span className="h-px flex-1 bg-white/10" />
+              <span>No account?</span>
+              <a href="/signup" className="font-semibold text-[#ffe600] underline decoration-[#ffe600]/50 underline-offset-4 transition hover:text-[#fff27a]">Sign up now</a>
+              <span className="h-px flex-1 bg-white/10" />
+            </div>
+          )}
 
           <p className="mt-4 text-center text-[11px] text-white/25">
             {mode === "signin" ? "Password reset will be added soon." : "You can sign in again anytime with the same email and password."}
