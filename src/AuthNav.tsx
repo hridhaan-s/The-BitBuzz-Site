@@ -23,12 +23,12 @@ export default function AuthNav() {
     return () => { active = false; listener.subscription.unsubscribe(); document.removeEventListener("mousedown", outside); };
   }, []);
 
-  if (!auth.signedIn) return <a href="/signup" aria-label="Sign in to BitBuzz" className="fixed right-4 top-[9px] z-[60] rounded-full bg-white px-4 py-2.5 text-[12px] font-bold text-black shadow-lg transition hover:bg-honey sm:right-6">Sign In</a>;
+  if (!auth.signedIn) return <a href="/signup" aria-label="Sign in to BitBuzz" className="fixed right-[105px] top-[9px] z-[60] rounded-full border border-white/10 bg-black px-4 py-2.5 text-[12px] font-bold text-white shadow-lg transition hover:border-white/20 hover:bg-white/10 sm:right-[118px]">Sign In</a>;
 
-  return <div ref={ref} className="fixed right-4 top-[8px] z-[70] sm:right-6">
-    <button onClick={() => setOpen(v => !v)} aria-expanded={open} className="flex items-center gap-2 rounded-full border border-white/10 bg-black/85 px-3 py-2 text-[12px] font-semibold text-white shadow-lg backdrop-blur-xl transition hover:border-white/20">
+  return <div ref={ref} className="fixed right-[105px] top-[8px] z-[70] sm:right-[118px]">
+    <button onClick={() => setOpen(v => !v)} aria-expanded={open} className="flex items-center gap-2 rounded-full border border-white/10 bg-black/90 px-3 py-2 text-[12px] font-semibold text-white shadow-lg backdrop-blur-xl transition hover:border-white/20">
       <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-white/[.08] text-[10px] font-bold text-white/80">{auth.avatar ? <img src={auth.avatar} alt="" className="h-full w-full object-cover"/> : auth.name.slice(0,1).toUpperCase()}</span>
-      <span className="max-w-[110px] truncate">Hello, {auth.name}</span><span className={`text-white/35 transition ${open ? "rotate-180" : ""}`}>⌄</span>
+      <span className="hidden max-w-[110px] truncate sm:inline">Hello, {auth.name}</span><span className={`text-white/35 transition ${open ? "rotate-180" : ""}`}>⌄</span>
     </button>
     {open && <div className="absolute right-0 mt-2 w-[230px] overflow-hidden rounded-2xl border border-white/10 bg-[#090909]/95 p-1.5 shadow-2xl backdrop-blur-2xl">
       <a href="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 transition hover:bg-white/[.07]"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[.07]">◎</span><span><span className="block text-xs font-semibold text-white">Profile & settings</span><span className="mt-0.5 block text-[10px] text-white/30">Account, contributions & reviews</span></span></a>
