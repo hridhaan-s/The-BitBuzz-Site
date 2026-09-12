@@ -9,6 +9,7 @@ import Blog, { ArticlePage } from "./Blog";
 import Admin from "./Admin";
 import AuthPage from "./AuthPage";
 import AuthNav from "./AuthNav";
+import PrivacyPage from "./PrivacyPage";
 import { supabase } from "./lib/supabase";
 import "./index.css";
 
@@ -58,6 +59,7 @@ let page;
 if (path === "/") page = <><LandingPage /><MobileAppSection /></>;
 else if (path === "/home") page = <><App /><AuthNav /></>;
 else if (path === "/signup") page = <AuthPage />;
+else if (path === "/privacy") page = <PrivacyPage />;
 else if (path === "/blog") page = <Blog />;
 else if (path.startsWith("/blog/")) page = <ArticlePage slug={decodeURIComponent(path.slice("/blog/".length))} />;
 else if (path === "/admin") page = <><Admin /><AdminGreeting /></>;
