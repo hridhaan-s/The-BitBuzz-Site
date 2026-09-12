@@ -50,7 +50,11 @@ function AdminGreeting() {
 function LandingResearchMount() {
   useEffect(() => {
     if (path !== "/") return;
-    const frame = window.requestAnimationFrame(() => mountResearchLibrary());
+    const frame = window.requestAnimationFrame(() => {
+      const faqHeading = Array.from(document.querySelectorAll("h2")).find(node => node.textContent?.trim() === "Questions? Answers.");
+      faqHeading?.closest("section")?.remove();
+      mountResearchLibrary();
+    });
     return () => { window.cancelAnimationFrame(frame); unmountResearchLibrary(); };
   }, []);
   return null;
