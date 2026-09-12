@@ -2,7 +2,7 @@ import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import LandingPage from "./LandingPage";
 import LandingPageFinalizer from "./LandingPageFinalizer";
-import ResearchLibrary, { mountResearchLibrary, unmountResearchLibrary } from "./ResearchLibrary";
+import { mountResearchLibrary, unmountResearchLibrary } from "./ResearchLibrary";
 import HomeNewsroom from "./HomeNewsroom";
 import SubmitPage from "./SubmitPage";
 import InfoPage from "./InfoPage";
