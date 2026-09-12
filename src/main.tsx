@@ -1,6 +1,5 @@
 import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App";
 import LandingPage from "./LandingPage";
 import LandingPageFinalizer from "./LandingPageFinalizer";
 import SubmitPage from "./SubmitPage";
