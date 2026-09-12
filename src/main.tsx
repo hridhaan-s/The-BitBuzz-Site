@@ -19,6 +19,9 @@ const path = window.location.pathname.replace(/\/+$/, "") || "/";
 const isLegacyNewsroom = new URL(window.location.href).searchParams.get("view") === "news";
 if (isLegacyNewsroom && path === "/") window.history.replaceState({}, "", "/home");
 
+// The functional newsroom now lives at /home. Keep /blog as a clean legacy alias.
+if (path === "/blog") window.history.replaceState({}, "", "/home");
+
 const landingRoutes: Record<string, string> = { "#explore": "/explore", "#categories": "/categories", "#opportunities": "/opportunities", "#about": "/about" };
 if (path === "/") window.addEventListener("click", (event) => { const anchor = (event.target as HTMLElement | null)?.closest("a") as HTMLAnchorElement | null; const route = anchor ? landingRoutes[anchor.getAttribute("href") || ""] : undefined; if (route) { event.preventDefault(); window.location.href = route; } });
 
@@ -58,11 +61,11 @@ const genreRoutes: Record<string, string> = {
 let page;
 let pageHasFooter = false;
 if (path === "/") { page = <><LandingPage /><LandingPageFinalizer /></>; pageHasFooter = true; }
-else if (path === "/home") { page = <><App /><AuthNav /></>; pageHasFooter = true; }
+// /home is the primary BitBuzz newsroom/blog experience.
+else if (path === "/home" || path === "/blog") { page = <><Blog /><AuthNav /></>; pageHasFooter = true; }
 else if (path === "/signup") { page = <AuthPage />; pageHasFooter = true; }
 else if (path === "/privacy") page = <PrivacyPage />;
 else if (path === "/profile") page = <ProfilePage />;
-else if (path === "/blog") page = <Blog />;
 else if (genreRoutes[path]) page = <Blog initialCategory={genreRoutes[path]} />;
 else if (path.startsWith("/blog/")) page = <ArticlePage slug={decodeURIComponent(path.slice("/blog/".length))} />;
 else if (path === "/admin") page = <><Admin /><AdminGreeting /></>;
