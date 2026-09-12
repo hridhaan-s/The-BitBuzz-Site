@@ -2,19 +2,7 @@ import { useEffect } from "react";
 
 const FLAG_IT_CSS = `
 .fi-wrap { font-family: 'Syne', sans-serif; padding: 1rem 0; }
-.fi-banner {
-  background: #0A0A0A;
-  border: 2px solid #222;
-  border-radius: 8px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  position: relative;
-  cursor: pointer;
-  box-shadow: 5px 5px 0 #FF2B2B;
-  transition: transform 0.22s cubic-bezier(.22,1,.36,1), box-shadow 0.22s cubic-bezier(.22,1,.36,1);
-}
+.fi-banner { background: #0A0A0A; border: 2px solid #222; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; align-items: stretch; position: relative; cursor: pointer; box-shadow: 5px 5px 0 #FF2B2B; transition: transform 0.22s cubic-bezier(.22,1,.36,1), box-shadow 0.22s cubic-bezier(.22,1,.36,1); }
 .fi-banner:hover { transform: translate(-3px, -3px); box-shadow: 8px 8px 0 #FF2B2B; }
 .fi-banner:hover .fi-stripe { height: 8px; }
 .fi-banner:hover .fi-pennant { background: #FFD600; animation-duration: 0.9s; }
@@ -53,113 +41,30 @@ const FLAG_IT_CSS = `
 @media (max-width: 640px) { .fi-main { gap: 20px; padding: 24px 18px; } .fi-heading { font-size: 23px; } }
 `;
 
-function addStyles() {
-  const style = document.createElement("style");
-  style.dataset.bitbuzzFlagIt = "true";
-  style.textContent = FLAG_IT_CSS;
-  document.head.appendChild(style);
-}
-
-function addFontLink() {
-  if (document.querySelector('link[data-bitbuzz-flag-fonts="true"]')) return;
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono&display=swap";
-  link.dataset.bitbuzzFlagFonts = "true";
-  document.head.appendChild(link);
-}
-
+function addStyles() { const style = document.createElement("style"); style.dataset.bitbuzzFlagIt = "true"; style.textContent = FLAG_IT_CSS; document.head.appendChild(style); }
+function addFontLink() { if (document.querySelector('link[data-bitbuzz-flag-fonts="true"]')) return; const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono&display=swap"; link.dataset.bitbuzzFlagFonts = "true"; document.head.appendChild(link); }
 function replaceFlagItSection() {
   const heading = Array.from(document.querySelectorAll("h2")).find((node) => node.textContent?.trim() === "Flag It");
   const section = heading?.closest("section");
   if (!section || section.querySelector(".fi-banner")) return;
-
   section.innerHTML = `
-    <div class="fi-wrap">
-      <div class="fi-banner">
-        <div class="fi-stripe"></div>
-        <div class="fi-main">
-          <div class="fi-flag-icon"><div class="fi-pole"><div class="fi-pennant"></div></div></div>
-          <div class="fi-center">
-            <div class="fi-label">Community Cyber Safety Intelligence</div>
-            <div class="fi-heading">Spot a scam? <span>Flag it.</span></div>
-            <div class="fi-tagline">Report frauds · protect your community · stop scammers</div>
-            <div class="fi-story">Every report you make <b>protects someone's savings, identity, and dignity.</b></div>
-          </div>
-          <div class="fi-right">
-            <div class="fi-badge"><span class="fi-dot"></span>Now live</div>
-            <a class="fi-btn" href="https://www.bitbuzz.club/flag-it">Visit Now →</a>
-            <div class="fi-built">Built by students · Free forever</div>
-          </div>
-        </div>
-        <div class="fi-ticker"><div class="fi-ticker-inner">
-          <span>© 2025 Flagit</span><span>Not affiliated with any government or financial body</span><span>Our aim is to educate people and volunteer towards stopping cybercrime</span><span>Built by students, for everyone</span>
-          <span>© 2025 Flagit</span><span>Not affiliated with any government or financial body</span><span>Our aim is to educate people and volunteer towards stopping cybercrime</span><span>Built by students, for everyone</span>
-        </div></div>
-      </div>
-    </div>`;
+    <div class="fi-wrap"><div class="fi-banner"><div class="fi-stripe"></div><div class="fi-main"><div class="fi-flag-icon"><div class="fi-pole"><div class="fi-pennant"></div></div></div><div class="fi-center"><div class="fi-label">Community Cyber Safety Intelligence</div><div class="fi-heading">Spot a scam? <span>Flag it.</span></div><div class="fi-tagline">Report frauds · protect your community · stop scammers</div><div class="fi-story">Every report you make <b>protects someone's savings, identity, and dignity.</b></div></div><div class="fi-right"><div class="fi-badge"><span class="fi-dot"></span>Now live</div><a class="fi-btn" href="/flag-it">Visit Now →</a><div class="fi-built">Built by students · Free forever</div></div></div><div class="fi-ticker"><div class="fi-ticker-inner"><span>© 2025 Flagit</span><span>Not affiliated with any government or financial body</span><span>Our aim is to educate people and volunteer towards stopping cybercrime</span><span>Built by students, for everyone</span><span>© 2025 Flagit</span><span>Not affiliated with any government or financial body</span><span>Our aim is to educate people and volunteer towards stopping cybercrime</span><span>Built by students, for everyone</span></div></div></div></div>`;
 }
-
 function updateLandingCopy() {
   const heroKicker = Array.from(document.querySelectorAll("main p")).find((node) => node.textContent?.trim() === "Written and edited by students");
-  if (heroKicker) {
-    const dot = heroKicker.querySelector("span");
-    heroKicker.textContent = "";
-    if (dot) heroKicker.appendChild(dot);
-    heroKicker.appendChild(document.createTextNode("100% Run by Students for Students"));
-  }
-
-  // Deployment marker: keep the locked landing copy in the Cloudflare build.
+  if (heroKicker) { const dot = heroKicker.querySelector("span"); heroKicker.textContent = ""; if (dot) heroKicker.appendChild(dot); heroKicker.appendChild(document.createTextNode("100% Run by Students for Students")); }
   const heroTitle = Array.from(document.querySelectorAll("h1")).find((node) => node.textContent?.includes("brighter tomorrow"));
-  if (heroTitle) {
-    const accent = heroTitle.querySelector("span");
-    if (heroTitle.firstChild) heroTitle.firstChild.nodeValue = "News ";
-    if (accent) accent.textContent = "That Matters";
-  }
-
+  if (heroTitle) { const accent = heroTitle.querySelector("span"); if (heroTitle.firstChild) heroTitle.firstChild.nodeValue = "News "; if (accent) accent.textContent = "That Matters"; }
   const heroDescription = Array.from(document.querySelectorAll("main p")).find((node) => node.textContent?.includes("BitBuzz covers science, technology, cybersecurity, aviation, biology and innovation"));
   if (heroDescription) heroDescription.textContent = "BitBuzz covers science, technology, cybersecurity, aviation, biology and innovation for people who want the story underneath the headline. Curious minds writing for other curious minds. 0 Sponsorship or Politics";
-
   const howWorks = Array.from(document.querySelectorAll("a")).find((node) => node.textContent?.trim() === "How BitBuzz works");
-  if (howWorks) {
-    howWorks.style.backgroundColor = "rgba(255,255,255,.1)";
-    howWorks.style.borderColor = "rgba(255,255,255,.45)";
-    howWorks.style.color = "#fff";
-    howWorks.style.boxShadow = "0 0 0 1px rgba(255,255,255,.04) inset";
-  }
-
+  if (howWorks) { howWorks.style.backgroundColor = "rgba(255,255,255,.1)"; howWorks.style.borderColor = "rgba(255,255,255,.45)"; howWorks.style.color = "#fff"; howWorks.style.boxShadow = "0 0 0 1px rgba(255,255,255,.04) inset"; }
   const writeLink = Array.from(document.querySelectorAll("a")).find((node) => node.textContent?.trim() === "Write for BitBuzz");
-  if (writeLink) {
-    writeLink.textContent = "Sign Up now";
-    writeLink.setAttribute("href", "/signup");
-  }
-
+  if (writeLink) { writeLink.textContent = "Sign Up now"; writeLink.setAttribute("href", "/signup"); }
   const footer = document.querySelector("footer nav");
-  if (footer && !Array.from(footer.querySelectorAll("a")).some((node) => node.getAttribute("href") === "/privacy")) {
-    const privacy = document.createElement("a");
-    privacy.href = "/privacy";
-    privacy.textContent = "Privacy Policy";
-    privacy.className = "transition-colors hover:text-white";
-    footer.appendChild(privacy);
-  }
+  if (footer && !Array.from(footer.querySelectorAll("a")).some((node) => node.getAttribute("href") === "/privacy")) { const privacy = document.createElement("a"); privacy.href = "/privacy"; privacy.textContent = "Privacy Policy"; privacy.className = "transition-colors hover:text-white"; footer.appendChild(privacy); }
 }
-
 export default function LandingPageFinalizer() {
-  useEffect(() => {
-    if (window.location.pathname !== "/") return;
-    addFontLink();
-    addStyles();
-    const apply = () => {
-      updateLandingCopy();
-      replaceFlagItSection();
-    };
-    const frame = window.requestAnimationFrame(apply);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      document.querySelector('style[data-bitbuzz-flag-it="true"]')?.remove();
-      document.querySelector('link[data-bitbuzz-flag-fonts="true"]')?.remove();
-    };
-  }, []);
-
+  useEffect(() => { if (window.location.pathname !== "/") return; addFontLink(); addStyles(); const apply = () => { updateLandingCopy(); replaceFlagItSection(); }; const frame = window.requestAnimationFrame(apply); return () => { window.cancelAnimationFrame(frame); document.querySelector('style[data-bitbuzz-flag-it="true"]')?.remove(); document.querySelector('link[data-bitbuzz-flag-fonts="true"]')?.remove(); }; }, []);
   return null;
 }
