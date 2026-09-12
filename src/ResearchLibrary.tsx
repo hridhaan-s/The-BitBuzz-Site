@@ -37,9 +37,14 @@ let researchHost: HTMLDivElement | null = null;
 
 export function mountResearchLibrary() {
   if (window.location.pathname !== "/" || researchRoot) return;
-  const heading = Array.from(document.querySelectorAll("h2")).find(node => node.textContent?.trim() === "Flag It");
-  const flagSection = heading?.closest("section");
+
+  // LandingPageFinalizer replaces the original Flag It section contents,
+  // including its h2. The finished Flag It banner is therefore the stable
+  // insertion point for Research.
+  const flagBanner = document.querySelector(".fi-banner");
+  const flagSection = flagBanner?.closest("section");
   if (!flagSection) return;
+
   researchHost = document.createElement("div");
   researchHost.dataset.bitbuzzResearchLibrary = "true";
   flagSection.insertAdjacentElement("afterend", researchHost);
