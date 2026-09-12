@@ -5,6 +5,13 @@ const SHOWCASE_GIF =
   "https://cdn.hackclub.com/01a09276-4d33-7dd7-8a3d-5645b3673a22/white_modern_business_startup_pitch_deck_presentation__3_.gif?v=2";
 const LOGO_IMAGE =
   "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
+/* Earth from the ISS. NASA imagery is public domain, so you're
+   clear to use it — but re-upload it to your own CDN before
+   shipping. Hotlinking NASA's education site is rude and the
+   source file is only 1024×576, which will look soft on a
+   retina display. Find a 2560px version and swap this line. */
+const EARTH_IMAGE = "https://spaceplace.nasa.gov/gallery-earth/en/ISS_earth.en.jpg";
+
 const NEWSROOM_URL = "/home";
 
 /* ──────────────────────────────────────────────────────────────
@@ -182,6 +189,36 @@ const CSS = `
               rgba(255,255,255,.07) 38%,
               rgba(255,255,255,0) 72%);
   filter: blur(22px);
+}
+
+/* ── Earth. The hero's light source is now the planet's limb
+   instead of a white glare. Masked top and bottom so it
+   dissolves into pure black on both edges — no visible image
+   boundary anywhere. Tune --earth-opacity if the subhead or
+   the buttons start losing contrast against the sun glint. ── */
+.bb-earth {
+  --earth-opacity: .76;
+  position: absolute; inset: auto 0 0 0;
+  height: 64%; z-index: 0; overflow: hidden; pointer-events: none;
+}
+.bb-earth img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 30%;
+  opacity: var(--earth-opacity);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 72%, transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 72%, transparent 100%);
+}
+.bb-earth::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+              rgba(0,0,0,.6) 0%,
+              rgba(0,0,0,.18) 30%,
+              rgba(0,0,0,.42) 68%,
+              #000 100%);
+}
+@media (max-width: 640px) {
+  .bb-earth { height: 56%; --earth-opacity: .68; }
+  .bb-earth img { object-position: 50% 24%; }
 }
 
 /* A lit panel: hairline highlight along the top edge, the way
@@ -418,7 +455,9 @@ export default function LandingPage() {
       <main id="main">
         {/* ── Hero: pure OLED black, centred, one glare ────────── */}
         <section id="top" className="relative overflow-hidden bg-black">
-          <div className="bb-glare" style={{ top: "-190px", width: "min(1100px, 150%)", height: "560px" }} />
+          <div className="bb-earth" aria-hidden="true">
+            <img src={EARTH_IMAGE} alt="" decoding="async" fetchPriority="high" />
+          </div>
 
           <div className="relative mx-auto max-w-[980px] px-5 pb-16 pt-[140px] text-center sm:pb-20 lg:px-8 lg:pb-24 lg:pt-[190px]">
             <p className="bb-rise inline-flex items-center gap-2.5 text-[.82rem] text-[var(--ink-3)]" style={{ animationDelay: "60ms" }}>
