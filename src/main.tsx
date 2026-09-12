@@ -18,8 +18,6 @@ import "./index.css";
 const path = window.location.pathname.replace(/\/+$/, "") || "/";
 const isLegacyNewsroom = new URL(window.location.href).searchParams.get("view") === "news";
 if (isLegacyNewsroom && path === "/") window.history.replaceState({}, "", "/home");
-
-// The functional newsroom now lives at /home. Keep /blog as a clean legacy alias.
 if (path === "/blog") window.history.replaceState({}, "", "/home");
 
 const landingRoutes: Record<string, string> = { "#explore": "/explore", "#categories": "/categories", "#opportunities": "/opportunities", "#about": "/about" };
@@ -53,15 +51,14 @@ const genreRoutes: Record<string, string> = {
   "/cybersecurity": "cybersecurity",
   "/tech": "tech",
   "/aviation": "aviation",
-  "/innovations": "innovation",
   "/innovation": "innovation",
+  "/innovations": "innovation",
   "/biobuzz": "biobuzz",
 };
 
 let page;
 let pageHasFooter = false;
 if (path === "/") { page = <><LandingPage /><LandingPageFinalizer /></>; pageHasFooter = true; }
-// /home is the primary BitBuzz newsroom experience.
 else if (path === "/home" || path === "/blog") { page = <><HomeNewsroom /><AuthNav /></>; pageHasFooter = true; }
 else if (path === "/signup") { page = <AuthPage />; pageHasFooter = true; }
 else if (path === "/privacy") page = <PrivacyPage />;
