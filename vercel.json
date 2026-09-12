@@ -3,6 +3,7 @@
     { "source": "/", "destination": "/index.html" },
     { "source": "/home", "destination": "/index.html" },
     { "source": "/home/(.*)", "destination": "/index.html" },
+    { "source": "/signup", "destination": "/index.html" },
     { "source": "/blog", "destination": "/index.html" },
     { "source": "/blog/(.*)", "destination": "/index.html" },
     { "source": "/admin", "destination": "/index.html" },
