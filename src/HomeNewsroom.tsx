@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./lib/supabase";
 
+const LOGO_URL = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
 const HERO_GIF =
   "https://cdn.hackclub.com/01a0909a-4a98-7483-8658-3438faa0f2e0/a500cea59963d3187152da4b1b5d2981.gif";
 
@@ -10,6 +11,12 @@ const GENRES = [
   { label: "TECH", slug: "tech" },
   { label: "AVIATION", slug: "aviation" },
   { label: "INNOVATIONS", slug: "innovations" },
+] as const;
+
+const NAV_LINKS = [
+  { label: "About Us", href: "/about" },
+  { label: "Flag It", href: "https://www.bitbuzz.club/flag-it", external: true },
+  { label: "Chanakya AI", href: "/about" },
 ] as const;
 
 type Article = {
@@ -39,6 +46,8 @@ export default function HomeNewsroom() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -63,8 +72,119 @@ export default function HomeNewsroom() {
   const lead = useMemo(() => articles.find((article) => article.is_lead) || articles[0], [articles]);
   const rest = useMemo(() => articles.filter((article) => article.id !== lead?.id), [articles, lead]);
 
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setExploreOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 text-white shadow-sm backdrop-blur-xl">
+        <div className="mx-auto flex min-h-[64px] max-w-[1480px] items-center gap-3 px-4 sm:px-6 lg:px-8">
+          <button
+            type="button"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white/75 transition hover:bg-white/10 hover:text-white lg:hidden"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <span className="text-xl leading-none">☰</span>
+          </button>
+
+          <a href="/home" className="flex items-center gap-2.5" aria-label="BitBuzz Home">
+            <img src={LOGO_URL} alt="BitBuzz" className="h-8 w-8 rounded-full object-cover ring-1 ring-white/20" />
+            <span className="font-serif text-[21px] font-semibold tracking-[-0.04em]">BitBuzz</span>
+          </a>
+
+          <nav className="ml-auto hidden items-center gap-1 lg:flex" aria-label="Main navigation">
+            <a href="/home" aria-current="page" className="relative rounded-lg px-3 py-3 text-[13px] text-white transition hover:bg-white/5 after:absolute after:bottom-1 after:left-1/2 after:h-0.5 after:w-1 after:-translate-x-1/2 after:rounded-full after:bg-honey">
+              Home
+            </a>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setExploreOpen((open) => !open)}
+                className="flex items-center gap-1 rounded-lg px-3 py-3 text-[13px] text-white/65 transition hover:bg-white/5 hover:text-white"
+                aria-expanded={exploreOpen}
+                aria-haspopup="true"
+              >
+                Explore <span className={`text-[9px] transition-transform ${exploreOpen ? "rotate-180" : ""}`}>▼</span>
+              </button>
+              {exploreOpen && (
+                <div className="absolute right-0 top-[calc(100%+7px)] w-56 rounded-xl border border-white/10 bg-black p-2 shadow-2xl">
+                  {GENRES.map((genre) => (
+                    <a
+                      key={genre.slug}
+                      href={`/${genre.slug}`}
+                      onClick={() => setExploreOpen(false)}
+                      className="block rounded-lg px-3 py-2.5 text-[13px] text-white/70 transition hover:bg-white/5 hover:text-honey"
+                    >
+                      {genre.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noreferrer" : undefined}
+                className="rounded-lg px-3 py-3 text-[13px] text-white/65 transition hover:bg-white/5 hover:text-white"
+              >
+                {link.label}
+              </a>
+            ))}
+            <a href="/submit" className="ml-2 rounded-full bg-white px-5 py-2.5 text-[12px] font-bold text-black transition hover:bg-honey">
+              Submit
+            </a>
+          </nav>
+
+          <a href="/submit" className="ml-auto rounded-full bg-white px-4 py-2.5 text-[12px] font-bold text-black transition hover:bg-honey lg:hidden">
+            Submit
+          </a>
+        </div>
+      </header>
+
+      {menuOpen && (
+        <div className="fixed inset-0 z-[90] overflow-y-auto bg-black text-white lg:hidden" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+          <div className="sticky top-0 flex h-[64px] items-center justify-between border-b border-white/10 bg-black/95 px-4 backdrop-blur-xl sm:px-6">
+            <a href="/home" className="flex items-center gap-2.5" onClick={closeMenu}>
+              <img src={LOGO_URL} alt="BitBuzz" className="h-8 w-8 rounded-full object-cover ring-1 ring-white/20" />
+              <span className="font-serif text-[21px] font-semibold tracking-[-0.04em]">BitBuzz</span>
+            </a>
+            <button type="button" onClick={closeMenu} className="flex h-10 w-10 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10" aria-label="Close menu">
+              <span className="text-2xl leading-none">×</span>
+            </button>
+          </div>
+          <nav className="mx-auto max-w-xl px-5 py-8 sm:px-8" aria-label="Mobile navigation">
+            <a href="/home" onClick={closeMenu} className="block rounded-xl border-l-2 border-honey bg-white/[0.03] px-4 py-3.5 text-[16px] font-semibold text-honey">Home</a>
+            <p className="mt-8 px-4 pb-2 text-[10px] font-bold tracking-[0.18em] text-white/35">EXPLORE</p>
+            {GENRES.map((genre) => (
+              <a key={genre.slug} href={`/${genre.slug}`} onClick={closeMenu} className="block rounded-xl px-4 py-3 text-[15px] text-white/70 transition hover:bg-white/5 hover:text-white">
+                {genre.label}
+              </a>
+            ))}
+            <div className="my-6 border-t border-white/10" />
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noreferrer" : undefined}
+                onClick={closeMenu}
+                className="block rounded-xl px-4 py-3 text-[15px] text-white/70 transition hover:bg-white/5 hover:text-white"
+              >
+                {link.label}
+              </a>
+            ))}
+            <a href="/submit" onClick={closeMenu} className="mt-5 block rounded-full bg-white px-5 py-3 text-center text-[13px] font-bold text-black transition hover:bg-honey">
+              Submit an Article
+            </a>
+          </nav>
+        </div>
+      )}
+
       <section className="relative isolate min-h-[475px] overflow-hidden border-b border-white/10 sm:min-h-[500px] lg:min-h-[475px]">
         <img
           src={HERO_GIF}
