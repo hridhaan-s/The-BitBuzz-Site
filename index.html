@@ -9,6 +9,15 @@
     <link rel="apple-touch-icon" href="https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg" />
 
     <title>BitBuzz — Stop eating noise.</title>
+    <style>
+      /* Landing-page navigation: Explore and Opportunities are retired. */
+      .bb .bb-navlink:nth-child(2),
+      .bb .bb-navlink:nth-child(4),
+      .bb nav[aria-label="Mobile"] > a:nth-child(2),
+      .bb nav[aria-label="Mobile"] > a:nth-child(4) {
+        display: none !important;
+      }
+    </style>
     <script>
       (function() {
         const saved = localStorage.getItem('bitbuzz_theme');
