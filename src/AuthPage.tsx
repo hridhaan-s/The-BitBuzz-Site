@@ -52,7 +52,7 @@ export default function AuthPage() {
     setBusy(false);
     if (error) return setError(error.message);
     setSent(true);
-    setMessage(mode === "signup" ? "Check your inbox to finish creating your BitBuzz account." : "Check your inbox for your BitBuzz sign-in code.");
+    setMessage(mode === "signup" ? "Check your inbox to finish creating your BitBuzz account." : "Check your inbox for your BitBuzz sign in code.");
   };
 
   const verifyCode = async (event: FormEvent) => {
@@ -140,11 +140,17 @@ export default function AuthPage() {
             </form>
           )}
 
-          <p className="mt-8 border-t border-white/10 pt-5 text-center text-[11px] leading-relaxed text-white/25">
+          <p className="mt-8 border-t border-white/10 pt-5 text-center text-[11px] leading-relaxed text-white/30">
             By continuing, you agree to BitBuzz's terms and {" "}
-            <a href="/privacy" className="text-white/45 underline decoration-white/20 underline-offset-2 transition hover:text-white">privacy notice</a>.
+            <a href="/privacy" className="font-semibold text-[#ffe600] underline decoration-[#ffe600]/60 underline-offset-2 transition hover:text-[#fff27a]">privacy notice</a>.
             {" "}We only use account information for authentication and the features described in our privacy notice.
           </p>
+
+          <footer className="mt-5 flex items-center justify-center gap-2 border-t border-white/10 pt-5 text-[11px] text-white/25">
+            <span>BitBuzz</span>
+            <span aria-hidden="true">•</span>
+            <a href="/privacy" className="font-semibold text-[#ffe600] transition hover:text-[#fff27a]">Privacy Policy</a>
+          </footer>
         </div>
       </main>
     </div>
