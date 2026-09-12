@@ -52,6 +52,21 @@ function StarField() {
   </div>;
 }
 
+function MatrixRain() {
+  const columns = useMemo(() => Array.from({ length: 30 }, (_, i) => {
+    const chars = "01アイウエオカキクケコサシスセソ{}[]<>/\\$#*+ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const count = 12 + (i % 7);
+    const text = Array.from({ length: count }, (_, j) => chars[(i * 17 + j * 29) % chars.length]).join("");
+    return { left: `${i * 3.55 - 2}%`, delay: `${(i * 0.23) % 4.8}s`, duration: `${5.5 + (i % 6) * 0.75}s`, text };
+  }), []);
+
+  return <div className="bb-matrix" aria-hidden="true">
+    <div className="bb-matrix-glow" />
+    {columns.map((column, i) => <span key={i} className="bb-matrix-column" style={{ left: column.left, animationDelay: column.delay, animationDuration: column.duration }}>{column.text}</span>)}
+    <div className="bb-matrix-vignette" />
+  </div>;
+}
+
 export default function HomeNewsroom({ initialCategory, hideHeader = false }: Props) {
   const category = initialCategory || "";
   const copy = COPY[category];
@@ -92,7 +107,18 @@ export default function HomeNewsroom({ initialCategory, hideHeader = false }: Pr
       .bb-newsroom-shooting-two { top:63%; left:82%; width:48px; animation-delay:4.5s; }
       @keyframes bbStarPulse { 0%,100%{transform:scale(.75);opacity:.18} 50%{transform:scale(1.35);opacity:.75} }
       @keyframes bbShooting { 0%,55%,100%{opacity:0;transform:translate(0,0) rotate(-42deg)} 62%{opacity:.7} 70%{opacity:0;transform:translate(115px,80px) rotate(-42deg)} }
-      @media(prefers-reduced-motion:reduce){.bb-newsroom-star,.bb-newsroom-shooting{animation:none!important}}
+
+      .bb-matrix { position:absolute; inset:0; overflow:hidden; pointer-events:none; opacity:0; transition:opacity .5s ease; }
+      .bb-matrix-column { position:absolute; top:-55%; width:26px; color:rgba(78,255,134,.46); font-family:"JetBrains Mono",ui-monospace,monospace; font-size:10px; font-weight:700; line-height:1.55; letter-spacing:.08em; writing-mode:vertical-rl; text-shadow:0 0 8px rgba(44,255,116,.42); white-space:nowrap; animation:bbMatrixFall linear infinite; }
+      .bb-matrix-column::first-letter { color:rgba(190,255,212,.9); text-shadow:0 0 10px rgba(96,255,145,.9); }
+      .bb-matrix-glow { position:absolute; inset:0; background:radial-gradient(ellipse at 70% 50%,rgba(0,255,104,.13),transparent 42%),linear-gradient(90deg,transparent 0%,rgba(0,255,104,.025) 55%,rgba(0,255,104,.08) 100%); }
+      .bb-matrix-vignette { position:absolute; inset:0; background:linear-gradient(90deg,#020304 0%,rgba(2,3,4,.82) 26%,rgba(2,3,4,.35) 62%,rgba(2,3,4,.12) 100%),linear-gradient(180deg,#020304 0%,transparent 22%,transparent 72%,#000 100%); }
+      @keyframes bbMatrixFall { 0%{transform:translateY(0);opacity:0} 8%{opacity:.65} 78%{opacity:.46} 100%{transform:translateY(175%);opacity:0} }
+      .bb-newsroom-hero.bb-cyber-hero .bb-matrix { opacity:1; }
+      .bb-cyber-hero .bb-newsroom-stars { opacity:.22; }
+      .bb-cyber-hero::after { content:""; position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent 0,transparent 3px,rgba(80,255,130,.012) 4px); pointer-events:none; mix-blend-mode:screen; }
+      @media(prefers-reduced-motion:reduce){.bb-newsroom-star,.bb-newsroom-shooting,.bb-matrix-column{animation:none!important}.bb-matrix{opacity:.72!important}}
+      @media(max-width:640px){.bb-matrix-column{font-size:8px; width:20px}.bb-matrix-vignette{background:linear-gradient(90deg,#020304 0%,rgba(2,3,4,.68) 45%,rgba(2,3,4,.2) 100%),linear-gradient(180deg,#020304 0%,transparent 25%,transparent 72%,#000 100%);}}
     `}</style>
     <main>
       <section className="border-b border-white/10 bg-black">
@@ -102,8 +128,9 @@ export default function HomeNewsroom({ initialCategory, hideHeader = false }: Pr
             <span className="hidden sm:block">Independent student newsroom · Science · Technology · Innovation</span>
             <span>{copy?.kicker || "ALL"}</span>
           </div>
-          <div className="bb-newsroom-hero -mx-5 px-5 py-9 sm:py-11 lg:-mx-8 lg:px-8 lg:py-12">
+          <div className={`bb-newsroom-hero -mx-5 px-5 py-9 sm:py-11 lg:-mx-8 lg:px-8 lg:py-12 ${category === "cybersecurity" ? "bb-cyber-hero" : ""}`}>
             <StarField />
+            {category === "cybersecurity" && <MatrixRain />}
             <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-[9px] font-bold uppercase tracking-[.24em] text-white/45">{copy?.kicker || "BITBUZZ JOURNAL"}</p>
