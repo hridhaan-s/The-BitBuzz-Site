@@ -1,157 +1,20 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
 
-type ArticleDraft = {
-  title?: string;
-  standfirst?: string | null;
-  body_md?: string;
-  seo_title?: string | null;
-  seo_description?: string | null;
-  cover_image_url?: string | null;
-};
-
-type Props = {
-  article: ArticleDraft;
-  onChange: (article: ArticleDraft) => void;
-};
-
+type ArticleDraft = { title?: string; standfirst?: string | null; body_md?: string; seo_title?: string | null; seo_description?: string | null; cover_image_url?: string | null };
+type Props = { article: ArticleDraft; onChange: (article: ArticleDraft) => void };
 type Topic = { topic: string; why: string; niche: string; sourceUrls?: string[] };
 type ImageResult = { title: string; url: string; thumbnail: string; source: string; pageUrl: string };
 type Tab = "assist" | "trending" | "images";
-
-function ActionButton({ children, onClick, disabled = false, primary = false }: { children: React.ReactNode; onClick: () => void; disabled?: boolean; primary?: boolean }) {
-  return <button type="button" disabled={disabled} onClick={onClick} className={`rounded-lg px-3 py-2 text-[10px] font-bold transition disabled:cursor-not-allowed disabled:opacity-35 ${primary ? "bg-white text-black hover:bg-[#83adff]" : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"}`}>{children}</button>;
-}
-
-async function getFunctionError(error: any) {
-  let message = error?.message || "Edge Function request failed.";
-  try {
-    if (error?.context && typeof error.context.json === "function") {
-      const body = await error.context.json();
-      message = body?.error || body?.message || message;
-    }
-  } catch {
-    // The response body may already have been consumed; keep the original message.
-  }
-  return message;
-}
-
+function ActionButton({ children, onClick, disabled = false, primary = false }: { children: React.ReactNode; onClick: () => void; disabled?: boolean; primary?: boolean }) { return <button type="button" disabled={disabled} onClick={onClick} className={`rounded-lg px-3 py-2 text-[10px] font-bold transition disabled:cursor-not-allowed disabled:opacity-35 ${primary ? "bg-white text-black hover:bg-[#83adff]" : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"}`}>{children}</button>; }
+async function getFunctionError(error: any) { let message = error?.message || "Edge Function request failed."; try { if (error?.context && typeof error.context.json === "function") { const body = await error.context.json(); message = body?.error || body?.message || message; } } catch {} return message; }
 export default function ChanakyaAssist({ article, onChange }: Props) {
-  const [tab, setTab] = useState<Tab>("assist");
-  const [target, setTarget] = useState("whole");
-  const [prompt, setPrompt] = useState("");
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [images, setImages] = useState<ImageResult[]>([]);
-  const [imageQuery, setImageQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [loadingTrends, setLoadingTrends] = useState(false);
-  const [error, setError] = useState("");
-  const [verification, setVerification] = useState<{ status?: string; confidence?: number; notes?: string } | null>(null);
-  const [sources, setSources] = useState<{ title: string; url: string; source?: string | null }[]>([]);
-
-  const invoke = async (body: Record<string, unknown>) => {
-    const { data, error } = await supabase.functions.invoke("chanakya-assist", { body });
-    if (error) throw new Error(await getFunctionError(error));
-    if (data?.error) throw new Error(data.error);
-    return data;
-  };
-
-  const loadTrends = async () => {
-    setLoadingTrends(true); setError("");
-    try {
-      const data = await invoke({ action: "trending" });
-      setTopics(data.topics || []);
-    } catch (e) { setError(e instanceof Error ? e.message : "Could not load trends."); }
-    finally { setLoadingTrends(false); }
-  };
-
+  const [tab, setTab] = useState<Tab>("assist"); const [target, setTarget] = useState("whole"); const [prompt, setPrompt] = useState(""); const [topics, setTopics] = useState<Topic[]>([]); const [images, setImages] = useState<ImageResult[]>([]); const [imageQuery, setImageQuery] = useState(""); const [loading, setLoading] = useState(false); const [loadingTrends, setLoadingTrends] = useState(false); const [error, setError] = useState(""); const [verification, setVerification] = useState<{ status?: string; confidence?: number; notes?: string } | null>(null); const [sources, setSources] = useState<{ title: string; url: string; source?: string | null }[]>([]);
+  const invoke = async (body: Record<string, unknown>) => { const { data: sessionData } = await supabase.auth.getSession(); const accessToken = sessionData.session?.access_token; if (!accessToken) throw new Error("Please sign in to the BitBuzz editorial console again, then retry."); const { data, error } = await supabase.functions.invoke("chanakya-assist", { body, headers: { Authorization: `Bearer ${accessToken}` } }); if (error) throw new Error(await getFunctionError(error)); if (data?.error) throw new Error(data.error); return data; };
+  const loadTrends = async () => { setLoadingTrends(true); setError(""); try { const data = await invoke({ action: "trending" }); setTopics(data.topics || []); } catch (e) { setError(e instanceof Error ? e.message : "Could not load trends."); } finally { setLoadingTrends(false); } };
   useEffect(() => { if (tab === "trending" && !topics.length) loadTrends(); }, [tab]);
-
-  const run = async () => {
-    setLoading(true); setError("");
-    try {
-      const data = await invoke({
-        action: "generate",
-        target,
-        prompt: prompt.trim() || `Write a BitBuzz article about ${article.title || "this topic"}.`,
-        topic: article.title || prompt,
-        article: {
-          title: article.title || "",
-          standfirst: article.standfirst || "",
-          body: article.body_md || "",
-          seoTitle: article.seo_title || "",
-          seoDescription: article.seo_description || "",
-        },
-      });
-      const generated = data.article || {};
-      if (target === "title") onChange({ ...article, title: generated.title || article.title });
-      else if (target === "standfirst") onChange({ ...article, standfirst: generated.standfirst || article.standfirst });
-      else if (target === "body") onChange({ ...article, body_md: generated.body || article.body_md });
-      else if (target === "seo-title") onChange({ ...article, seo_title: generated.seoTitle || article.seo_title });
-      else if (target === "seo-description") onChange({ ...article, seo_description: generated.seoDescription || article.seo_description });
-      else onChange({
-        ...article,
-        title: generated.title || article.title,
-        standfirst: generated.standfirst || article.standfirst,
-        body_md: generated.body || article.body_md,
-        seo_title: generated.seoTitle || article.seo_title,
-        seo_description: generated.seoDescription || article.seo_description,
-        cover_image_url: article.cover_image_url || data.images?.[0]?.url || article.cover_image_url,
-      });
-      setVerification(generated.verification || null);
-      setSources(data.sources || []);
-      if (data.images?.length) setImages(data.images);
-      if (generated.imageQuery) setImageQuery(generated.imageQuery);
-    } catch (e) { setError(e instanceof Error ? e.message : "Chanakya failed."); }
-    finally { setLoading(false); }
-  };
-
-  const findImages = async () => {
-    const q = imageQuery.trim() || article.title || "technology science";
-    setLoading(true); setError("");
-    try { const data = await invoke({ action: "images", query: q }); setImages(data.images || []); setTab("images"); }
-    catch (e) { setError(e instanceof Error ? e.message : "Image search failed."); }
-    finally { setLoading(false); }
-  };
-
+  const run = async () => { setLoading(true); setError(""); try { const data = await invoke({ action: "generate", target, prompt: prompt.trim() || `Write a BitBuzz article about ${article.title || "this topic"}.`, topic: article.title || prompt, article: { title: article.title || "", standfirst: article.standfirst || "", body: article.body_md || "", seoTitle: article.seo_title || "", seoDescription: article.seo_description || "" } }); const generated = data.article || {}; if (target === "title") onChange({ ...article, title: generated.title || article.title }); else if (target === "standfirst") onChange({ ...article, standfirst: generated.standfirst || article.standfirst }); else if (target === "body") onChange({ ...article, body_md: generated.body || article.body_md }); else if (target === "seo-title") onChange({ ...article, seo_title: generated.seoTitle || article.seo_title }); else if (target === "seo-description") onChange({ ...article, seo_description: generated.seoDescription || article.seo_description }); else onChange({ ...article, title: generated.title || article.title, standfirst: generated.standfirst || article.standfirst, body_md: generated.body || article.body_md, seo_title: generated.seoTitle || article.seo_title, seo_description: generated.seoDescription || article.seo_description, cover_image_url: article.cover_image_url || data.images?.[0]?.url || article.cover_image_url }); setVerification(generated.verification || null); setSources(data.sources || []); if (data.images?.length) setImages(data.images); if (generated.imageQuery) setImageQuery(generated.imageQuery); } catch (e) { setError(e instanceof Error ? e.message : "Chanakya failed."); } finally { setLoading(false); } };
+  const findImages = async () => { const q = imageQuery.trim() || article.title || "technology science"; setLoading(true); setError(""); try { const data = await invoke({ action: "images", query: q }); setImages(data.images || []); setTab("images"); } catch (e) { setError(e instanceof Error ? e.message : "Image search failed."); } finally { setLoading(false); } };
   const useImage = (image: ImageResult) => onChange({ ...article, cover_image_url: image.url, cover_alt: image.title } as ArticleDraft & { cover_alt?: string });
-
-  return <aside className="rounded-[22px] border border-white/10 bg-[#080809] overflow-hidden">
-    <div className="border-b border-white/10 p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div><div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#83adff] text-black text-xs font-black">च</span><div><p className="text-sm font-semibold">Chanakya Assist</p><p className="text-[9px] uppercase tracking-[.15em] text-white/30">BitBuzz editorial copilot</p></div></div></div>
-        <span className="rounded-full bg-emerald-400/10 px-2 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-emerald-300">Search verified</span>
-      </div>
-      <div className="mt-4 flex gap-1 rounded-xl bg-white/[.03] p-1">
-        {([["assist", "Assist"], ["trending", "Trending"], ["images", "Images"]] as [Tab,string][]).map(([id, label]) => <button key={id} type="button" onClick={() => setTab(id)} className={`flex-1 rounded-lg px-2 py-2 text-[10px] font-bold ${tab === id ? "bg-white text-black" : "text-white/40 hover:text-white"}`}>{label}</button>)}
-      </div>
-    </div>
-
-    <div className="p-4">
-      {tab === "assist" && <>
-        <label className="block"><span className="mb-2 block text-[9px] font-bold uppercase tracking-[.16em] text-white/30">Put the result into</span><select value={target} onChange={e => setTarget(e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#101011] px-3 py-2.5 text-xs text-white"><option value="whole">Whole article</option><option value="title">Article title</option><option value="standfirst">Standfirst</option><option value="body">Article body</option><option value="seo-title">SEO title</option><option value="seo-description">SEO description</option></select></label>
-        <label className="mt-4 block"><span className="mb-2 block text-[9px] font-bold uppercase tracking-[.16em] text-white/30">Prompt Chanakya</span><textarea value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="e.g. Turn this research into a sharp BitBuzz article. Explain what happened, why it matters and what students can learn." className="min-h-28 w-full resize-y rounded-xl border border-white/10 bg-white/[.035] px-3 py-3 text-xs leading-relaxed text-white outline-none focus:border-white/25"/></label>
-        <div className="mt-3 flex flex-wrap gap-2"><ActionButton primary onClick={run} disabled={loading}>{loading ? "Researching + checking…" : "Generate & insert"}</ActionButton><ActionButton onClick={() => { setPrompt("Fact-check the current article against fresh sources. Correct unsupported claims and keep only information that can be verified."); setTarget("whole"); }}>Fact-check draft</ActionButton></div>
-        <div className="mt-4 grid grid-cols-2 gap-2"><ActionButton onClick={() => { setPrompt("Write 5 short, attractive but accurate BitBuzz headlines for this story."); setTarget("title"); }}>5 headlines</ActionButton><ActionButton onClick={() => { setPrompt("Write a compelling BitBuzz standfirst for this story without clickbait."); setTarget("standfirst"); }}>Standfirst</ActionButton><ActionButton onClick={() => { setPrompt("Suggest a concise SEO title and search description for this story."); setTarget("seo-title"); }}>SEO</ActionButton><ActionButton onClick={findImages}>Find images</ActionButton></div>
-        {(verification || sources.length > 0) && <div className="mt-5 space-y-3 border-t border-white/10 pt-4">
-          {verification && <div className={`rounded-xl border p-3 ${verification.status === "verified" ? "border-emerald-400/20 bg-emerald-400/5" : "border-amber-400/20 bg-amber-400/5"}`}><div className="flex items-center justify-between"><span className="text-[9px] font-bold uppercase tracking-[.15em]">Chanakya verification</span><span className="text-[10px] font-bold">{verification.confidence ?? 0}%</span></div><p className="mt-1 text-xs text-white/55">{verification.status === "verified" ? "✓ Sources support the main claims." : "⚠ Human review needed for some claims."}</p>{verification.notes && <p className="mt-2 text-[10px] leading-relaxed text-white/35">{verification.notes}</p>}</div>}
-          {sources.length > 0 && <div><p className="text-[9px] font-bold uppercase tracking-[.15em] text-white/30">Sources checked</p><div className="mt-2 space-y-1.5">{sources.slice(0,6).map((s,i)=><a key={`${s.url}-${i}`} href={s.url} target="_blank" rel="noreferrer" className="block truncate text-[10px] text-[#83adff] hover:underline">{s.source || s.title}</a>)}</div></div>}
-        </div>}
-      </>}
-
-      {tab === "trending" && <>
-        <div className="flex items-center justify-between"><div><p className="text-sm font-semibold">BitBuzz trend desk</p><p className="mt-1 text-[10px] text-white/35">Only our approved niches. No random viral junk.</p></div><ActionButton onClick={loadTrends} disabled={loadingTrends}>{loadingTrends ? "…" : "Refresh"}</ActionButton></div>
-        <div className="mt-4 space-y-2">{topics.map((t,i)=><button type="button" key={`${t.topic}-${i}`} onClick={() => { setPrompt(`Write a full BitBuzz article about: ${t.topic}. ${t.why}`); setTarget("whole"); setTab("assist"); }} className="w-full rounded-xl border border-white/10 bg-white/[.02] p-3 text-left hover:border-white/20"><div className="flex items-center justify-between gap-3"><span className="text-[8px] font-bold uppercase tracking-[.14em] text-[#83adff]">{t.niche}</span><span className="text-[9px] text-white/25">#{i+1}</span></div><p className="mt-1 text-xs font-semibold leading-snug">{t.topic}</p><p className="mt-1 text-[10px] leading-relaxed text-white/35">{t.why}</p></button>)}{!topics.length && !loadingTrends && <p className="py-8 text-center text-xs text-white/30">No trend data yet. Hit refresh.</p>}</div>
-      </>}
-
-      {tab === "images" && <>
-        <p className="text-sm font-semibold">Image desk</p><p className="mt-1 text-[10px] text-white/35">Search images without leaving the editor.</p>
-        <div className="mt-3 flex gap-2"><input value={imageQuery} onChange={e=>setImageQuery(e.target.value)} placeholder="e.g. NASA lunar mission" className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/[.035] px-3 py-2 text-[10px]"/><ActionButton onClick={findImages} disabled={loading}>Search</ActionButton></div>
-        <p className="mt-3 text-[9px] text-amber-300/60">Use images only when you have permission or an appropriate licence.</p>
-        <div className="mt-4 grid grid-cols-2 gap-2">{images.map((image,i)=><button type="button" key={`${image.url}-${i}`} onClick={() => useImage(image)} className="overflow-hidden rounded-xl border border-white/10 bg-white/[.02] text-left hover:border-white/25"><img src={image.thumbnail || image.url} alt="" className="aspect-video w-full object-cover"/><div className="p-2"><p className="line-clamp-2 text-[9px] font-semibold text-white/70">{image.title}</p><p className="mt-1 truncate text-[8px] text-white/25">{image.source}</p></div></button>)}</div>
-        {!images.length && <p className="py-8 text-center text-xs text-white/30">Search for an image above.</p>}
-      </>}
-      {error && <div className="mt-4 rounded-xl border border-red-400/20 bg-red-400/5 p-3 text-[10px] leading-relaxed text-red-200">{error}</div>}
-    </div>
-  </aside>;
+  return <aside className="rounded-[22px] border border-white/10 bg-[#080809] overflow-hidden"><div className="border-b border-white/10 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#83adff] text-black text-xs font-black">च</span><div><p className="text-sm font-semibold">Chanakya Assist</p><p className="text-[9px] uppercase tracking-[.15em] text-white/30">BitBuzz editorial copilot</p></div></div></div><span className="rounded-full bg-emerald-400/10 px-2 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-emerald-300">Search verified</span></div><div className="mt-4 flex gap-1 rounded-xl bg-white/[.03] p-1">{([["assist", "Assist"], ["trending", "Trending"], ["images", "Images"]] as [Tab,string][]).map(([id,label])=><button key={id} type="button" onClick={()=>setTab(id)} className={`flex-1 rounded-lg px-2 py-2 text-[10px] font-bold ${tab===id?"bg-white text-black":"text-white/40 hover:text-white"}`}>{label}</button>)}</div></div><div className="p-4">{tab === "assist" && <><label className="block"><span className="mb-2 block text-[9px] font-bold uppercase tracking-[.16em] text-white/30">Put the result into</span><select value={target} onChange={e=>setTarget(e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#101011] px-3 py-2.5 text-xs text-white"><option value="whole">Whole article</option><option value="title">Article title</option><option value="standfirst">Standfirst</option><option value="body">Article body</option><option value="seo-title">SEO title</option><option value="seo-description">SEO description</option></select></label><label className="mt-4 block"><span className="mb-2 block text-[9px] font-bold uppercase tracking-[.16em] text-white/30">Prompt Chanakya</span><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="e.g. Turn this research into a sharp BitBuzz article. Explain what happened, why it matters and what students can learn." className="min-h-28 w-full resize-y rounded-xl border border-white/10 bg-white/[.035] px-3 py-3 text-xs leading-relaxed text-white outline-none focus:border-white/25"/></label><div className="mt-3 flex flex-wrap gap-2"><ActionButton primary onClick={run} disabled={loading}>{loading?"Researching + checking…":"Generate & insert"}</ActionButton><ActionButton onClick={()=>{setPrompt("Fact-check the current article against fresh sources. Correct unsupported claims and keep only information that can be verified.");setTarget("whole")}}>Fact-check draft</ActionButton></div><div className="mt-4 grid grid-cols-2 gap-2"><ActionButton onClick={()=>{setPrompt("Write 5 short, attractive but accurate BitBuzz headlines for this story.");setTarget("title")}}>5 headlines</ActionButton><ActionButton onClick={()=>{setPrompt("Write a compelling BitBuzz standfirst for this story without clickbait.");setTarget("standfirst")}}>Standfirst</ActionButton><ActionButton onClick={()=>{setPrompt("Suggest a concise SEO title and search description for this story.");setTarget("seo-title")}}>SEO</ActionButton><ActionButton onClick={findImages}>Find images</ActionButton></div>{(verification||sources.length>0)&&<div className="mt-5 space-y-3 border-t border-white/10 pt-4">{verification&&<div className={`rounded-xl border p-3 ${verification.status==="verified"?"border-emerald-400/20 bg-emerald-400/5":"border-amber-400/20 bg-amber-400/5"}`}><div className="flex items-center justify-between"><span className="text-[9px] font-bold uppercase tracking-[.15em]">Chanakya verification</span><span className="text-[10px] font-bold">{verification.confidence??0}%</span></div><p className="mt-1 text-xs text-white/55">{verification.status==="verified"?"✓ Sources support the main claims.":"⚠ Human review needed for some claims."}</p>{verification.notes&&<p className="mt-2 text-[10px] leading-relaxed text-white/35">{verification.notes}</p>}</div>}{sources.length>0&&<div><p className="text-[9px] font-bold uppercase tracking-[.15em] text-white/30">Sources checked</p><div className="mt-2 space-y-1.5">{sources.slice(0,6).map((s,i)=><a key={`${s.url}-${i}`} href={s.url} target="_blank" rel="noreferrer" className="block truncate text-[10px] text-[#83adff] hover:underline">{s.source||s.title}</a>)}</div></div>}</div>}</>}{tab === "trending" && <><div className="flex items-center justify-between"><div><p className="text-sm font-semibold">BitBuzz trend desk</p><p className="mt-1 text-[10px] text-white/35">Only our approved niches. No random viral junk.</p></div><ActionButton onClick={loadTrends} disabled={loadingTrends}>{loadingTrends?"…":"Refresh"}</ActionButton></div><div className="mt-4 space-y-2">{topics.map((t,i)=><button type="button" key={`${t.topic}-${i}`} onClick={()=>{setPrompt(`Write a full BitBuzz article about: ${t.topic}. ${t.why}`);setTarget("whole");setTab("assist")}} className="w-full rounded-xl border border-white/10 bg-white/[.02] p-3 text-left hover:border-white/20"><div className="flex items-center justify-between gap-3"><span className="text-[8px] font-bold uppercase tracking-[.14em] text-[#83adff]">{t.niche}</span><span className="text-[9px] text-white/25">#{i+1}</span></div><p className="mt-1 text-xs font-semibold leading-snug">{t.topic}</p><p className="mt-1 text-[10px] leading-relaxed text-white/35">{t.why}</p></button>)}{!topics.length&&!loadingTrends&&<p className="py-8 text-center text-xs text-white/30">No trend data yet. Hit refresh.</p>}</div></>}{tab === "images" && <><p className="text-sm font-semibold">Image desk</p><p className="mt-1 text-[10px] text-white/35">Search images without leaving the editor.</p><div className="mt-3 flex gap-2"><input value={imageQuery} onChange={e=>setImageQuery(e.target.value)} placeholder="e.g. NASA lunar mission" className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/[.035] px-3 py-2 text-[10px]"/><ActionButton onClick={findImages} disabled={loading}>Search</ActionButton></div><p className="mt-3 text-[9px] text-amber-300/60">Use images only when you have permission or an appropriate licence.</p><div className="mt-4 grid grid-cols-2 gap-2">{images.map((image,i)=><button type="button" key={`${image.url}-${i}`} onClick={()=>useImage(image)} className="overflow-hidden rounded-xl border border-white/10 bg-white/[.02] text-left hover:border-white/25"><img src={image.thumbnail||image.url} alt="" className="aspect-video w-full object-cover"/><div className="p-2"><p className="line-clamp-2 text-[9px] font-semibold text-white/70">{image.title}</p><p className="mt-1 truncate text-[8px] text-white/25">{image.source}</p></div></button>)}</div>{!images.length&&<p className="py-8 text-center text-xs text-white/30">Search for an image above.</p>}</>}{error&&<div className="mt-4 rounded-xl border border-red-400/20 bg-red-400/5 p-3 text-[10px] leading-relaxed text-red-200">{error}</div>}</div></aside>;
 }
