@@ -9,10 +9,10 @@ import InfoPage from "./InfoPage";
 import Blog, { ArticlePage } from "./Blog";
 import Admin from "./Admin";
 import AuthPage from "./AuthPage";
-import AuthNav from "./AuthNav";
 import PrivacyPage from "./PrivacyPage";
 import ProfilePage from "./ProfilePage";
 import SiteFooter from "./SiteFooter";
+import UniversalNavbar from "./UniversalNavbar";
 import { supabase } from "./lib/supabase";
 import "./index.css";
 
@@ -69,12 +69,12 @@ const genreRoutes: Record<string, string> = {
 let page;
 let pageHasFooter = false;
 if (path === "/") { page = <><LandingPage /><LandingPageFinalizer /><LandingResearchMount /></>; pageHasFooter = true; }
-else if (path === "/home" || path === "/blog") { page = <><HomeNewsroom /><AuthNav /></>; pageHasFooter = true; }
+else if (path === "/home" || path === "/blog") { page = <><UniversalNavbar /><HomeNewsroom hideHeader /></>; pageHasFooter = true; }
 else if (path === "/signup") { page = <AuthPage />; pageHasFooter = true; }
 else if (path === "/privacy") page = <PrivacyPage />;
 else if (path === "/profile") page = <ProfilePage />;
-else if (genreRoutes[path]) page = <><HomeNewsroom initialCategory={genreRoutes[path]} /><AuthNav /></>;
-else if (path.startsWith("/blog/")) page = <ArticlePage slug={decodeURIComponent(path.slice("/blog/".length))} />;
+else if (genreRoutes[path]) page = <><UniversalNavbar /><HomeNewsroom initialCategory={genreRoutes[path]} hideHeader /></>;
+else if (path.startsWith("/blog/")) page = <><UniversalNavbar /><ArticlePage slug={decodeURIComponent(path.slice("/blog/".length))} /></>;
 else if (path === "/admin") page = <><Admin /><AdminGreeting /></>;
 else if (path === "/explore") page = <InfoPage kind="explore" />;
 else if (path === "/categories") page = <InfoPage kind="categories" />;
