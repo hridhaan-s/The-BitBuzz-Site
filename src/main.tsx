@@ -44,6 +44,16 @@ function AdminGreeting() {
   }, []); return null;
 }
 
+const genreRoutes: Record<string, string> = {
+  "/space": "space",
+  "/cybersecurity": "cybersecurity",
+  "/tech": "tech",
+  "/aviation": "aviation",
+  "/innovations": "innovation",
+  "/innovation": "innovation",
+  "/biobuzz": "biobuzz",
+};
+
 let page;
 let pageHasFooter = false;
 if (path === "/") { page = <LandingPage />; pageHasFooter = true; }
@@ -52,6 +62,7 @@ else if (path === "/signup") { page = <AuthPage />; pageHasFooter = true; }
 else if (path === "/privacy") page = <PrivacyPage />;
 else if (path === "/profile") page = <ProfilePage />;
 else if (path === "/blog") page = <Blog />;
+else if (genreRoutes[path]) page = <Blog initialCategory={genreRoutes[path]} />;
 else if (path.startsWith("/blog/")) page = <ArticlePage slug={decodeURIComponent(path.slice("/blog/".length))} />;
 else if (path === "/admin") page = <><Admin /><AdminGreeting /></>;
 else if (path === "/explore") page = <InfoPage kind="explore" />;
