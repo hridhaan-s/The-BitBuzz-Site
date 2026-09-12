@@ -1,11 +1,12 @@
 import { useMemo } from "react";
+import { createRoot, type Root } from "react-dom/client";
 
 const ACCENT = "#ff7a3d";
 const ACCENT_PALE = "#ffe2c9";
 
 const PAPERS = [
   { id: "black-hole", category: "Space and astrophysics", title: "What actually happens inside a black hole", blurb: "Singularities, bent spacetime, Hawking radiation, and the point where our physics stops producing answers.", href: "https://docs.google.com/document/d/1vtL-EkJ8zl-XDAqSD2GMGwpP6Hw6tGu1/preview", image: "https://cdn.hackclub.com/019e32dd-14ba-722f-a20b-c22631755295/image.png", alt: "A black hole rendered against deep space.", featured: true },
-  { id: "stealth", category: "Military and aviation", title: "The stealth jet that outsmarts radar", blurb: "Radar evasion, the plasma myth, absorbent coatings, and where air combat goes next.", href: "https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1600&auto=format&fit=crop", image: "https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1600&auto=format&fit=crop", alt: "A military jet in flight against an overcast sky." },
+  { id: "stealth", category: "Military and aviation", title: "The stealth jet that outsmarts radar", blurb: "Radar evasion, the plasma myth, absorbent coatings, and where air combat goes next.", href: "https://docs.google.com/document/d/1pfyGnUnyX__5pWrQ6JvZJfvqRcI-vvQ8/preview", image: "https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1600&auto=format&fit=crop", alt: "A military jet in flight against an overcast sky." },
   { id: "flight", category: "Physics and aviation", title: "Why airplanes don't fall from the sky", blurb: "Lift, drag, thrust, and why the Bernoulli explanation you were taught is incomplete.", href: "https://docs.google.com/document/d/1-Pr6EIHOc-Fx-0Wx1l3xUXPVyHiYc1xr/preview", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1600&auto=format&fit=crop", alt: "An airliner seen from below as it climbs." },
   { id: "hypersonic", category: "Defence and missiles", title: "The science behind hypersonic missiles", blurb: "Mach 5 and up, thermal shielding, and why interception is close to impossible.", href: "https://docs.google.com/document/d/1Ag1jXH1Tbob0oIvvFatizrFqVxQ7hiau/preview", image: "https://cdn.hackclub.com/019e32ec-15b0-7a03-8dfa-7c0517a3bc5d/image.png", alt: "A missile climbing through the upper atmosphere." }
 ];
@@ -29,4 +30,26 @@ export default function ResearchLibrary() {
     <div>{rest.map(p => <a key={p.id} href={p.href} target="_blank" rel="noopener noreferrer" className="rl-row"><span className="rl-thumb block"><img src={p.image} alt={p.alt} loading="lazy" decoding="async"/></span><span className="block min-w-0"><span className="flex flex-wrap items-baseline gap-x-3 text-[.74rem] text-white/40"><span>{p.category}</span></span><span className="rl-display mt-1.5 block text-[clamp(1.1rem,2vw,1.4rem)] leading-[1.12]">{p.title}</span><span className="mt-1.5 block truncate text-[.86rem] text-white/40">{p.blurb}</span></span><span className="text-white/40"><Arrow size={18}/></span></a>)}</div>
     <p className="mt-8 text-[.82rem] text-white/40">New papers are added as they're finished. Opens in Google Docs, read-only.</p>
   </div></section>;
+}
+
+let researchRoot: Root | null = null;
+let researchHost: HTMLDivElement | null = null;
+
+export function mountResearchLibrary() {
+  if (window.location.pathname !== "/" || researchRoot) return;
+  const heading = Array.from(document.querySelectorAll("h2")).find(node => node.textContent?.trim() === "Flag It");
+  const flagSection = heading?.closest("section");
+  if (!flagSection) return;
+  researchHost = document.createElement("div");
+  researchHost.dataset.bitbuzzResearchLibrary = "true";
+  flagSection.insertAdjacentElement("afterend", researchHost);
+  researchRoot = createRoot(researchHost);
+  researchRoot.render(<ResearchLibrary />);
+}
+
+export function unmountResearchLibrary() {
+  researchRoot?.unmount();
+  researchRoot = null;
+  researchHost?.remove();
+  researchHost = null;
 }
