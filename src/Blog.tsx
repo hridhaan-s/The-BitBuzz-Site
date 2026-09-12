@@ -15,12 +15,12 @@ type Article = {
 
 type Category = { id: string; name: string; slug: string };
 
-const JOURNAL_GENRES = [
+const NAV_GENRES = [
   { label: "Space", slug: "space" },
   { label: "Cybersecurity", slug: "cybersecurity" },
   { label: "Tech", slug: "tech" },
   { label: "Aviation", slug: "aviation" },
-  { label: "Innovations", slug: "innovations" },
+  { label: "Innovation", slug: "innovation" },
   { label: "BioBuzz", slug: "biobuzz" },
 ] as const;
 
@@ -48,10 +48,9 @@ function Shell({ children }: { children: React.ReactNode }) {
           <img src={LOGO_URL} className="h-9 w-9 rounded-full object-cover ring-1 ring-white/20" alt="BitBuzz" />
           <span className="font-serif text-xl font-semibold tracking-[-.04em]">BitBuzz</span>
         </a>
-        <nav className="ml-auto hidden items-center gap-0.5 lg:flex" aria-label="Journal navigation">
-          <a href="/home" className="rounded-lg px-3 py-2.5 text-[12px] font-medium text-white/55 transition hover:bg-white/5 hover:text-white">Home</a>
-          <a href="/blog" className={`rounded-lg px-3 py-2.5 text-[12px] font-medium transition hover:bg-white/5 ${current === "blog" ? "bg-white/8 text-white" : "text-white/55 hover:text-white"}`}>Journal</a>
-          {JOURNAL_GENRES.map(genre => <a key={genre.slug} href={`/${genre.slug}`} className={`rounded-lg px-3 py-2.5 text-[12px] font-medium transition hover:bg-white/5 ${current === genre.slug ? "bg-white/10 text-white" : "text-white/55 hover:text-white"}`}>{genre.label}</a>)}
+        <nav className="ml-auto hidden items-center gap-0.5 lg:flex" aria-label="BitBuzz navigation">
+          <a href="/home" className={`rounded-lg px-3 py-2.5 text-[12px] font-medium transition hover:bg-white/5 ${current === "home" ? "bg-white/10 text-white" : "text-white/55 hover:text-white"}`}>Home</a>
+          {NAV_GENRES.map(genre => <a key={genre.slug} href={`/${genre.slug}`} className={`rounded-lg px-3 py-2.5 text-[12px] font-medium transition hover:bg-white/5 ${current === genre.slug || (genre.slug === "innovation" && current === "innovations") ? "bg-white/10 text-white" : "text-white/55 hover:text-white"}`}>{genre.label}</a>)}
           <a href="/about" className="ml-1 rounded-lg px-3 py-2.5 text-[12px] font-medium text-white/55 transition hover:bg-white/5 hover:text-white">About</a>
           <a href="/submit" className="ml-2 rounded-full bg-white px-4 py-2.5 text-[11px] font-bold text-black transition hover:bg-[#ffe600]">Submit</a>
         </nav>
@@ -59,16 +58,15 @@ function Shell({ children }: { children: React.ReactNode }) {
       </div>
     </header>
 
-    {menuOpen && <div className="fixed inset-0 z-[100] bg-black text-white lg:hidden" role="dialog" aria-modal="true" aria-label="Journal navigation">
+    {menuOpen && <div className="fixed inset-0 z-[100] bg-black text-white lg:hidden" role="dialog" aria-modal="true" aria-label="BitBuzz navigation">
       <div className="flex h-[66px] items-center justify-between border-b border-white/10 px-4 sm:px-6">
         <a href="/home" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)}><img src={LOGO_URL} className="h-9 w-9 rounded-full object-cover" alt="BitBuzz" /><span className="font-serif text-xl font-semibold">BitBuzz</span></a>
         <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close navigation" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-xl text-white/70">×</button>
       </div>
-      <nav className="mx-auto max-w-xl px-5 py-8 sm:px-8" aria-label="Mobile journal navigation">
-        <a href="/home" onClick={() => setMenuOpen(false)} className="block rounded-xl px-4 py-3.5 text-base text-white/70 hover:bg-white/5 hover:text-white">Home</a>
-        <a href="/blog" onClick={() => setMenuOpen(false)} className={`mt-1 block rounded-xl px-4 py-3.5 text-base ${current === "blog" ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5 hover:text-white"}`}>Journal</a>
+      <nav className="mx-auto max-w-xl px-5 py-8 sm:px-8" aria-label="Mobile BitBuzz navigation">
+        <a href="/home" onClick={() => setMenuOpen(false)} className={`block rounded-xl px-4 py-3.5 text-base ${current === "home" ? "bg-white/10 font-semibold text-white" : "text-white/70 hover:bg-white/5 hover:text-white"}`}>Home</a>
         <p className="mt-7 px-4 pb-2 text-[10px] font-bold uppercase tracking-[.2em] text-white/30">Explore</p>
-        {JOURNAL_GENRES.map(genre => <a key={genre.slug} href={`/${genre.slug}`} onClick={() => setMenuOpen(false)} className={`block rounded-xl px-4 py-3 text-[15px] ${current === genre.slug ? "bg-white/10 font-semibold text-white" : "text-white/65 hover:bg-white/5 hover:text-white"}`}>{genre.label}</a>)}
+        {NAV_GENRES.map(genre => <a key={genre.slug} href={`/${genre.slug}`} onClick={() => setMenuOpen(false)} className={`block rounded-xl px-4 py-3 text-[15px] ${current === genre.slug || (genre.slug === "innovation" && current === "innovations") ? "bg-white/10 font-semibold text-white" : "text-white/65 hover:bg-white/5 hover:text-white"}`}>{genre.label}</a>)}
         <div className="my-6 border-t border-white/10" />
         <a href="/about" onClick={() => setMenuOpen(false)} className="block rounded-xl px-4 py-3 text-[15px] text-white/65 hover:bg-white/5 hover:text-white">About BitBuzz</a>
         <a href="/submit" onClick={() => setMenuOpen(false)} className="mt-5 block rounded-full bg-white px-5 py-3 text-center text-[13px] font-bold text-black">Submit an Article</a>
@@ -104,10 +102,10 @@ export default function Blog({ initialCategory = "all" }: { initialCategory?: st
     return () => { active = false; };
   }, []);
 
-  const filtered = useMemo(() => selected === "all" ? articles : articles.filter(a => a.categories?.slug === selected), [articles, selected]);
+  const filtered = useMemo(() => selected === "all" ? articles : articles.filter(a => a.categories?.slug === selected || (selected === "innovation" && a.categories?.slug === "innovations")), [articles, selected]);
   const lead = selected === "all" ? filtered.find(a => a.is_lead) || filtered[0] : filtered[0];
   const rest = filtered.filter(a => a.id !== lead?.id);
-  const activeCategory = JOURNAL_GENRES.find(g => g.slug === selected);
+  const activeCategory = NAV_GENRES.find(g => g.slug === selected) || (selected === "innovations" ? NAV_GENRES.find(g => g.slug === "innovation") : undefined);
   const accent = activeCategory ? "#ffe600" : "#83adff";
 
   if (loading) return <Shell><main className="mx-auto max-w-6xl px-5 py-24 text-white/40">Loading the newsroom…</main></Shell>;
@@ -115,7 +113,7 @@ export default function Blog({ initialCategory = "all" }: { initialCategory?: st
   return <Shell><main className="mx-auto max-w-6xl px-5 py-12 sm:py-16 lg:py-20">
     <div className="flex flex-col gap-8 border-b border-white/10 pb-10 sm:flex-row sm:items-end sm:justify-between">
       <div className="max-w-3xl">
-        <p className="text-[10px] font-bold uppercase tracking-[.22em]" style={{ color: accent }}>{activeCategory ? `${activeCategory.label} Desk` : "BitBuzz Journal"}</p>
+        <p className="text-[10px] font-bold uppercase tracking-[.22em]" style={{ color: accent }}>{activeCategory ? `${activeCategory.label} Desk` : "BitBuzz"}</p>
         <h1 className="mt-4 font-serif text-[clamp(3.25rem,8vw,7rem)] leading-[.88] tracking-[-.065em]">{activeCategory ? <>Stories from <span style={{ color: accent }}>{activeCategory.label}.</span></> : <>Stories worth <span className="text-[#83adff]">reading.</span></>}</h1>
         <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/45">{activeCategory ? `The latest ${activeCategory.label.toLowerCase()} stories, explainers and ideas from BitBuzz.` : "Science, technology, cybersecurity, aviation and innovation, explained without the noise."}</p>
       </div>
@@ -136,6 +134,6 @@ export function ArticlePage({ slug }: { slug: string }) {
   const [article, setArticle] = useState<Article | null>(null); const [loading, setLoading] = useState(true); const [notFound, setNotFound] = useState(false);
   useEffect(() => { (async () => { const { data } = await supabase.from("articles").select("*, categories(name,slug), profiles(display_name)").eq("slug", slug).eq("status", "published").single(); if (!data) setNotFound(true); else { setArticle(data as Article); await supabase.rpc("increment_article_view", { article_id: data.id }).then(() => {}); } setLoading(false); })(); }, [slug]);
   if (loading) return <Shell><main className="mx-auto max-w-4xl px-5 py-24 text-white/40">Loading story…</main></Shell>;
-  if (notFound || !article) return <Shell><main className="mx-auto max-w-4xl px-5 py-24"><h1 className="font-serif text-5xl">Story not found.</h1><a href="/blog" className="mt-6 inline-block text-[#83adff]">Back to Journal</a></main></Shell>;
-  return <Shell><article className="mx-auto max-w-4xl px-5 py-12 sm:py-20"><a href="/blog" className="text-xs text-white/35 hover:text-white">Journal</a><div className="mt-10"><p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#83adff]">{article.categories?.name || "BitBuzz"}</p><h1 className="mt-5 font-serif text-[clamp(3rem,7vw,6.5rem)] leading-[.9] tracking-[-.06em]">{article.title}</h1><p className="mt-7 max-w-3xl text-xl leading-relaxed text-white/50">{article.standfirst}</p><div className="mt-7 flex flex-wrap gap-4 text-xs text-white/30"><span>{article.profiles?.display_name || "BitBuzz"}</span><span>·</span><span>{article.read_minutes || 1} min read</span><span>·</span><span>{article.published_at ? new Date(article.published_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : ""}</span></div></div>{article.cover_image_url && <img src={article.cover_image_url} alt={article.cover_alt || ""} className="mt-10 max-h-[620px] w-full rounded-[28px] object-cover"/>}<div className="prose prose-invert mt-12 max-w-none text-[17px] leading-[1.85] text-white/75" dangerouslySetInnerHTML={{ __html: renderMarkdown(article.body_md) }}/></article></Shell>;
+  if (notFound || !article) return <Shell><main className="mx-auto max-w-4xl px-5 py-24"><h1 className="font-serif text-5xl">Story not found.</h1><a href="/home" className="mt-6 inline-block text-[#83adff]">Back to Home</a></main></Shell>;
+  return <Shell><article className="mx-auto max-w-4xl px-5 py-14 sm:py-20"><a href="/home" className="text-xs text-white/35 hover:text-white">Home</a><div className="mt-10"><p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#83adff]">{article.categories?.name || "BitBuzz"}</p><h1 className="mt-5 font-serif text-[clamp(3rem,7vw,6.5rem)] leading-[.9] tracking-[-.06em]">{article.title}</h1><p className="mt-7 max-w-3xl text-xl leading-relaxed text-white/50">{article.standfirst}</p><div className="mt-7 flex flex-wrap gap-4 text-xs text-white/30"><span>{article.profiles?.display_name || "BitBuzz"}</span><span>·</span><span>{article.read_minutes || 1} min read</span><span>·</span><span>{article.published_at ? new Date(article.published_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : ""}</span></div></div>{article.cover_image_url && <img src={article.cover_image_url} alt={article.cover_alt || ""} className="mt-10 max-h-[620px] w-full rounded-[28px] object-cover"/>}<div className="prose prose-invert mt-12 max-w-none text-[17px] leading-[1.85] text-white/75" dangerouslySetInnerHTML={{ __html: renderMarkdown(article.body_md) }}/></article></Shell>;
 }
