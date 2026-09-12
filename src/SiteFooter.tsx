@@ -10,11 +10,10 @@ export default function SiteFooter() {
         </div>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-white/50" aria-label="Footer navigation">
           <a href="/about" className="transition hover:text-white">About</a>
-          <a href="/explore" className="transition hover:text-white">Explore</a>
           <a href="/categories" className="transition hover:text-white">Categories</a>
-          <a href="/opportunities" className="transition hover:text-white">Opportunities</a>
           <a href="/submit" className="transition hover:text-white">Submit</a>
           <a href="/privacy" className="font-semibold text-[#ffe600] transition hover:text-[#fff27a]">Privacy Policy</a>
+          <a href="https://github.com/hridhaan-s/The-BitBuzz-Site/commits/main" target="_blank" rel="noreferrer" className="transition hover:text-white">Updates ↗</a>
         </nav>
         <p className="text-[11px] text-white/25">© {new Date().getFullYear()} BitBuzz</p>
       </div>
