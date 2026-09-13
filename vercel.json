@@ -17,6 +17,8 @@
     { "source": "/opportunities/(.*)", "destination": "/index.html" },
     { "source": "/flagit", "destination": "/index.html" },
     { "source": "/flagit/(.*)", "destination": "/index.html" },
+    { "source": "/flag-it", "destination": "/index.html" },
+    { "source": "/flag-it/(.*)", "destination": "/index.html" },
     { "source": "/Ambassadors", "destination": "/index.html" },
     { "source": "/Ambassadors/(.*)", "destination": "/index.html" },
     { "source": "/ambassadors", "destination": "/index.html" },
@@ -32,6 +34,8 @@
     { "source": "/biobuzz", "destination": "/index.html" },
     { "source": "/biobuzz/(.*)", "destination": "/index.html" },
     { "source": "/innovation", "destination": "/index.html" },
-    { "source": "/innovation/(.*)", "destination": "/index.html" }
+    { "source": "/innovation/(.*)", "destination": "/index.html" },
+    { "source": "/search", "destination": "/index.html" },
+    { "source": "/search/(.*)", "destination": "/index.html" }
   ]
 }
