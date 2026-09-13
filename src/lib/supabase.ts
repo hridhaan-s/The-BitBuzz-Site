@@ -53,8 +53,35 @@ const notifySubmission = (table: string, rows: unknown) => {
   }
 };
 
+const secureAuth = new Proxy(baseSupabase.auth, {
+  get(target, property, receiver) {
+    if (property !== "resetPasswordForEmail") return Reflect.get(target, property, receiver);
+
+    return async (email: string, options?: { redirectTo?: string }) => {
+      try {
+        const response = await fetch("/api/auth-recovery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, redirectTo: options?.redirectTo || `${window.location.origin}/reset-password` }),
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => null);
+          return { data: {}, error: { message: payload?.error || "Unable to send the password reset email." } };
+        }
+
+        return { data: {}, error: null };
+      } catch (error) {
+        console.error("BitBuzz password recovery request failed", error);
+        return { data: {}, error: { message: "Unable to send the password reset email. Please try again." } };
+      }
+    };
+  },
+}) as typeof baseSupabase.auth;
+
 export const supabase = new Proxy(baseSupabase, {
   get(target, property, receiver) {
+    if (property === "auth") return secureAuth;
     if (property !== "from") return Reflect.get(target, property, receiver);
 
     return (table: string) => {
