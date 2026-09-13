@@ -20,6 +20,18 @@
     { "source": "/Ambassadors", "destination": "/index.html" },
     { "source": "/Ambassadors/(.*)", "destination": "/index.html" },
     { "source": "/ambassadors", "destination": "/index.html" },
-    { "source": "/ambassadors/(.*)", "destination": "/index.html" }
+    { "source": "/ambassadors/(.*)", "destination": "/index.html" },
+    { "source": "/space", "destination": "/index.html" },
+    { "source": "/space/(.*)", "destination": "/index.html" },
+    { "source": "/cybersecurity", "destination": "/index.html" },
+    { "source": "/cybersecurity/(.*)", "destination": "/index.html" },
+    { "source": "/tech", "destination": "/index.html" },
+    { "source": "/tech/(.*)", "destination": "/index.html" },
+    { "source": "/aviation", "destination": "/index.html" },
+    { "source": "/aviation/(.*)", "destination": "/index.html" },
+    { "source": "/biobuzz", "destination": "/index.html" },
+    { "source": "/biobuzz/(.*)", "destination": "/index.html" },
+    { "source": "/innovation", "destination": "/index.html" },
+    { "source": "/innovation/(.*)", "destination": "/index.html" }
   ]
 }
