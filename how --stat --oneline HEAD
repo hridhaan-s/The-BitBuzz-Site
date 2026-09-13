@@ -1,5 +1,0 @@
-[33mb0eb25c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Final Commit
-[33m6bc6b4f[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix ambassador profile persistence and save verification
-[33m54eb4d3[m Wire BitBuzz password reset route
-[33m2890dde[m Add BitBuzz password reset page
-[33m0fb035e[m Add BitBuzz password recovery flow
