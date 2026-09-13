@@ -2,11 +2,18 @@ type SubmissionKind = "story" | "flagit" | "opportunity";
 
 type Payload = {
   kind: SubmissionKind;
-  submission: Record<string, unknown>;
+  id: string;
 };
 
 const ADMINS = ["hi@hridhaan.me", "agentritvik@gmail.com"];
 const FROM = "BitBuzz <hello@bitbuzz.app>";
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://cjywdvaitaasxtmgpwas.supabase.co";
+
+const TABLES: Record<SubmissionKind, string> = {
+  story: "bitbuzz_submissions",
+  flagit: "bitbuzz_flag_it_reports",
+  opportunity: "opportunities",
+};
 
 const escapeHtml = (value: unknown) =>
   String(value ?? "")
@@ -90,6 +97,22 @@ const adminEmail = (kind: SubmissionKind, submission: Record<string, unknown>) =
 };
 
 const validEmail = (value: unknown) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value ?? "").trim());
+const validUuid = (value: unknown) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value ?? ""));
+
+const supabaseRequest = async (path: string, init: RequestInit = {}) => {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
+
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...init,
+    headers: {
+      apikey: serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
+      "Content-Type": "application/json",
+      ...(init.headers || {}),
+    },
+  });
+};
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -98,11 +121,25 @@ export default async function handler(req: any, res: any) {
   if (!apiKey) return res.status(500).json({ error: "RESEND_API_KEY is not configured" });
 
   const payload = req.body as Payload;
-  if (!payload || !["story", "flagit", "opportunity"].includes(payload.kind) || !payload.submission) {
-    return res.status(400).json({ error: "Invalid submission payload" });
+  if (!payload || !["story", "flagit", "opportunity"].includes(payload.kind) || !validUuid(payload.id)) {
+    return res.status(400).json({ error: "Invalid submission reference" });
   }
 
-  const submission = payload.submission;
+  const table = TABLES[payload.kind];
+  const lookup = await supabaseRequest(`${table}?id=eq.${encodeURIComponent(payload.id)}&status=eq.pending&select=*`);
+  if (!lookup.ok) {
+    console.error("Submission lookup failed", await lookup.text());
+    return res.status(502).json({ error: "Submission lookup failed" });
+  }
+
+  const rows = (await lookup.json()) as Array<Record<string, unknown>>;
+  const submission = rows[0];
+  if (!submission) return res.status(404).json({ error: "Pending submission not found" });
+
+  if (submission.notification_sent_at) {
+    return res.status(200).json({ ok: true, alreadySent: true });
+  }
+
   const recipient = String(
     payload.kind === "flagit"
       ? submission.reporter_email || ""
@@ -128,6 +165,18 @@ export default async function handler(req: any, res: any) {
       send([recipient], subjectFor(payload.kind), submitterEmail(payload.kind, submission), recipient),
       send(ADMINS, `[BitBuzz] New ${kindLabel(payload.kind)} submission`, adminEmail(payload.kind, submission), recipient),
     ]);
+
+    const marked = await supabaseRequest(`${table}?id=eq.${encodeURIComponent(payload.id)}&notification_sent_at=is.null`, {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ notification_sent_at: new Date().toISOString() }),
+    });
+
+    if (!marked.ok) {
+      console.error("Submission notification marker failed", await marked.text());
+      return res.status(502).json({ error: "Email sent but notification status could not be recorded" });
+    }
+
     return res.status(200).json({ ok: true });
   } catch (error) {
     console.error("submission-notify failed", error);
