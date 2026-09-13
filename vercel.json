@@ -14,6 +14,12 @@
     { "source": "/submit", "destination": "/index.html" },
     { "source": "/submit/(.*)", "destination": "/index.html" },
     { "source": "/opportunities", "destination": "/index.html" },
-    { "source": "/opportunities/(.*)", "destination": "/index.html" }
+    { "source": "/opportunities/(.*)", "destination": "/index.html" },
+    { "source": "/flagit", "destination": "/index.html" },
+    { "source": "/flagit/(.*)", "destination": "/index.html" },
+    { "source": "/Ambassadors", "destination": "/index.html" },
+    { "source": "/Ambassadors/(.*)", "destination": "/index.html" },
+    { "source": "/ambassadors", "destination": "/index.html" },
+    { "source": "/ambassadors/(.*)", "destination": "/index.html" }
   ]
 }
