@@ -12,6 +12,8 @@
     { "source": "/categories", "destination": "/index.html" },
     { "source": "/about", "destination": "/index.html" },
     { "source": "/submit", "destination": "/index.html" },
-    { "source": "/submit/(.*)", "destination": "/index.html" }
+    { "source": "/submit/(.*)", "destination": "/index.html" },
+    { "source": "/opportunities", "destination": "/index.html" },
+    { "source": "/opportunities/(.*)", "destination": "/index.html" }
   ]
 }
