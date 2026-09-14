@@ -3,8 +3,8 @@ import { supabase } from "./lib/supabase";
 
 const NEWSLETTER_SEEN_KEY = "bitbuzz_newsletter_subscribed";
 const NEWSLETTER_SNOOZE_KEY = "bitbuzz_newsletter_snoozed_until";
+const FIRST_PROMPT_DELAY = 60 * 1000;
 const TEN_MINUTES = 10 * 60 * 1000;
-const TEST_PROMPT_DELAY = 10 * 1000;
 
 function canShowPrompt() {
   try {
@@ -33,14 +33,12 @@ export default function NewsletterSignup({ compact = false }: { compact?: boolea
     let timer: number | undefined;
     let cancelled = false;
 
-    const schedule = () => {
-      if (cancelled || !canShowPrompt()) return;
-      timer = window.setTimeout(() => {
-        if (!cancelled && canShowPrompt()) setPromptOpen(true);
-      }, TEST_PROMPT_DELAY);
-    };
+    if (!canShowPrompt()) return;
 
-    schedule();
+    timer = window.setTimeout(() => {
+      if (!cancelled && canShowPrompt()) setPromptOpen(true);
+    }, FIRST_PROMPT_DELAY);
+
     return () => {
       cancelled = true;
       if (timer) window.clearTimeout(timer);
