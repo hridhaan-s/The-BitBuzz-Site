@@ -80,6 +80,34 @@ BitBuzz includes infrastructure for student publications and ambassadors, includ
 
 ---
 
+## 🖼️ Project Gallery
+
+A visual look at the BitBuzz product and its interface.
+
+<div align="center">
+
+<img src="https://cdn.hackclub.com/019e8f6d-d6f1-7c09-920b-ad3699495c11/screenshot_2026-06-04_030505.png" width="31%" alt="BitBuzz screenshot 1" />
+<img src="https://cdn.hackclub.com/019e8f6d-dd8e-773e-833c-fa755f28c1c2/screenshot_2026-06-04_030516.png" width="31%" alt="BitBuzz screenshot 2" />
+<img src="https://cdn.hackclub.com/019e8f6d-dfd3-72de-a23c-7b4dc9e2d9e3/screenshot_2026-06-04_030524.png" width="31%" alt="BitBuzz screenshot 3" />
+
+<img src="https://cdn.hackclub.com/019e8f6d-e1f8-7d63-9bda-c066a1ecbe95/screenshot_2026-06-04_030537.png" width="31%" alt="BitBuzz screenshot 4" />
+<img src="https://cdn.hackclub.com/019e8f6d-e456-7355-8802-c23ae113c1ff/screenshot_2026-06-04_030546.png" width="31%" alt="BitBuzz screenshot 5" />
+<img src="https://cdn.hackclub.com/019e8f6d-e685-79d1-8a36-4f8bde4e3bf4/screenshot_2026-06-04_030552.png" width="31%" alt="BitBuzz screenshot 6" />
+
+<img src="https://cdn.hackclub.com/019e8f6d-3fcf-76bd-838f-4e49481599d9/screenshot_2026-06-04_030557.png" width="31%" alt="BitBuzz screenshot 7" />
+<img src="https://cdn.hackclub.com/019e8f6d-41dd-7c04-b4d2-70d1a62b9dc8/screenshot_2026-06-04_030614.png" width="31%" alt="BitBuzz screenshot 8" />
+<img src="https://cdn.hackclub.com/019e8f6d-43ac-75d4-8417-8e2b66e3ce7a/screenshot_2026-06-04_030624.png" width="31%" alt="BitBuzz screenshot 9" />
+
+<img src="https://cdn.hackclub.com/019e8f6d-45b8-7dbb-bb61-8e430b9f2466/screenshot_2026-06-04_030631.png" width="31%" alt="BitBuzz screenshot 10" />
+<img src="https://cdn.hackclub.com/019e8f6d-486d-78be-9242-946cceaea221/screenshot_2026-06-04_030641.png" width="31%" alt="BitBuzz screenshot 11" />
+<img src="https://cdn.hackclub.com/019e8f6d-4a79-7a52-b8f9-84c1196b65e2/screenshot_2026-06-04_030649.png" width="31%" alt="BitBuzz screenshot 12" />
+
+<img src="https://cdn.hackclub.com/019e8f6d-4c6a-7f96-8feb-7d4c6cdc792a/screenshot_2026-06-04_030659.png" width="31%" alt="BitBuzz screenshot 13" />
+
+</div>
+
+---
+
 ## 🧱 Tech stack
 
 | Layer | Technology |
@@ -94,7 +122,7 @@ BitBuzz includes infrastructure for student publications and ambassadors, includ
 | API routes | Vercel/serverless endpoints |
 | Version control | Git + GitHub |
 
-The dependency set is intentionally lightweight. The application currently uses React, React DOM, Supabase JS, Vite, TypeScript, Tailwind CSS, PostCSS and Autoprefixer. fileciteturn280file0
+The dependency set is intentionally lightweight. The application currently uses React, React DOM, Supabase JS, Vite, TypeScript, Tailwind CSS, PostCSS and Autoprefixer.
 
 ---
 
@@ -129,7 +157,7 @@ The-BitBuzz-Site/
 └── vercel.json
 ```
 
-The repository uses Vercel rewrites so client-side routes such as `/home`, `/blog`, `/submit`, `/opportunities`, `/flagit`, `/ambassadors`, category pages and `/admin` resolve through the Vite application. fileciteturn288file0
+The repository uses Vercel rewrites so client-side routes such as `/home`, `/blog`, `/submit`, `/opportunities`, `/flagit`, `/ambassadors`, category pages and `/admin` resolve through the Vite application.
 
 ---
 
@@ -176,7 +204,7 @@ npm run build
 npm run preview
 ```
 
-The project exposes the standard Vite commands through `package.json`: `dev`, `build` and `preview`. fileciteturn280file0
+The project exposes the standard Vite commands through `package.json`: `dev`, `build` and `preview`.
 
 ---
 
@@ -189,7 +217,7 @@ VITE_SUPABASE_URL=your-supabase-project-url
 VITE_SUPABASE_ANON_KEY=your-supabase-publishable-key
 ```
 
-The Supabase client reads these variables and also contains a production fallback so the frontend does not silently lose its authentication client when the Vite environment variables are absent. fileciteturn286file0
+The Supabase client reads these variables and also contains a production fallback so the frontend does not silently lose its authentication client when the Vite environment variables are absent.
 
 ### ⚠️ Never expose server secrets
 
@@ -222,7 +250,7 @@ The project contains data flows around:
 - Flag It reports
 - Administrative workflows
 
-The frontend uses a shared Supabase client in `src/lib/supabase.ts`. That client also contains submission notification handling for supported tables and a password-recovery request path. fileciteturn286file0
+The frontend uses a shared Supabase client in `src/lib/supabase.ts`. That client also contains submission notification handling for supported tables and a password-recovery request path.
 
 ### Realtime
 
@@ -269,7 +297,7 @@ The main application can request live headlines from:
 /api/news
 ```
 
-The UI duplicates the returned headline list to create a continuous ticker and pauses the animation while the user hovers over it. If the feed is unavailable, the ticker remains hidden rather than rendering broken content. fileciteturn285file0
+The UI duplicates the returned headline list to create a continuous ticker and pauses the animation while the user hovers over it. If the feed is unavailable, the ticker remains hidden rather than rendering broken content.
 
 ---
 
@@ -340,7 +368,7 @@ The application currently supports routes including:
 | `/innovation` | Innovation content |
 | `/search` | Search experience |
 
-These routes are backed by the SPA rewrite configuration in `vercel.json`. fileciteturn288file0
+These routes are backed by the SPA rewrite configuration in `vercel.json`.
 
 ---
 
