@@ -4,6 +4,7 @@ import { supabase } from "./lib/supabase";
 const NEWSLETTER_SEEN_KEY = "bitbuzz_newsletter_subscribed";
 const NEWSLETTER_SNOOZE_KEY = "bitbuzz_newsletter_snoozed_until";
 const TEN_MINUTES = 10 * 60 * 1000;
+const TEST_PROMPT_DELAY = 10 * 1000;
 
 function canShowPrompt() {
   try {
@@ -17,7 +18,6 @@ function canShowPrompt() {
 
 function snoozePrompt() {
   try {
-    // A little jitter keeps the prompt from feeling robotic while staying around 10 minutes.
     const jitter = (Math.random() * 4 - 2) * 60 * 1000;
     localStorage.setItem(NEWSLETTER_SNOOZE_KEY, String(Date.now() + TEN_MINUTES + jitter));
   } catch {}
@@ -35,11 +35,9 @@ export default function NewsletterSignup({ compact = false }: { compact?: boolea
 
     const schedule = () => {
       if (cancelled || !canShowPrompt()) return;
-      // First prompt: roughly 10 minutes after arrival, with ±2 minutes of jitter.
-      const delay = TEN_MINUTES + (Math.random() * 4 - 2) * 60 * 1000;
       timer = window.setTimeout(() => {
         if (!cancelled && canShowPrompt()) setPromptOpen(true);
-      }, Math.max(60 * 1000, delay));
+      }, TEST_PROMPT_DELAY);
     };
 
     schedule();
@@ -102,7 +100,6 @@ export default function NewsletterSignup({ compact = false }: { compact?: boolea
         return;
       }
 
-      // This browser has successfully joined the list. Never prompt it again.
       try {
         localStorage.setItem(NEWSLETTER_SEEN_KEY, "true");
         localStorage.removeItem(NEWSLETTER_SNOOZE_KEY);
@@ -135,7 +132,7 @@ export default function NewsletterSignup({ compact = false }: { compact?: boolea
       </section>
 
       {promptOpen && (
-        <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/75 px-4 pb-4 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-labelledby="newsletter-prompt-title">
+        <div className="fixed inset-0 z-[99999] flex items-end justify-center bg-black/75 px-4 pb-4 backdrop-blur-md sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-labelledby="newsletter-prompt-title">
           <div className="w-full max-w-[430px] overflow-hidden rounded-[24px] border border-white/10 bg-[#080808] p-7 shadow-2xl sm:p-9">
             <div className="flex items-start justify-between gap-4">
               <div>
