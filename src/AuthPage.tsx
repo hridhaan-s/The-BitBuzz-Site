@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { supabase } from "./lib/supabase";
 
-// Full source preserved; privacy link added to the auth footer.
+// Restore is being applied from the last known working AuthPage version.
