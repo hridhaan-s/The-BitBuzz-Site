@@ -10,7 +10,15 @@ BitBuzz is a modern, student-focused digital publication built around **Space, C
 
 ---
 
-## ✨ What is BitBuzz?
+## BitBuzz Cover
+
+<p align="center">
+  <img src="https://cdn.hackclub.com/01a0a171-61d3-7f7c-afce-766e8639f291/image.png" width="90%" alt="BitBuzz cover" />
+</p>
+
+---
+
+## What is BitBuzz?
 
 BitBuzz is designed to make high-quality science and technology journalism more accessible to students while giving young creators a place to publish, discover opportunities and participate in a wider student media community.
 
@@ -18,16 +26,16 @@ The product is intentionally more than a static news website. It includes a publ
 
 ### Core editorial areas
 
-- 🚀 **Space** — missions, astronomy, exploration and the future of spaceflight
-- 🛡️ **Cybersecurity** — security awareness, phishing education and digital safety
-- 💻 **Technology** — computing, AI, software and emerging technology
-- ✈️ **Aviation** — aircraft, aerospace and the future of flight
-- 🧬 **Biology** — science, life sciences and discovery
-- 💡 **Innovation** — inventions, projects, ideas and student-led breakthroughs
+- **Space** — missions, astronomy, exploration and the future of spaceflight
+- **Cybersecurity** — security awareness, phishing education and digital safety
+- **Technology** — computing, AI, software and emerging technology
+- **Aviation** — aircraft, aerospace and the future of flight
+- **Biology** — science, life sciences and discovery
+- **Innovation** — inventions, projects, ideas and student-led breakthroughs
 
 ---
 
-## 🚀 Product highlights
+## Product highlights
 
 ### Editorial experience
 
@@ -80,35 +88,31 @@ BitBuzz includes infrastructure for student publications and ambassadors, includ
 
 ---
 
-## 🖼️ Project Gallery
+## Project Gallery
 
 A visual look at the BitBuzz product and its interface.
 
 <div align="center">
 
-<img src="https://cdn.hackclub.com/019e8f6d-d6f1-7c09-920b-ad3699495c11/screenshot_2026-06-04_030505.png" width="31%" alt="BitBuzz screenshot 1" />
-<img src="https://cdn.hackclub.com/019e8f6d-dd8e-773e-833c-fa755f28c1c2/screenshot_2026-06-04_030516.png" width="31%" alt="BitBuzz screenshot 2" />
-<img src="https://cdn.hackclub.com/019e8f6d-dfd3-72de-a23c-7b4dc9e2d9e3/screenshot_2026-06-04_030524.png" width="31%" alt="BitBuzz screenshot 3" />
+<img src="https://cdn.hackclub.com/01a0a171-5c5e-726a-911e-50925c691519/image.png" width="31%" alt="BitBuzz screenshot 1" />
+<img src="https://cdn.hackclub.com/01a0a171-61d3-7f7c-afce-766e8639f291/image.png" width="31%" alt="BitBuzz cover" />
+<img src="https://cdn.hackclub.com/01a0a171-65ce-7c24-9972-4e95250f6005/image.png" width="31%" alt="BitBuzz screenshot 3" />
 
-<img src="https://cdn.hackclub.com/019e8f6d-e1f8-7d63-9bda-c066a1ecbe95/screenshot_2026-06-04_030537.png" width="31%" alt="BitBuzz screenshot 4" />
-<img src="https://cdn.hackclub.com/019e8f6d-e456-7355-8802-c23ae113c1ff/screenshot_2026-06-04_030546.png" width="31%" alt="BitBuzz screenshot 5" />
-<img src="https://cdn.hackclub.com/019e8f6d-e685-79d1-8a36-4f8bde4e3bf4/screenshot_2026-06-04_030552.png" width="31%" alt="BitBuzz screenshot 6" />
+<img src="https://cdn.hackclub.com/01a0a171-6a37-7a12-b644-de8dd93db7b1/image.png" width="31%" alt="BitBuzz screenshot 4" />
+<img src="https://cdn.hackclub.com/01a0a171-6dca-7d35-9ea2-535539e1ffe0/image.png" width="31%" alt="BitBuzz screenshot 5" />
+<img src="https://cdn.hackclub.com/01a0a171-7164-7158-8149-d0e578adf8df/image.png" width="31%" alt="BitBuzz screenshot 6" />
 
-<img src="https://cdn.hackclub.com/019e8f6d-3fcf-76bd-838f-4e49481599d9/screenshot_2026-06-04_030557.png" width="31%" alt="BitBuzz screenshot 7" />
-<img src="https://cdn.hackclub.com/019e8f6d-41dd-7c04-b4d2-70d1a62b9dc8/screenshot_2026-06-04_030614.png" width="31%" alt="BitBuzz screenshot 8" />
-<img src="https://cdn.hackclub.com/019e8f6d-43ac-75d4-8417-8e2b66e3ce7a/screenshot_2026-06-04_030624.png" width="31%" alt="BitBuzz screenshot 9" />
+<img src="https://cdn.hackclub.com/01a0a171-7587-72b2-9efa-f5a0d05187fa/image.png" width="31%" alt="BitBuzz screenshot 7" />
+<img src="https://cdn.hackclub.com/01a0a171-7909-70e4-9761-91a6478c8397/image.png" width="31%" alt="BitBuzz screenshot 8" />
+<img src="https://cdn.hackclub.com/01a0a171-7cd7-7995-a5d0-4c47e23715dd/image.png" width="31%" alt="BitBuzz screenshot 9" />
 
-<img src="https://cdn.hackclub.com/019e8f6d-45b8-7dbb-bb61-8e430b9f2466/screenshot_2026-06-04_030631.png" width="31%" alt="BitBuzz screenshot 10" />
-<img src="https://cdn.hackclub.com/019e8f6d-486d-78be-9242-946cceaea221/screenshot_2026-06-04_030641.png" width="31%" alt="BitBuzz screenshot 11" />
-<img src="https://cdn.hackclub.com/019e8f6d-4a79-7a52-b8f9-84c1196b65e2/screenshot_2026-06-04_030649.png" width="31%" alt="BitBuzz screenshot 12" />
-
-<img src="https://cdn.hackclub.com/019e8f6d-4c6a-7f96-8feb-7d4c6cdc792a/screenshot_2026-06-04_030659.png" width="31%" alt="BitBuzz screenshot 13" />
+<img src="https://cdn.hackclub.com/01a0a171-8047-7b9a-9e1f-4370ef8b7488/image.png" width="31%" alt="BitBuzz screenshot 10" />
 
 </div>
 
 ---
 
-## 🧱 Tech stack
+## Tech stack
 
 | Layer | Technology |
 | --- | --- |
@@ -126,7 +130,7 @@ The dependency set is intentionally lightweight. The application currently uses 
 
 ---
 
-## 📁 Project structure
+## Project structure
 
 ```text
 The-BitBuzz-Site/
@@ -161,7 +165,7 @@ The repository uses Vercel rewrites so client-side routes such as `/home`, `/blo
 
 ---
 
-## 🛠️ Getting started
+## Getting started
 
 ### Requirements
 
@@ -208,7 +212,7 @@ The project exposes the standard Vite commands through `package.json`: `dev`, `b
 
 ---
 
-## 🔐 Environment variables
+## Environment variables
 
 The browser application can use Vercel/environment configuration for Supabase:
 
@@ -219,7 +223,7 @@ VITE_SUPABASE_ANON_KEY=your-supabase-publishable-key
 
 The Supabase client reads these variables and also contains a production fallback so the frontend does not silently lose its authentication client when the Vite environment variables are absent.
 
-### ⚠️ Never expose server secrets
+### Never expose server secrets
 
 Do **not** put any of the following in frontend source code, README files, commits or public environment variables:
 
@@ -234,7 +238,7 @@ A browser-facing Supabase publishable/anon key is designed to be used client-sid
 
 ---
 
-## 🗄️ Supabase architecture
+## Supabase architecture
 
 Supabase is used as the application's data and authentication layer.
 
@@ -260,7 +264,7 @@ When changing database behavior, keep **Row Level Security (RLS), RPC authorizat
 
 ---
 
-## ✉️ Email & newsletter architecture
+## Email & newsletter architecture
 
 BitBuzz uses **Resend** for email delivery.
 
@@ -289,7 +293,7 @@ The client-side newsletter prompt is deliberately conservative: after a successf
 
 ---
 
-## 📰 Live news ticker
+## Live news ticker
 
 The main application can request live headlines from:
 
@@ -301,7 +305,7 @@ The UI duplicates the returned headline list to create a continuous ticker and p
 
 ---
 
-## 🔒 Security principles
+## Security principles
 
 BitBuzz handles authentication, submissions and administrative data, so security is treated as a product requirement rather than an afterthought.
 
@@ -321,7 +325,7 @@ If you add a new privileged action, implement the authorization boundary in the 
 
 ---
 
-## 🎨 Design philosophy
+## Design philosophy
 
 BitBuzz aims for an editorial product that feels closer to a premium modern publication than a traditional school website.
 
@@ -341,7 +345,7 @@ The goal is simple: **make serious science and technology journalism feel exciti
 
 ---
 
-## 🧭 Main routes
+## Main routes
 
 The application currently supports routes including:
 
@@ -372,7 +376,7 @@ These routes are backed by the SPA rewrite configuration in `vercel.json`.
 
 ---
 
-## 🚢 Deployment
+## Deployment
 
 BitBuzz is designed to deploy to **Vercel**.
 
@@ -409,7 +413,7 @@ Before calling a deployment production-ready:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions should preserve the reliability of the production application.
 
@@ -440,7 +444,7 @@ For larger changes:
 
 ---
 
-## 🧪 Testing philosophy
+## Testing philosophy
 
 The project should be tested at three levels:
 
@@ -462,7 +466,7 @@ After deployment, verify the real Vercel/Supabase/Resend integration rather than
 
 ---
 
-## 📝 Commit conventions
+## Commit conventions
 
 Prefer clear, focused commits such as:
 
@@ -478,7 +482,7 @@ Avoid mixing unrelated UI redesigns, database migrations and infrastructure chan
 
 ---
 
-## 🌍 Project vision
+## Project vision
 
 BitBuzz is being built around a simple idea:
 
@@ -488,7 +492,7 @@ The platform is intended to become a home for student-led science and technology
 
 ---
 
-## 📬 Contact & links
+## Contact & links
 
 - **Website:** https://www.bitbuzz.app/
 - **GitHub:** https://github.com/hridhaan-s/The-BitBuzz-Site
@@ -498,7 +502,7 @@ The platform is intended to become a home for student-led science and technology
 
 ---
 
-## 📄 License
+## License
 
 No open-source license is currently declared in this repository. Unless a license is added, the source code should not be assumed to be freely reusable under an open-source license.
 
