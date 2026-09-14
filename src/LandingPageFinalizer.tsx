@@ -63,7 +63,31 @@ function updateLandingCopy() {
   const writeLink = Array.from(document.querySelectorAll("a")).find((node) => node.textContent?.trim() === "Write for BitBuzz");
   if (writeLink) { writeLink.textContent = "Sign Up now"; writeLink.setAttribute("href", "/signup"); }
 }
+function ensureAuthPrivacyLink() {
+  document.querySelectorAll<HTMLElement>(".bb-auth-meta").forEach((meta) => {
+    if (meta.querySelector('[data-bitbuzz-privacy-link="true"]')) return;
+    const row = document.createElement("div");
+    row.style.marginTop = ".75rem";
+    const link = document.createElement("a");
+    link.href = "/privacy";
+    link.textContent = "Privacy Policy";
+    link.dataset.bitbuzzPrivacyLink = "true";
+    link.className = "bb-auth-link";
+    link.setAttribute("aria-label", "Read BitBuzz Privacy Policy");
+    row.appendChild(link);
+    meta.appendChild(row);
+  });
+}
 export default function LandingPageFinalizer() {
-  useEffect(() => { if (window.location.pathname !== "/") return; addFontLink(); addStyles(); const apply = () => { removeLandingFooter(); updateLandingCopy(); replaceFlagItSection(); }; const frame = window.requestAnimationFrame(apply); return () => { window.cancelAnimationFrame(frame); document.querySelector('style[data-bitbuzz-flag-it="true"]')?.remove(); document.querySelector('link[data-bitbuzz-flag-fonts="true"]')?.remove(); }; }, []);
+  useEffect(() => {
+    if (window.location.pathname !== "/") return;
+    addFontLink();
+    addStyles();
+    const apply = () => { removeLandingFooter(); updateLandingCopy(); replaceFlagItSection(); ensureAuthPrivacyLink(); };
+    const frame = window.requestAnimationFrame(apply);
+    const observer = new MutationObserver(() => ensureAuthPrivacyLink());
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => { window.cancelAnimationFrame(frame); observer.disconnect(); document.querySelector('style[data-bitbuzz-flag-it="true"]')?.remove(); document.querySelector('link[data-bitbuzz-flag-fonts="true"]')?.remove(); };
+  }, []);
   return null;
 }
