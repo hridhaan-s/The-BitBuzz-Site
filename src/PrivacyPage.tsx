@@ -7,7 +7,7 @@ export default function PrivacyPage() {
         <div className="mx-auto flex h-[64px] max-w-[980px] items-center justify-between px-5 sm:px-8">
           <a href="/home" className="flex items-center gap-2.5">
             <img src={LOGO_URL} alt="BitBuzz" className="h-8 w-8 rounded-full object-cover" />
-            <span className="font-serif text-xl font-semibold tracking-[-.04em]">BitBuzz</span>
+            <span className="font-serif text-xl font-semibold tracking-[-0.04em]">BitBuzz</span>
           </a>
           <a href="/home" className="text-xs font-semibold text-[#6f6a64] hover:text-black">Back to newsroom</a>
         </div>
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
       <main className="mx-auto max-w-[780px] px-5 py-16 sm:px-8 sm:py-24">
         <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#b4121f]">BitBuzz policy</p>
         <h1 className="mt-3 font-serif text-[clamp(3.2rem,8vw,5.5rem)] font-black leading-[.9] tracking-[-.055em]">Privacy Policy.</h1>
-        <p className="mt-6 text-sm text-[#6f6a64]">Last updated: 12 September 2026</p>
+        <p className="mt-6 text-sm text-[#6f6a64]">Last updated: 15 September 2026</p>
 
         <div className="mt-12 space-y-10 font-serif text-[17px] leading-[1.75] text-[#302b27]">
           <section>
@@ -35,23 +35,31 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-2xl font-bold">4. Where account data is stored</h2>
+            <h2 className="mb-3 text-2xl font-bold">4. Chanakya AI</h2>
+            <p>BitBuzz's Chanakya AI assistant can process the prompts you submit to generate answers, perform web-supported research, and provide fact-checking assistance. Chanakya may send your prompt to third-party AI and web-search services needed to provide the requested response.</p>
+            <p className="mt-4">We also log Chanakya prompts and limited usage information so we can understand how the assistant is being used, troubleshoot it, measure usage, and improve the product. Usage information can include the prompt, time, broad topic/category, whether web search or fact-checking was used, the AI model used, and request latency.</p>
+            <p className="mt-4"><strong>Raw Chanakya prompts are restricted to authorized BitBuzz super-admin analytics.</strong> They are not intended to be public, sold, or used for targeted advertising. We intend to retain raw prompt history only for a limited operational period and may retain aggregated, non-identifying usage statistics for longer.</p>
+            <p className="mt-4">Please do not submit passwords, API keys, private messages, financial information, or other sensitive information to Chanakya. Chanakya is an AI system and may make mistakes; verify important information independently.</p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-2xl font-bold">5. Where account and service data is stored</h2>
             <p>BitBuzz uses Supabase for authentication and database services. Personal information is only sent to service providers needed to operate the features described here, and we aim to limit the information shared to what is necessary.</p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-2xl font-bold">5. Your choices</h2>
+            <h2 className="mb-3 text-2xl font-bold">6. Your choices</h2>
             <p>You can ask us what personal information we hold about your account, request correction of inaccurate information, or ask for your account information to be deleted, subject to applicable legal or operational requirements.</p>
             <p className="mt-4">For privacy requests, contact <a className="underline decoration-[#b4121f] underline-offset-4" href="mailto:Hi@Hridhaan.me">Hi@Hridhaan.me</a>.</p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-2xl font-bold">6. Young users</h2>
+            <h2 className="mb-3 text-2xl font-bold">7. Young users</h2>
             <p>BitBuzz is designed for students and may be used by people under 18. We do not use a child's account information for targeted advertising. Because Indian data-protection law contains additional requirements for processing children's personal data, including parental or guardian consent requirements, BitBuzz will implement the applicable safeguards before relying on account processing for children where those requirements apply.</p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-2xl font-bold">7. Changes</h2>
+            <h2 className="mb-3 text-2xl font-bold">8. Changes</h2>
             <p>We may update this policy when BitBuzz's features, data practices, or applicable law changes. The latest version will always be published on this page.</p>
           </section>
 
