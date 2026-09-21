@@ -39,7 +39,6 @@
     { "source": "/innovation/(.*)", "destination": "/index.html" },
     { "source": "/search", "destination": "/index.html" },
     { "source": "/search/(.*)", "destination": "/index.html" },
-    { "source": "/chanakya-ai", "destination": "/index.html" },
     { "source": "/trybeta", "destination": "/index.html" },
     { "source": "/trybeta/(.*)", "destination": "/index.html" }
   ]
