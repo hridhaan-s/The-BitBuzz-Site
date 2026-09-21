@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import UniversalNavbar from "./UniversalNavbar";
 import { supabase } from "./lib/supabase";
 
@@ -101,7 +101,7 @@ export default function AmbassadorsDashboardFinal(){
    }
    setMemberOpen(true);
  };
- const saveMember=async(e:React.FormEvent)=>{
+ const saveMember=async(e:FormEvent)=>{
    e.preventDefault();
    if(!publication)return;
    const name=memberForm.name.trim(),email=memberForm.email.trim().toLowerCase(),role=memberForm.role.trim(),photo=memberForm.photo.trim();
