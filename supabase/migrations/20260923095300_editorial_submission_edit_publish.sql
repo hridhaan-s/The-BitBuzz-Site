@@ -59,3 +59,17 @@ revoke all on function public.bitbuzz_admin_publish_ambassador_submission(uuid,t
 grant execute on function public.bitbuzz_admin_publish_ambassador_submission(uuid,text,text,text,text,text) to authenticated;
 revoke all on function public.bitbuzz_admin_publish_main_submission(uuid,text,text,text,uuid,text,text) from public;
 grant execute on function public.bitbuzz_admin_publish_main_submission(uuid,text,text,text,uuid,text,text) to authenticated;
+
+
+create or replace function public.bitbuzz_admin_delete_ambassador_submission(p_submission_id uuid)
+returns boolean language plpgsql security definer set search_path to ''
+as $$
+begin
+ if not public.bitbuzz_can_access_ambassador_submissions() and not public.bitbuzz_is_platform_admin() then raise exception 'Not authorized'; end if;
+ delete from public.bitbuzz_submissions
+ where id=p_submission_id and publication_id is not null and status='approved';
+ return found;
+end; $$;
+
+revoke all on function public.bitbuzz_admin_delete_ambassador_submission(uuid) from public;
+grant execute on function public.bitbuzz_admin_delete_ambassador_submission(uuid) to authenticated;
