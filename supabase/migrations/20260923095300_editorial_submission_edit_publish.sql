@@ -17,7 +17,7 @@ create or replace function public.bitbuzz_admin_edit_submission(p_submission_id 
 returns boolean language plpgsql security definer set search_path to ''
 as $$
 begin
- if not public.bitbuzz_can_access_ambassador_submissions() and not public.bitbuzz_is_platform_admin() then raise exception 'Not authorized'; end if;
+ if not (public.bitbuzz_is_platform_admin() or exists(select 1 from public.profiles p where p.id=(select auth.uid()) and p.role in ('admin','editor')) or public.bitbuzz_can_access_ambassador_submissions()) then raise exception 'Not authorized'; end if;
  if length(trim(coalesce(p_headline,'')))<3 or length(trim(coalesce(p_body,'')))<20 then raise exception 'Headline and body are too short'; end if;
  update public.bitbuzz_submissions set headline=trim(p_headline),body=trim(p_body),section=nullif(trim(coalesce(p_section,'')),''),media=case when jsonb_typeof(coalesce(p_media,'[]'::jsonb))='array' then p_media else '[]'::jsonb end where id=p_submission_id;
  return found;
