@@ -6,7 +6,7 @@ const STARTER_HEADLINES = [
 
 const TRUSTED_HOSTS = [
   "nasa.gov", "science.nasa.gov", "jpl.nasa.gov", "esa.int", "noaa.gov", "oceantoday.noaa.gov",
-  "api.nasa.gov", "images.nasa.gov", "images-api.nasa.gov", "images-assets.nasa.gov", "isro.gov.in", "jaxa.jp", "isas.jaxa.jp",
+  "api.nasa.gov", "apod.nasa.gov", "images.nasa.gov", "images-api.nasa.gov", "images-assets.nasa.gov", "isro.gov.in", "jaxa.jp", "isas.jaxa.jp",
   "cnsa.gov.cn", "roscosmos.ru", "cnes.fr", "dlr.de", "gov.uk", "microsoft.com", "blog.google",
   "research.google", "spectrum.ieee.org", "arstechnica.com", "technologyreview.com", "space.com", "spacenews.com", "techcrunch.com", "theverge.com", "engadget.com"
 ];
