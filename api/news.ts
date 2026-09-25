@@ -17,10 +17,13 @@ export default async function handler(req: Request) {
   url.searchParams.set("freshness", "pd");
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${apiKey}` },
       cache: "no-store",
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeout));
 
     if (!response.ok) {
       return new Response(JSON.stringify({ error: "News provider unavailable" }), {
