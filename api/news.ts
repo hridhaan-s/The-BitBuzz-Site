@@ -11,7 +11,7 @@ const TRUSTED_HOSTS = [
   "nasa.gov", "science.nasa.gov", "jpl.nasa.gov", "esa.int", "noaa.gov", "oceantoday.noaa.gov",
   "api.nasa.gov", "images.nasa.gov", "images-api.nasa.gov", "isro.gov.in", "jaxa.jp", "isas.jaxa.jp",
   "cnsa.gov.cn", "roscosmos.ru", "cnes.fr", "dlr.de", "gov.uk", "microsoft.com", "blog.google",
-  "research.google", "spectrum.ieee.org", "arstechnica.com", "technologyreview.com"
+  "research.google", "spectrum.ieee.org", "arstechnica.com", "technologyreview.com", "space.com", "spacenews.com", "techcrunch.com", "theverge.com", "engadget.com"
 ];
 
 const BLOCKED_TERMS = /\b(?:adult|porn|sexual|sexually|explicit|graphic|gore|gruesome|murder|killed|killing|suicide|self-harm|terror|terrorist|bombing|weapon|weapons|shooting|gun|drug|cocaine|heroin|meth|fentanyl|gambling|casino|betting|politic|election|party|candidate|war|warfare|combat|military|invasion|crime|criminal)\b/i;
@@ -108,6 +108,48 @@ async function fetchTrustedFeeds() {
   ] as const;
   const responses = await Promise.all(feeds.map(async ([url, source, category]) => parseRss(await fetchText(url), source, category)));
   return responses.flat();
+}
+
+async function fetchSourcePages() {
+  const pages = [
+    ["https://www.isro.gov.in/", "ISRO", "SPACE"],
+    ["https://www.isas.jaxa.jp/en/topics/", "JAXA", "SPACE"],
+    ["https://www.cnsa.gov.cn/english/n6465652/n6465653/index.html", "CNSA", "SPACE"],
+    ["https://www.roscosmos.ru/", "Roscosmos", "SPACE"],
+    ["https://cnes.fr/en/news", "CNES", "SPACE"],
+    ["https://www.gov.uk/government/organisations/uk-space-agency", "UK Space Agency", "SPACE"],
+    ["https://www.dlr.de/en/latest", "DLR", "SPACE"]
+  ] as const;
+
+  const results = await Promise.all(pages.map(async ([url, source, category]) => {
+    const html = await fetchText(url);
+    if (!html) return [];
+
+    const matches = [...html.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>([\\s\\S]*?)<\\/a>/gi)];
+    return matches.map((match) => {
+      const href = match[1];
+      const title = clean(match[2]);
+      const absolute = (() => {
+        try { return new URL(href, url).toString(); } catch { return ""; }
+      })();
+
+      return {
+        title,
+        url: absolute,
+        source,
+        category,
+        summary: "",
+        publishedAt: undefined
+      };
+    }).filter((item) =>
+      item.title.length >= 24 &&
+      item.title.length <= 220 &&
+      isTrustedUrl(item.url) &&
+      /space|rocket|launch|orbit|satellite|mission|astronomy|science|technology|research|robot|ai|moon|mars|earth|jaxa|isro|cnsa/i.test(item.title)
+    ).slice(0, 12);
+  }));
+
+  return results.flat();
 }
 
 async function fetchNasaImageLibrary() {
@@ -210,14 +252,15 @@ function mergeHeadlines(...groups: RadarItem[][]) {
 }
 
 export default async function handler(_req: Request) {
-  const [feeds, nasaImages, apod, search] = await Promise.all([
+  const [feeds, sourcePages, nasaImages, apod, search] = await Promise.all([
     fetchTrustedFeeds(),
+    fetchSourcePages(),
     fetchNasaImageLibrary(),
     fetchNasaApod(),
     fetchSearch()
   ]);
 
-  const headlines = mergeHeadlines(feeds, nasaImages, apod, search);
+  const headlines = mergeHeadlines(feeds, sourcePages, nasaImages, apod, search);
 
   return new Response(JSON.stringify(headlines), {
     status: 200,
