@@ -83,7 +83,8 @@ export default function RadarPage() {
   const [updated, setUpdated] = useState<Date | null>(null);
   const [filter, setFilter] = useState<Filter>("ALL");
   const [likes, setLikes] = useState<string[]>([]);
-  const [cycles, setCycles] = useState(1);
+  const [page, setPage] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -144,12 +145,28 @@ export default function RadarPage() {
   useEffect(() => {
     const node = sentinelRef.current;
     if (!node) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) setCycles((value) => value + 1);
-    }, { rootMargin: "900px" });
+    const observer = new IntersectionObserver(async (entries) => {
+      if (!entries.some((entry) => entry.isIntersecting) || loadingMore) return;
+      setLoadingMore(true);
+      try {
+        const nextPage = page + 1;
+        const response = await fetch(`/api/news?page=${nextPage}`, { cache: "no-store" });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (Array.isArray(data) && data.length) {
+          setItems((current) => {
+            const seen = new Set(current.map((item) => item.url));
+            return [...current, ...data.filter((item) => item?.title && item?.url && !seen.has(item.url))].slice(0, 150);
+          });
+          setPage(nextPage);
+        }
+      } catch {} finally {
+        setLoadingMore(false);
+      }
+    }, { rootMargin: "1200px" });
     observer.observe(node);
     return () => observer.disconnect();
-  }, [filter, items.length]);
+  }, [page, loadingMore]);
 
   const toggleLike = (url: string) => {
     setLikes((current) => {
@@ -165,16 +182,7 @@ export default function RadarPage() {
     return items.filter((item) => (item.category || laneFor(item)) === filter);
   }, [filter, items, likes]);
 
-  const feed = useMemo(() => {
-    if (!visible.length) return [];
-    return Array.from({ length: Math.max(1, cycles) }, (_, cycle) =>
-      visible.map((item, index) => ({ item, key: `${item.url}-${cycle}-${index}` }))
-    ).flat();
-  }, [visible, cycles]);
-
-  useEffect(() => {
-    setCycles(1);
-  }, [filter]);
+  const feed = useMemo(() => visible.map((item, index) => ({ item, key: `${item.url}-${index}` })), [visible]);
 
   return <main className="min-h-screen bg-black text-white">
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 px-4 py-3 backdrop-blur-xl sm:px-6">
@@ -196,7 +204,7 @@ export default function RadarPage() {
 
       {visible.length > 0 && <section className="snap-y snap-mandatory space-y-3 overflow-visible">
         {feed.map(({ item, key }) => <StoryCard key={key} item={item} liked={likes.includes(item.url)} onLike={() => toggleLike(item.url)} />)}
-        <div ref={sentinelRef} className="h-32 snap-start" aria-hidden="true" />
+        <div ref={sentinelRef} className="h-32 snap-start" aria-hidden="true">{loadingMore && <p className="pt-8 text-center text-[9px] uppercase tracking-[.18em] text-white/25">Finding more stories…</p>}</div>
       </section>}
     </div>
   </main>;
