@@ -1,15 +1,12 @@
 const STARTER_HEADLINES = [
-  { title: "ISRO completes the GSLV-F17 mission and places EOS-05 into orbit", url: "https://www.isro.gov.in/", source: "ISRO", category: "SPACE", summary: "India's space agency reports the successful completion of its latest GSLV mission.", publishedAt: "2026-09-04T00:00:00Z" },
-  { title: "ISRO reports new Aditya-L1 observations of the Sun", url: "https://www.isro.gov.in/", source: "ISRO", category: "SCIENCE", summary: "New observations from India's solar mission are adding to scientists' understanding of solar activity.", publishedAt: "2026-08-01T00:00:00Z" },
-  { title: "JAXA prepares the MMX mission to explore the moons of Mars", url: "https://www.jaxa.jp/", source: "JAXA", category: "SPACE", summary: "Japan's MMX mission is being prepared to study Phobos and Deimos, the two small moons of Mars.", publishedAt: "2026-08-20T00:00:00Z" },
-  { title: "China's space agency reports a series of successful satellite launches", url: "https://www.cnsa.gov.cn/", source: "CNSA", category: "SPACE", summary: "CNSA continues reporting new orbital missions and satellite launches from China.", publishedAt: "2026-09-20T00:00:00Z" },
-  { title: "DLR highlights new European launch and spacecraft technology", url: "https://www.dlr.de/en/latest", source: "DLR", category: "TECH", summary: "Germany's aerospace research agency is tracking new launch and space technology developments.", publishedAt: "2026-09-06T00:00:00Z" },
-  { title: "Microsoft Research explores smarter AI for physical robots", url: "https://www.microsoft.com/en-us/research/blog/", source: "Microsoft Research", category: "TECH", summary: "Researchers are exploring ways to make AI systems more efficient and useful in real-world robotics.", publishedAt: "2026-09-23T00:00:00Z" },
+  { title: "ISRO space missions and research updates", url: "https://www.isro.gov.in/", source: "ISRO", category: "SPACE", summary: "Official updates from India's space programme.", publishedAt: undefined },
+  { title: "JAXA mission and space science updates", url: "https://www.jaxa.jp/", source: "JAXA", category: "SPACE", summary: "Official updates from Japan's space and exploration programme.", publishedAt: undefined },
+  { title: "Microsoft Research AI and technology updates", url: "https://www.microsoft.com/en-us/research/blog/", source: "Microsoft Research", category: "TECH", summary: "Research stories covering AI, computing and emerging technology.", publishedAt: undefined }
 ];
 
 const TRUSTED_HOSTS = [
   "nasa.gov", "science.nasa.gov", "jpl.nasa.gov", "esa.int", "noaa.gov", "oceantoday.noaa.gov",
-  "api.nasa.gov", "images.nasa.gov", "images-api.nasa.gov", "isro.gov.in", "jaxa.jp", "isas.jaxa.jp",
+  "api.nasa.gov", "images.nasa.gov", "images-api.nasa.gov", "images-assets.nasa.gov", "isro.gov.in", "jaxa.jp", "isas.jaxa.jp",
   "cnsa.gov.cn", "roscosmos.ru", "cnes.fr", "dlr.de", "gov.uk", "microsoft.com", "blog.google",
   "research.google", "spectrum.ieee.org", "arstechnica.com", "technologyreview.com", "space.com", "spacenews.com", "techcrunch.com", "theverge.com", "engadget.com"
 ];
@@ -23,6 +20,7 @@ type RadarItem = {
   category?: string;
   summary?: string;
   publishedAt?: string;
+  imageUrl?: string;
   breaking?: boolean;
 };
 
@@ -30,6 +28,14 @@ function isTrustedUrl(value: string) {
   try {
     const host = new URL(value).hostname.toLowerCase().replace(/^www\./, "");
     return TRUSTED_HOSTS.some((allowed) => host === allowed || host.endsWith("." + allowed));
+  } catch { return false; }
+}
+
+function isTrustedImageUrl(value?: string) {
+  if (!value) return false;
+  try {
+    const host = new URL(value).hostname.toLowerCase().replace(/^www\./, "");
+    return host === "images-assets.nasa.gov" || host === "images.nasa.gov" || host.endsWith(".nasa.gov");
   } catch { return false; }
 }
 
@@ -61,25 +67,28 @@ function moderate(items: RadarItem[]) {
       category: item.category || categoryFor(clean(item.title), clean(item.source)),
       summary: clean(item.summary).slice(0, 320),
       publishedAt: item.publishedAt || undefined,
+      imageUrl: isTrustedImageUrl(item.imageUrl) ? item.imageUrl : undefined,
       breaking: Boolean(item.breaking)
     }))
     .filter((item) => isTrustedUrl(item.url) && isKidSafe(item));
 }
 
 function parseRss(xml: string, source: string, category?: string) {
-  return [...xml.matchAll(/<item[\s\S]*?<\/item>/gi)].map((match) => {
+  return [...xml.matchAll(/<item[\\s\\S]*?<\\/item>/gi)].map((match) => {
     const item = match[0];
     const read = (tag: string) => {
       const found = item.match(new RegExp("<" + tag + "[^>]*>([\\s\\S]*?)</" + tag + ">", "i"));
       return found ? clean(found[1]) : "";
     };
+    const imageMatch = item.match(/<(?:media:content|enclosure)[^>]+url=["']([^"']+)["']/i);
     return {
       title: read("title"),
       url: read("link"),
       source,
       category: category || categoryFor(read("title"), source),
       summary: read("description"),
-      publishedAt: read("pubDate") || read("published") || read("updated")
+      publishedAt: read("pubDate") || read("published") || read("updated"),
+      imageUrl: imageMatch?.[1]
     };
   });
 }
@@ -91,7 +100,7 @@ async function fetchText(url: string, timeoutMs = 2200) {
     const response = await fetch(url, {
       cache: "no-store",
       signal: controller.signal,
-      headers: { "User-Agent": "BitBuzz-Radar/2.0" }
+      headers: { "User-Agent": "BitBuzz-Radar/3.0" }
     });
     if (!response.ok) return "";
     return await response.text();
@@ -133,14 +142,7 @@ async function fetchSourcePages() {
         try { return new URL(href, url).toString(); } catch { return ""; }
       })();
 
-      return {
-        title,
-        url: absolute,
-        source,
-        category,
-        summary: "",
-        publishedAt: undefined
-      };
+      return { title, url: absolute, source, category, summary: "", publishedAt: undefined };
     }).filter((item) =>
       item.title.length >= 24 &&
       item.title.length <= 220 &&
@@ -158,7 +160,7 @@ async function fetchNasaImageLibrary() {
     const url = new URL("https://images-api.nasa.gov/search");
     url.searchParams.set("q", topic);
     url.searchParams.set("media_type", "image");
-    url.searchParams.set("page_size", "5");
+    url.searchParams.set("page_size", "8");
     const text = await fetchText(url.toString());
     if (!text) return [];
     try {
@@ -166,6 +168,7 @@ async function fetchNasaImageLibrary() {
       return (data?.collection?.items || []).map((item: any) => ({
         title: item?.data?.[0]?.title,
         url: item?.links?.[0]?.href,
+        imageUrl: item?.links?.[0]?.href,
         source: "NASA Image Library",
         category: categoryFor(item?.data?.[0]?.title, topic),
         summary: item?.data?.[0]?.description,
@@ -182,13 +185,15 @@ async function fetchNasaApod() {
   if (!text) return [];
   try {
     const item = JSON.parse(text);
+    if (item?.media_type !== "image" || !item?.url) return [];
     return [{
       title: item?.title,
-      url: item?.url || item?.hdurl,
+      url: "https://apod.nasa.gov/",
       source: "NASA APOD",
       category: "SPACE",
       summary: item?.explanation,
-      publishedAt: item?.date
+      publishedAt: item?.date,
+      imageUrl: item?.url
     }];
   } catch { return []; }
 }
@@ -235,8 +240,11 @@ async function fetchSearch() {
 
 function mergeHeadlines(...groups: RadarItem[][]) {
   const safe = moderate(groups.flat());
+  const images = safe.filter((item) => item.source === "NASA Image Library" && item.imageUrl);
+  const stories = safe.filter((item) => item.source !== "NASA Image Library" && item.url !== "https://apod.nasa.gov/");
   const seen = new Set<string>();
-  const ranked = [...safe, ...STARTER_HEADLINES]
+
+  const ranked = [...stories, ...STARTER_HEADLINES]
     .filter((item) => {
       const key = item.url.replace(/\/$/, "").toLowerCase();
       if (seen.has(key)) return false;
@@ -248,7 +256,12 @@ function mergeHeadlines(...groups: RadarItem[][]) {
       const bt = b.publishedAt ? Date.parse(b.publishedAt) : 0;
       return bt - at;
     });
-  return ranked.slice(0, 30);
+
+  const imagePool = images.map((item) => item.imageUrl).filter(Boolean) as string[];
+  return ranked.slice(0, 30).map((item, index) => ({
+    ...item,
+    imageUrl: item.imageUrl || imagePool[index % Math.max(imagePool.length, 1)] || undefined
+  }));
 }
 
 export default async function handler(_req: Request) {
