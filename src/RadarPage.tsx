@@ -59,7 +59,22 @@ export default function RadarPage() {
         <div className="text-left text-[10px] uppercase tracking-[.16em] text-white/30 sm:text-right">{updated ? `Updated ${updated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Connecting to live feed"}</div>
       </div>
 
-      {loading && <div className="py-16 text-sm text-white/35">Tuning into the live feed…</div>}
+      {loading && <div className="animate-pulse" aria-label="Loading Radar feed" role="status">
+        <div className="mt-10 grid gap-4 md:grid-cols-2">
+          {[0, 1].map((index) => <div key={index} className="rounded-3xl border border-white/10 bg-white/[.035] p-6 sm:p-8">
+            <div className="flex items-center justify-between"><div className="h-2.5 w-16 rounded-full bg-white/10" /><div className="h-2.5 w-4 rounded-full bg-white/5" /></div>
+            <div className="mt-10 space-y-3"><div className="h-7 w-[88%] rounded-lg bg-white/10" /><div className="h-7 w-[64%] rounded-lg bg-white/10" /></div>
+            <div className="mt-8 flex items-center justify-between"><div className="h-3 w-24 rounded-full bg-white/5" /><div className="h-7 w-14 rounded-full bg-white/5" /></div>
+          </div>)}
+        </div>
+        <div className="mt-14">
+          <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-3"><div className="h-2.5 w-14 rounded-full bg-white/10" /><div className="h-2.5 w-8 rounded-full bg-white/5" /></div>
+          <div className="grid gap-x-8 md:grid-cols-3">{[0, 1, 2].map((index) => <div key={index} className="border-b border-white/10 py-6">
+            <div className="h-2.5 w-20 rounded-full bg-white/5" /><div className="mt-3 space-y-2"><div className="h-5 w-full rounded-md bg-white/10" /><div className="h-5 w-3/4 rounded-md bg-white/10" /></div><div className="mt-5 h-2.5 w-12 rounded-full bg-white/5" />
+          </div>)}</div>
+        </div>
+        <span className="sr-only">Tuning into the live feed…</span>
+      </div>}
       {!loading && !items.length && <div className="py-16 text-sm text-white/35">Radar is quiet right now. The newsroom feed will appear here when it is available.</div>}
 
       <section className="mt-10 grid gap-4 md:grid-cols-2">
