@@ -238,9 +238,24 @@ async function fetchSearch() {
   return results.flat();
 }
 
+async function attachRelevantImages(items: RadarItem[]) {
+  const candidates = items.slice(0, 24);
+  const withImages = await Promise.all(candidates.map(async (item) => {
+    if (item.imageUrl) return item;
+    const query = encodeURIComponent(item.title.split(/[:—–-]/)[0].slice(0, 80));
+    const text = await fetchText(`https://images-api.nasa.gov/search?q=${query}&media_type=image&page_size=1`, 1800);
+    try {
+      const data = JSON.parse(text);
+      const image = data?.collection?.items?.[0];
+      const imageUrl = image?.links?.find((link: any) => /image\//i.test(link?.render || "") || /image/i.test(link?.href || ""))?.href;
+      return imageUrl && isTrustedImageUrl(imageUrl) ? { ...item, imageUrl } : item;
+    } catch { return item; }
+  }));
+  return withImages;
+}
+
 function mergeHeadlines(...groups: RadarItem[][]) {
   const safe = moderate(groups.flat());
-  const images = safe.filter((item) => item.source === "NASA Image Library" && item.imageUrl);
   const stories = safe.filter((item) => item.source !== "NASA Image Library" && item.url !== "https://apod.nasa.gov/");
   const seen = new Set<string>();
 
@@ -257,15 +272,11 @@ function mergeHeadlines(...groups: RadarItem[][]) {
       return bt - at;
     });
 
-  const imagePool = images.map((item) => item.imageUrl).filter(Boolean) as string[];
-  return ranked.slice(0, 30).map((item, index) => ({
-    ...item,
-    imageUrl: item.imageUrl || imagePool[index % Math.max(imagePool.length, 1)] || undefined
-  }));
+  return ranked.slice(0, 30);
 }
 
 export default async function handler(_req: Request) {
-  const [feeds, sourcePages, nasaImages, apod, search] = await Promise.all([
+  const [feeds, sourcePages, _nasaImages, _apod, search] = await Promise.all([
     fetchTrustedFeeds(),
     fetchSourcePages(),
     fetchNasaImageLibrary(),
@@ -273,7 +284,7 @@ export default async function handler(_req: Request) {
     fetchSearch()
   ]);
 
-  const headlines = mergeHeadlines(feeds, sourcePages, nasaImages, apod, search);
+  const headlines = await attachRelevantImages(mergeHeadlines(feeds, sourcePages, search));
 
   return new Response(JSON.stringify(headlines), {
     status: 200,
