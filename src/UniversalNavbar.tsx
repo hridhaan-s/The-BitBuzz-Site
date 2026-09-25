@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
 const LOGO_IMAGE="https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
-const NAV_LINKS=[{href:"/home",label:"Home"},{href:"/radar",label:"Radar"},{href:"/categories",label:"Categories"},{href:"/opportunities",label:"Opportunities"},{href:"/ambassadors",label:"Ambassadors"},{href:"/about",label:"About"}];
+const NAV_LINKS=[{href:"/home",label:"Home"},{href:"/categories",label:"Categories"},{href:"/opportunities",label:"Opportunities"},{href:"/ambassadors",label:"Ambassadors"},{href:"/about",label:"About"}];
 function SearchIcon(){return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>}
 function MenuIcon(){return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>}
 function CloseIcon(){return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>}
