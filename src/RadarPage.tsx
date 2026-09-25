@@ -1,34 +1,65 @@
 import { useEffect, useMemo, useState } from "react";
 
-type Headline = { title: string; url: string; source?: string; breaking?: boolean };
+type Headline = {
+  title: string;
+  url: string;
+  source?: string;
+  category?: string;
+  summary?: string;
+  publishedAt?: string;
+  breaking?: boolean;
+};
 
-const lanes = [
-  { label: "SPACE", match: /space|nasa|rocket|launch|moon|mars|orbit|satellite|astronomy/i },
-  { label: "TECH", match: /tech|ai|apple|google|microsoft|chip|software|robot|cyber/i },
-  { label: "SCIENCE", match: /science|research|biology|physics|climate|discovery|health/i },
-  { label: "AVIATION", match: /aviation|aircraft|airline|flight|boeing|airbus/i },
+const FILTERS = ["ALL", "SPACE", "TECH", "SCIENCE", "AVIATION", "LIKED"] as const;
+type Filter = typeof FILTERS[number];
+
+const fallbackItems: Headline[] = [
+  { title: "ISRO completes the GSLV-F17 mission and places EOS-05 into orbit", url: "https://www.isro.gov.in/", source: "ISRO", category: "SPACE", summary: "India's space agency reports the successful completion of its latest GSLV mission." },
+  { title: "JAXA prepares the MMX mission to explore the moons of Mars", url: "https://www.jaxa.jp/", source: "JAXA", category: "SPACE", summary: "Japan's MMX mission is being prepared to study Phobos and Deimos." },
+  { title: "Microsoft Research explores smarter AI for physical robots", url: "https://www.microsoft.com/en-us/research/blog/", source: "Microsoft Research", category: "TECH", summary: "Research into making AI systems more efficient and useful in real-world robotics." }
 ];
 
 function laneFor(item: Headline) {
-  const text = `${item.title} ${item.source ?? ""}`;
-  return lanes.find((lane) => lane.match.test(text))?.label ?? "NOW";
+  return item.category || "SCIENCE";
+}
+
+function formatDate(value?: string) {
+  if (!value) return "RECENT";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "RECENT";
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
 function ShareButton({ item }: { item: Headline }) {
   const share = async () => {
     const payload = { title: item.title, text: `Read this on BitBuzz: ${item.title}`, url: item.url };
     if (navigator.share) {
-      try { await navigator.share(payload); return; } catch { return; }
+      try { await navigator.share(payload); return; } catch {}
     }
-    try { await navigator.clipboard.writeText(window.location.origin + "/radar"); } catch {}
+    try { await navigator.clipboard.writeText(item.url); } catch {}
   };
   return <button onClick={share} className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/50 transition hover:border-white/25 hover:text-white">Share</button>;
 }
 
+function LikeButton({ liked, onClick }: { liked: boolean; onClick: () => void }) {
+  return <button aria-label={liked ? "Unlike story" : "Like story"} aria-pressed={liked} onClick={onClick} className={`rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition ${liked ? "border-[#ff9a70]/40 bg-[#ff9a70]/10 text-[#ff9a70]" : "border-white/10 text-white/50 hover:border-white/25 hover:text-white"}`}>
+    {liked ? "♥ Liked" : "♡ Like"}
+  </button>;
+}
+
 export default function RadarPage() {
-  const [items, setItems] = useState<Headline[]>([]);
+  const [items, setItems] = useState<Headline[]>(fallbackItems);
   const [loading, setLoading] = useState(true);
   const [updated, setUpdated] = useState<Date | null>(null);
+  const [filter, setFilter] = useState<Filter>("ALL");
+  const [likes, setLikes] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("bitbuzz:radar:likes") || "[]");
+      if (Array.isArray(saved)) setLikes(saved.filter((value) => typeof value === "string"));
+    } catch {}
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -39,15 +70,12 @@ export default function RadarPage() {
         const cached = localStorage.getItem(cacheKey);
         if (!cached) return null;
         const parsed = JSON.parse(cached);
-        return Array.isArray(parsed) ? parsed.filter((item) => item?.title && item?.url).slice(0, 24) : null;
-      } catch {
-        return null;
-      }
+        return Array.isArray(parsed) ? parsed.filter((item) => item?.title && item?.url).slice(0, 30) : null;
+      } catch { return null; }
     };
 
     const load = async () => {
       const cached = readCache();
-
       if (active && cached?.length) {
         setItems(cached);
         setUpdated(new Date());
@@ -56,23 +84,18 @@ export default function RadarPage() {
 
       try {
         const controller = new AbortController();
-        const timeout = window.setTimeout(() => controller.abort(), 4500);
+        const timeout = window.setTimeout(() => controller.abort(), 3200);
         const response = await fetch("/api/news", { cache: "default", signal: controller.signal });
         window.clearTimeout(timeout);
-
         if (!response.ok) throw new Error("feed unavailable");
-
         const data = await response.json();
-        if (active && Array.isArray(data)) {
-          const next = data.filter((item) => item?.title && item?.url).slice(0, 24);
-          if (next.length) {
-            setItems(next);
-            try { localStorage.setItem(cacheKey, JSON.stringify(next)); } catch {}
-            setUpdated(new Date());
-          }
+        if (active && Array.isArray(data) && data.length) {
+          setItems(data.filter((item) => item?.title && item?.url).slice(0, 30));
+          try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch {}
+          setUpdated(new Date());
         }
       } catch {
-        // Keep cached headlines visible if the refresh fails or times out.
+        // Starter/cache content remains visible.
       } finally {
         if (active) setLoading(false);
       }
@@ -86,59 +109,109 @@ export default function RadarPage() {
     };
   }, []);
 
-  const grouped = useMemo(() => lanes.map((lane) => ({ ...lane, items: items.filter((item) => lane.match.test(`${item.title} ${item.source ?? ""}`)).slice(0, 3) })).filter((lane) => lane.items.length), [items]);
+  const toggleLike = (url: string) => {
+    setLikes((current) => {
+      const next = current.includes(url) ? current.filter((value) => value !== url) : [...current, url];
+      try { localStorage.setItem("bitbuzz:radar:likes", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  const visible = useMemo(() => {
+    if (filter === "LIKED") return items.filter((item) => likes.includes(item.url));
+    if (filter === "ALL") return items;
+    return items.filter((item) => (item.category || laneFor(item)) === filter);
+  }, [filter, items, likes]);
+
+  const featured = visible.slice(0, 2);
+  const stream = visible.slice(2);
 
   return <main className="min-h-screen bg-black px-5 pb-24 pt-28 text-white sm:px-8">
     <div className="mx-auto max-w-[1200px]">
-      <div className="flex flex-col gap-5 border-b border-white/10 pb-10 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-[10px] font-bold tracking-[.22em] text-[#ff9a70]">BITBUZZ RADAR · LIVE FEED</p>
-          <h1 className="mt-3 font-serif text-5xl tracking-[-.05em] sm:text-7xl">What’s happening.</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">A fast-moving layer over the BitBuzz newsroom. Headlines refresh automatically, while the strongest stories stay easy to discover and share.</p>
+      <header className="border-b border-white/10 pb-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-[10px] font-bold tracking-[.22em] text-[#ff9a70]">BITBUZZ RADAR · LIVE DISCOVERY</p>
+            <h1 className="mt-3 font-serif text-5xl tracking-[-.05em] sm:text-7xl">What’s happening.</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">A fast, curated stream of space, science, technology and aviation stories from trusted sources around the world.</p>
+          </div>
+          <div className="text-left text-[10px] uppercase tracking-[.16em] text-white/30 lg:text-right">
+            {updated ? `UPDATED ${updated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "LIVE · LOADING"}
+          </div>
         </div>
-        <div className="text-left text-[10px] uppercase tracking-[.16em] text-white/30 sm:text-right">{updated ? `Updated ${updated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Connecting to live feed"}</div>
+
+        <div className="mt-7 flex gap-2 overflow-x-auto pb-1">
+          {FILTERS.map((value) => <button key={value} onClick={() => setFilter(value)} className={`shrink-0 rounded-full border px-4 py-2 text-[10px] font-bold tracking-[.12em] transition ${filter === value ? "border-white bg-white text-black" : "border-white/10 text-white/45 hover:border-white/25 hover:text-white"}`}>
+            {value}
+          </button>)}
+        </div>
+      </header>
+
+      <div className="mt-8 flex items-center justify-between text-[10px] uppercase tracking-[.16em] text-white/25">
+        <span>{visible.length} stories</span>
+        <span>{loading ? "refreshing…" : "auto-refresh · 5 min"}</span>
       </div>
 
-      {loading && <div className="animate-pulse" aria-label="Loading Radar feed" role="status">
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
-          {[0, 1].map((index) => <div key={index} className="rounded-3xl border border-white/10 bg-white/[.035] p-6 sm:p-8">
-            <div className="flex items-center justify-between"><div className="h-2.5 w-16 rounded-full bg-white/10" /><div className="h-2.5 w-4 rounded-full bg-white/5" /></div>
-            <div className="mt-10 space-y-3"><div className="h-7 w-[88%] rounded-lg bg-white/10" /><div className="h-7 w-[64%] rounded-lg bg-white/10" /></div>
-            <div className="mt-8 flex items-center justify-between"><div className="h-3 w-24 rounded-full bg-white/5" /><div className="h-7 w-14 rounded-full bg-white/5" /></div>
-          </div>)}
-        </div>
-        <div className="mt-14">
-          <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-3"><div className="h-2.5 w-14 rounded-full bg-white/10" /><div className="h-2.5 w-8 rounded-full bg-white/5" /></div>
-          <div className="grid gap-x-8 md:grid-cols-3">{[0, 1, 2].map((index) => <div key={index} className="border-b border-white/10 py-6">
-            <div className="h-2.5 w-20 rounded-full bg-white/5" /><div className="mt-3 space-y-2"><div className="h-5 w-full rounded-md bg-white/10" /><div className="h-5 w-3/4 rounded-md bg-white/10" /></div><div className="mt-5 h-2.5 w-12 rounded-full bg-white/5" />
-          </div>)}</div>
-        </div>
-        <span className="sr-only">Tuning into the live feed…</span>
-      </div>}
-      {!loading && !items.length && <div className="py-16 text-sm text-white/35">Radar is quiet right now. The newsroom feed will appear here when it is available.</div>}
+      {visible.length === 0 && <div className="py-20 text-center text-sm text-white/35">No stories match this filter yet.</div>}
 
-      <section className="mt-10 grid gap-4 md:grid-cols-2">
-        {items.slice(0, 2).map((item, index) => <article key={`${item.url}-hero`} className="group rounded-3xl border border-white/10 bg-white/[.035] p-6 transition hover:border-white/20 sm:p-8">
-          <div className="flex items-center justify-between gap-3"><span className="text-[10px] font-bold tracking-[.18em] text-[#ff9a70]">{item.breaking ? "BREAKING" : laneFor(item)}</span><span className="text-[10px] text-white/25">0{index + 1}</span></div>
-          <h2 className="mt-10 font-serif text-3xl leading-tight tracking-[-.03em] sm:text-4xl">{item.title}</h2>
-          <div className="mt-7 flex items-center justify-between gap-3"><a href={item.url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-white/65 hover:text-white">{item.source ?? "Read source"} ↗</a><ShareButton item={item}/></div>
-        </article>)}
-      </section>
+      {featured.length > 0 && <section className="mt-5 grid gap-4 md:grid-cols-2">
+        {featured.map((item, index) => {
+          const liked = likes.includes(item.url);
+          return <article key={item.url} className="group rounded-3xl border border-white/10 bg-white/[.035] p-6 transition hover:border-white/20 sm:p-8">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[10px] font-bold tracking-[.18em] text-[#ff9a70]">{laneFor(item)}</span>
+              <span className="text-[10px] text-white/25">0{index + 1}</span>
+            </div>
+            <h2 className="mt-8 font-serif text-3xl leading-tight tracking-[-.03em] sm:text-4xl">{item.title}</h2>
+            {item.summary && <p className="mt-5 text-sm leading-6 text-white/45">{item.summary}</p>}
+            <div className="mt-7 flex flex-wrap items-center gap-2">
+              <a href={item.url} target="_blank" rel="noreferrer" className="rounded-full bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-black transition hover:bg-[#ffdccb]">Read source ↗</a>
+              <LikeButton liked={liked} onClick={() => toggleLike(item.url)} />
+              <ShareButton item={item} />
+            </div>
+            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 text-[10px] uppercase tracking-[.12em] text-white/25">
+              <span>{item.source || "BitBuzz Radar"}</span><span>{formatDate(item.publishedAt)}</span>
+            </div>
+          </article>;
+        })}
+      </section>}
 
-      {grouped.map((lane) => <section key={lane.label} className="mt-14">
-        <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-3"><h2 className="text-[10px] font-bold tracking-[.2em] text-white/45">{lane.label}</h2><span className="text-[10px] text-white/20">LIVE</span></div>
-        <div className="grid gap-x-8 md:grid-cols-3">{lane.items.map((item) => <article key={item.url} className="border-b border-white/10 py-6">
-          <p className="text-[10px] font-semibold text-white/30">{item.source ?? "BitBuzz Radar"}</p>
-          <h3 className="mt-2 font-serif text-xl leading-snug">{item.title}</h3>
-          <div className="mt-4 flex items-center justify-between"><a href={item.url} target="_blank" rel="noreferrer" className="text-[10px] font-bold uppercase tracking-wider text-white/45 hover:text-white">Open ↗</a><ShareButton item={item}/></div>
-        </article>)}</div>
-      </section>)}
+      {stream.length > 0 && <section className="mt-14">
+        <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-3">
+          <h2 className="text-[10px] font-bold tracking-[.2em] text-white/45">THE STREAM</h2>
+          <span className="text-[10px] text-white/20">SCROLL</span>
+        </div>
+        <div className="divide-y divide-white/10">
+          {stream.map((item) => {
+            const liked = likes.includes(item.url);
+            return <article key={item.url} className="py-6 sm:py-7">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 max-w-3xl">
+                  <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[.14em]">
+                    <span className="text-[#ff9a70]">{laneFor(item)}</span>
+                    <span className="text-white/20">·</span>
+                    <span className="text-white/30">{item.source || "Source"}</span>
+                    <span className="text-white/20">·</span>
+                    <span className="text-white/25">{formatDate(item.publishedAt)}</span>
+                  </div>
+                  <h3 className="mt-2 font-serif text-2xl leading-snug tracking-[-.02em] sm:text-3xl">{item.title}</h3>
+                  {item.summary && <p className="mt-2 max-w-2xl text-sm leading-6 text-white/40">{item.summary}</p>}
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <LikeButton liked={liked} onClick={() => toggleLike(item.url)} />
+                  <a href={item.url} target="_blank" rel="noreferrer" className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/50 transition hover:border-white/25 hover:text-white">Read ↗</a>
+                </div>
+              </div>
+            </article>;
+          })}
+        </div>
+      </section>}
 
       <div className="mt-16 rounded-3xl border border-[#ff9a70]/20 bg-[#ff9a70]/[.04] p-6 sm:p-8">
-        <p className="text-[10px] font-bold tracking-[.18em] text-[#ff9a70]">BUILT FOR DISCOVERY</p>
-        <h2 className="mt-2 font-serif text-2xl">See something worth knowing? Send it.</h2>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-white/40">Radar is intentionally lightweight: it reuses the newsroom’s existing live feed instead of introducing another database or editorial workflow.</p>
-        <a href="/submit" className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-xs font-bold text-black transition hover:bg-[#ffdccb]">Submit to BitBuzz</a>
+        <p className="text-[10px] font-bold tracking-[.18em] text-[#ff9a70]">BITBUZZ · DISCOVERY</p>
+        <h2 className="mt-2 font-serif text-2xl">Know something worth knowing?</h2>
+        <p className="mt-2 max-w-xl text-sm leading-6 text-white/40">Radar filters noisy feeds through trusted sources and a kid-safe title and summary check before stories reach the page.</p>
+        <a href="/submit" className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-xs font-bold text-black transition hover:bg-[#ffdccb)">Submit to BitBuzz</a>
       </div>
     </div>
   </main>;
