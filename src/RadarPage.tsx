@@ -15,9 +15,9 @@ const FILTERS = ["ALL", "SPACE", "TECH", "SCIENCE", "AVIATION", "LIKED"] as cons
 type Filter = typeof FILTERS[number];
 
 const fallbackItems: Headline[] = [
-  { title: "ISRO space missions and research updates", url: "https://www.isro.gov.in/", source: "ISRO", category: "SPACE", summary: "Official updates from India's space programme.", imageUrl: "https://images-assets.nasa.gov/image/PIA12348/PIA12348~large.jpg" },
-  { title: "JAXA mission and space science updates", url: "https://www.jaxa.jp/", source: "JAXA", category: "SPACE", summary: "Official updates from Japan's space and exploration programme.", imageUrl: "https://images-assets.nasa.gov/image/PIA12348/PIA12348~large.jpg" },
-  { title: "Microsoft Research AI and technology updates", url: "https://www.microsoft.com/en-us/research/blog/", source: "Microsoft Research", category: "TECH", summary: "Research stories covering AI, computing and emerging technology.", imageUrl: "https://images-assets.nasa.gov/image/PIA12348/PIA12348~large.jpg" }
+  { title: "ISRO space missions and research updates", url: "https://www.isro.gov.in/", source: "ISRO", category: "SPACE", summary: "Official updates from India's space programme." },
+  { title: "JAXA mission and space science updates", url: "https://www.jaxa.jp/", source: "JAXA", category: "SPACE", summary: "Official updates from Japan's space and exploration programme." },
+  { title: "Microsoft Research AI and technology updates", url: "https://www.microsoft.com/en-us/research/blog/", source: "Microsoft Research", category: "TECH", summary: "Research stories covering AI, computing and emerging technology." }
 ];
 
 function laneFor(item: Headline) {
@@ -48,30 +48,53 @@ function LikeButton({ liked, onClick }: { liked: boolean; onClick: () => void })
   </button>;
 }
 
-function StoryCard({ item, liked, onLike }: { item: Headline; liked: boolean; onLike: () => void }) {
-  return <article className="relative flex h-[calc(100svh-92px)] min-h-[620px] snap-start snap-always overflow-hidden rounded-[28px] border border-white/10 bg-[#101010] shadow-2xl">
+function StoryCard({ item, liked, onLike, index, total }: { item: Headline; liked: boolean; onLike: () => void; index: number; total: number }) {
+  return <article className="group relative h-[calc(100svh-132px)] min-h-[620px] snap-start snap-always overflow-hidden rounded-[30px] bg-[#080808] shadow-[0_30px_100px_rgba(0,0,0,.65)] ring-1 ring-white/10">
     <div className="absolute inset-0">
-      {item.imageUrl ? <img src={item.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover transition duration-700" /> : <div className="h-full w-full bg-gradient-to-br from-[#1b1b1b] via-[#090909] to-[#17110e]" />}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/90" />
-      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/50 to-transparent" />
+      {item.imageUrl ? <img src={item.imageUrl} alt="" loading={index < 2 ? "eager" : "lazy"} className="h-full w-full object-cover scale-[1.015] transition-transform duration-[1400ms] ease-out group-hover:scale-105" /> : <div className="h-full w-full bg-[radial-gradient(circle_at_65%_25%,rgba(255,154,112,.22),transparent_28%),radial-gradient(circle_at_25%_80%,rgba(120,100,255,.18),transparent_32%),#080808]" />}
+      <div className="absolute inset-0 bg-black/15" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.58)_0%,rgba(0,0,0,.08)_30%,rgba(0,0,0,.18)_52%,rgba(0,0,0,.96)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black via-black/70 to-transparent" />
     </div>
 
-    <div className="relative z-10 flex w-full flex-col justify-between p-5 sm:p-7">
-      <div className="flex items-center justify-between gap-3">
-        <span className="rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.16em] text-white/85 backdrop-blur">{laneFor(item)}</span>
-        {item.breaking && <span className="rounded-full bg-[#ff9a70] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.16em] text-black">LIVE</span>}
+    <div className="relative z-10 flex h-full flex-col">
+      <div className="flex items-center justify-between px-5 pt-5 sm:px-7 sm:pt-7">
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border border-white/15 bg-black/30 px-3 py-1.5 text-[9px] font-black uppercase tracking-[.18em] text-white/90 backdrop-blur-xl">{laneFor(item)}</span>
+          {item.breaking && <span className="rounded-full bg-[#ff9a70] px-3 py-1.5 text-[9px] font-black uppercase tracking-[.18em] text-black shadow-lg shadow-[#ff9a70]/20">LIVE</span>}
+        </div>
+        <span className="text-[9px] font-bold tracking-[.18em] text-white/45">{String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
       </div>
 
-      <div className="max-w-3xl">
-        <p className="mb-3 text-[10px] font-bold uppercase tracking-[.16em] text-white/55">{item.source || "BitBuzz Radar"} · {formatDate(item.publishedAt)}</p>
-        <h2 className="font-serif text-4xl leading-[.98] tracking-[-.045em] text-white drop-shadow-lg sm:text-6xl">{item.title}</h2>
-        {item.summary && <p className="mt-4 max-w-2xl text-sm leading-6 text-white/75 drop-shadow sm:text-base">{item.summary}</p>}
-
-        <div className="mt-6 flex flex-wrap gap-2">
-          <a href={item.url} target="_blank" rel="noreferrer" className="rounded-full bg-white px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-black transition hover:bg-[#ffdccb]">Read source ↗</a>
-          <LikeButton liked={liked} onClick={onLike} />
-          <ShareButton item={item} />
+      <div className="mt-auto flex items-end gap-4 px-5 pb-7 sm:px-7 sm:pb-9">
+        <div className="min-w-0 flex-1 max-w-3xl">
+          <p className="mb-3 text-[9px] font-black uppercase tracking-[.2em] text-white/55">{item.source || "BitBuzz Radar"} · {formatDate(item.publishedAt)}</p>
+          <h2 className="font-serif text-[clamp(2.35rem,6vw,4.8rem)] font-medium leading-[.92] tracking-[-.055em] text-white drop-shadow-[0_4px_25px_rgba(0,0,0,.55)]">{item.title}</h2>
+          {item.summary && <div className="mt-5 max-w-2xl rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-xl sm:p-5">
+            <p className="mb-1 text-[9px] font-black uppercase tracking-[.2em] text-[#ffb596]">QUICK TAKE</p>
+            <p className="line-clamp-3 text-sm leading-6 text-white/78 sm:text-[15px]">{item.summary}</p>
+          </div>}
+          <div className="mt-5 flex items-center gap-2">
+            <a href={item.url} target="_blank" rel="noreferrer" className="rounded-full bg-white px-5 py-3 text-[10px] font-black uppercase tracking-[.15em] text-black transition hover:scale-[1.02] hover:bg-[#ffddd0] active:scale-[.98]">Read source ↗</a>
+            <ShareButton item={item} />
+          </div>
         </div>
+
+        <div className="mb-1 flex shrink-0 flex-col items-center gap-3">
+          <button aria-label={liked ? "Unlike story" : "Like story"} aria-pressed={liked} onClick={onLike} className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-black/35 text-xl backdrop-blur-xl transition hover:scale-105 hover:border-white/30 active:scale-95">
+            <span className={liked ? "text-[#ff9a70]" : "text-white"}>{liked ? "♥" : "♡"}</span>
+          </button>
+          <button aria-label="Share story" onClick={async () => {
+            const payload = { title: item.title, text: `Read this on BitBuzz: ${item.title}`, url: item.url };
+            if (navigator.share) { try { await navigator.share(payload); return; } catch {} }
+            try { await navigator.clipboard.writeText(item.url); } catch {}
+          }} className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-black/35 text-sm text-white backdrop-blur-xl transition hover:scale-105 hover:border-white/30 active:scale-95">↗</button>
+          <button aria-label="Save story" onClick={onLike} className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-black/35 text-sm text-white backdrop-blur-xl transition hover:scale-105 hover:border-white/30 active:scale-95">⌑</button>
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 h-1 w-full bg-white/10">
+        <div className="h-full bg-white/80 transition-all duration-500" style={{ width: `${((index + 1) / Math.max(total, 1)) * 100}%` }} />
       </div>
     </div>
   </article>;
@@ -185,11 +208,11 @@ export default function RadarPage() {
   const feed = useMemo(() => visible.map((item, index) => ({ item, key: `${item.url}-${index}` })), [visible]);
 
   return <main className="min-h-screen bg-black text-white">
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 px-4 py-3 backdrop-blur-xl sm:px-6">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/75 px-4 py-3 backdrop-blur-2xl sm:px-6">
       <div className="mx-auto flex max-w-[1100px] items-center gap-4">
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#ff9a70]">BITBUZZ RADAR</p>
-          <p className="truncate text-xs text-white/45">Scroll. Discover. Go deeper.</p>
+          <p className="truncate text-xs text-white/45">Swipe through the world's smartest stories.</p>
         </div>
         <div className="hidden text-right text-[10px] uppercase tracking-[.14em] text-white/30 sm:block">{updated ? `UPDATED ${updated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "LIVE · LOADING"}</div>
       </div>
@@ -203,7 +226,7 @@ export default function RadarPage() {
       {visible.length === 0 && <div className="flex min-h-[60svh] items-center justify-center text-sm text-white/35">No stories match this filter yet.</div>}
 
       {visible.length > 0 && <section className="snap-y snap-mandatory space-y-3 overflow-visible">
-        {feed.map(({ item, key }) => <StoryCard key={key} item={item} liked={likes.includes(item.url)} onLike={() => toggleLike(item.url)} />)}
+        {feed.map(({ item, key }, index) => <StoryCard key={key} item={item} index={index} total={feed.length} liked={likes.includes(item.url)} onLike={() => toggleLike(item.url)} />)}
         <div ref={sentinelRef} className="h-32 snap-start" aria-hidden="true">{loadingMore && <p className="pt-8 text-center text-[9px] uppercase tracking-[.18em] text-white/25">Finding more stories…</p>}</div>
       </section>}
     </div>
