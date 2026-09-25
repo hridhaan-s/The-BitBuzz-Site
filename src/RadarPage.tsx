@@ -33,11 +33,26 @@ export default function RadarPage() {
   useEffect(() => {
     let active = true;
     const load = async () => {
+      const cacheKey = "bitbuzz:radar:headlines";
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed)) {
+            setItems(parsed);
+            setUpdated(new Date());
+            setLoading(false);
+          }
+        } catch {}
+      }
       try {
-        const response = await fetch("/api/news", { cache: "no-store" });
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 4500);
+        const response = await fetch("/api/news", { cache: "default", signal: controller.signal });
+        window.clearTimeout(timeout);
         if (!response.ok) throw new Error("feed unavailable");
         const data = await response.json();
-        if (active && Array.isArray(data)) { setItems(data.filter((item) => item?.title && item?.url).slice(0, 24)); setUpdated(new Date()); }
+        if (active && Array.isArray(data)) { const next = data.filter((item) => item?.title && item?.url).slice(0, 24); setItems(next); sessionStorage.setItem("bitbuzz:radar:headlines", JSON.stringify(next)); setUpdated(new Date()); }
       } catch { if (active) setItems([]); }
       finally { if (active) setLoading(false); }
     };
