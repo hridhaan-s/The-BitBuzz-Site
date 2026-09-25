@@ -4,7 +4,7 @@ export default async function handler(req: Request) {
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "News service is not configured" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
     });
   }
 
@@ -42,10 +42,11 @@ export default async function handler(req: Request) {
       }))
       .slice(0, 10);
 
-    return new Response(JSON.stringify({ headlines, updatedAt: new Date().toISOString() }), {
+    return new Response(JSON.stringify(headlines), {
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "s-maxage=900, stale-while-revalidate=3600",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=86400, stale-if-error=86400",
+        "CDN-Cache-Control": "public, max-age=300, stale-while-revalidate=86400, stale-if-error=86400",
       },
     });
   } catch {
