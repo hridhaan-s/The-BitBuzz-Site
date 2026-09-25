@@ -32,33 +32,58 @@ export default function RadarPage() {
 
   useEffect(() => {
     let active = true;
-    const load = async () => {
-      const cacheKey = "bitbuzz:radar:headlines";
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed)) {
-            setItems(parsed);
-            setUpdated(new Date());
-            setLoading(false);
-          }
-        } catch {}
+    const cacheKey = "bitbuzz:radar:headlines";
+
+    const readCache = () => {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (!cached) return null;
+        const parsed = JSON.parse(cached);
+        return Array.isArray(parsed) ? parsed.filter((item) => item?.title && item?.url).slice(0, 24) : null;
+      } catch {
+        return null;
       }
+    };
+
+    const load = async () => {
+      const cached = readCache();
+
+      if (active && cached?.length) {
+        setItems(cached);
+        setUpdated(new Date());
+        setLoading(false);
+      }
+
       try {
         const controller = new AbortController();
         const timeout = window.setTimeout(() => controller.abort(), 4500);
         const response = await fetch("/api/news", { cache: "default", signal: controller.signal });
         window.clearTimeout(timeout);
+
         if (!response.ok) throw new Error("feed unavailable");
+
         const data = await response.json();
-        if (active && Array.isArray(data)) { const next = data.filter((item) => item?.title && item?.url).slice(0, 24); setItems(next); sessionStorage.setItem("bitbuzz:radar:headlines", JSON.stringify(next)); setUpdated(new Date()); }
-      } catch { if (active) setItems([]); }
-      finally { if (active) setLoading(false); }
+        if (active && Array.isArray(data)) {
+          const next = data.filter((item) => item?.title && item?.url).slice(0, 24);
+          if (next.length) {
+            setItems(next);
+            try { localStorage.setItem(cacheKey, JSON.stringify(next)); } catch {}
+            setUpdated(new Date());
+          }
+        }
+      } catch {
+        // Keep cached headlines visible if the refresh fails or times out.
+      } finally {
+        if (active) setLoading(false);
+      }
     };
+
     load();
     const timer = window.setInterval(load, 5 * 60 * 1000);
-    return () => { active = false; window.clearInterval(timer); };
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
   }, []);
 
   const grouped = useMemo(() => lanes.map((lane) => ({ ...lane, items: items.filter((item) => lane.match.test(`${item.title} ${item.source ?? ""}`)).slice(0, 3) })).filter((lane) => lane.items.length), [items]);
