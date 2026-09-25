@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Headline = {
   title: string;
@@ -7,6 +7,7 @@ type Headline = {
   category?: string;
   summary?: string;
   publishedAt?: string;
+  imageUrl?: string;
   breaking?: boolean;
 };
 
@@ -14,9 +15,9 @@ const FILTERS = ["ALL", "SPACE", "TECH", "SCIENCE", "AVIATION", "LIKED"] as cons
 type Filter = typeof FILTERS[number];
 
 const fallbackItems: Headline[] = [
-  { title: "ISRO completes the GSLV-F17 mission and places EOS-05 into orbit", url: "https://www.isro.gov.in/", source: "ISRO", category: "SPACE", summary: "India's space agency reports the successful completion of its latest GSLV mission." },
-  { title: "JAXA prepares the MMX mission to explore the moons of Mars", url: "https://www.jaxa.jp/", source: "JAXA", category: "SPACE", summary: "Japan's MMX mission is being prepared to study Phobos and Deimos." },
-  { title: "Microsoft Research explores smarter AI for physical robots", url: "https://www.microsoft.com/en-us/research/blog/", source: "Microsoft Research", category: "TECH", summary: "Research into making AI systems more efficient and useful in real-world robotics." }
+  { title: "ISRO space missions and research updates", url: "https://www.isro.gov.in/", source: "ISRO", category: "SPACE", summary: "Official updates from India's space programme.", imageUrl: "https://images-assets.nasa.gov/image/PIA12348/PIA12348~large.jpg" },
+  { title: "JAXA mission and space science updates", url: "https://www.jaxa.jp/", source: "JAXA", category: "SPACE", summary: "Official updates from Japan's space and exploration programme.", imageUrl: "https://images-assets.nasa.gov/image/PIA12348/PIA12348~large.jpg" },
+  { title: "Microsoft Research AI and technology updates", url: "https://www.microsoft.com/en-us/research/blog/", source: "Microsoft Research", category: "TECH", summary: "Research stories covering AI, computing and emerging technology.", imageUrl: "https://images-assets.nasa.gov/image/PIA12348/PIA12348~large.jpg" }
 ];
 
 function laneFor(item: Headline) {
@@ -38,13 +39,42 @@ function ShareButton({ item }: { item: Headline }) {
     }
     try { await navigator.clipboard.writeText(item.url); } catch {}
   };
-  return <button onClick={share} className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/50 transition hover:border-white/25 hover:text-white">Share</button>;
+  return <button onClick={share} className="rounded-full border border-white/10 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/65 transition hover:border-white/25 hover:text-white">Share</button>;
 }
 
 function LikeButton({ liked, onClick }: { liked: boolean; onClick: () => void }) {
-  return <button aria-label={liked ? "Unlike story" : "Like story"} aria-pressed={liked} onClick={onClick} className={`rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition ${liked ? "border-[#ff9a70]/40 bg-[#ff9a70]/10 text-[#ff9a70]" : "border-white/10 text-white/50 hover:border-white/25 hover:text-white"}`}>
+  return <button aria-label={liked ? "Unlike story" : "Like story"} aria-pressed={liked} onClick={onClick} className={`rounded-full border px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition ${liked ? "border-[#ff9a70]/40 bg-[#ff9a70]/10 text-[#ff9a70]" : "border-white/15 bg-black/30 text-white/65 hover:border-white/30 hover:text-white"}`}>
     {liked ? "♥ Liked" : "♡ Like"}
   </button>;
+}
+
+function StoryCard({ item, liked, onLike }: { item: Headline; liked: boolean; onLike: () => void }) {
+  return <article className="relative flex h-[calc(100svh-92px)] min-h-[620px] snap-start snap-always overflow-hidden rounded-[28px] border border-white/10 bg-[#101010] shadow-2xl">
+    <div className="absolute inset-0">
+      {item.imageUrl ? <img src={item.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover transition duration-700" /> : <div className="h-full w-full bg-gradient-to-br from-[#1b1b1b] via-[#090909] to-[#17110e]" />}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/90" />
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/50 to-transparent" />
+    </div>
+
+    <div className="relative z-10 flex w-full flex-col justify-between p-5 sm:p-7">
+      <div className="flex items-center justify-between gap-3">
+        <span className="rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.16em] text-white/85 backdrop-blur">{laneFor(item)}</span>
+        {item.breaking && <span className="rounded-full bg-[#ff9a70] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.16em] text-black">LIVE</span>}
+      </div>
+
+      <div className="max-w-3xl">
+        <p className="mb-3 text-[10px] font-bold uppercase tracking-[.16em] text-white/55">{item.source || "BitBuzz Radar"} · {formatDate(item.publishedAt)}</p>
+        <h2 className="font-serif text-4xl leading-[.98] tracking-[-.045em] text-white drop-shadow-lg sm:text-6xl">{item.title}</h2>
+        {item.summary && <p className="mt-4 max-w-2xl text-sm leading-6 text-white/75 drop-shadow sm:text-base">{item.summary}</p>}
+
+        <div className="mt-6 flex flex-wrap gap-2">
+          <a href={item.url} target="_blank" rel="noreferrer" className="rounded-full bg-white px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-black transition hover:bg-[#ffdccb]">Read source ↗</a>
+          <LikeButton liked={liked} onClick={onLike} />
+          <ShareButton item={item} />
+        </div>
+      </div>
+    </div>
+  </article>;
 }
 
 export default function RadarPage() {
@@ -53,6 +83,8 @@ export default function RadarPage() {
   const [updated, setUpdated] = useState<Date | null>(null);
   const [filter, setFilter] = useState<Filter>("ALL");
   const [likes, setLikes] = useState<string[]>([]);
+  const [cycles, setCycles] = useState(1);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -109,6 +141,16 @@ export default function RadarPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) setCycles((value) => value + 1);
+    }, { rootMargin: "900px" });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [filter, items.length]);
+
   const toggleLike = (url: string) => {
     setLikes((current) => {
       const next = current.includes(url) ? current.filter((value) => value !== url) : [...current, url];
@@ -123,96 +165,39 @@ export default function RadarPage() {
     return items.filter((item) => (item.category || laneFor(item)) === filter);
   }, [filter, items, likes]);
 
-  const featured = visible.slice(0, 2);
-  const stream = visible.slice(2);
+  const feed = useMemo(() => {
+    if (!visible.length) return [];
+    return Array.from({ length: Math.max(1, cycles) }, (_, cycle) =>
+      visible.map((item, index) => ({ item, key: `${item.url}-${cycle}-${index}` }))
+    ).flat();
+  }, [visible, cycles]);
 
-  return <main className="min-h-screen bg-black px-5 pb-24 pt-28 text-white sm:px-8">
-    <div className="mx-auto max-w-[1200px]">
-      <header className="border-b border-white/10 pb-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-[10px] font-bold tracking-[.22em] text-[#ff9a70]">BITBUZZ RADAR · LIVE DISCOVERY</p>
-            <h1 className="mt-3 font-serif text-5xl tracking-[-.05em] sm:text-7xl">What’s happening.</h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">A fast, curated stream of space, science, technology and aviation stories from trusted sources around the world.</p>
-          </div>
-          <div className="text-left text-[10px] uppercase tracking-[.16em] text-white/30 lg:text-right">
-            {updated ? `UPDATED ${updated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "LIVE · LOADING"}
-          </div>
+  useEffect(() => {
+    setCycles(1);
+  }, [filter]);
+
+  return <main className="min-h-screen bg-black text-white">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 px-4 py-3 backdrop-blur-xl sm:px-6">
+      <div className="mx-auto flex max-w-[1100px] items-center gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#ff9a70]">BITBUZZ RADAR</p>
+          <p className="truncate text-xs text-white/45">Scroll. Discover. Go deeper.</p>
         </div>
-
-        <div className="mt-7 flex gap-2 overflow-x-auto pb-1">
-          {FILTERS.map((value) => <button key={value} onClick={() => setFilter(value)} className={`shrink-0 rounded-full border px-4 py-2 text-[10px] font-bold tracking-[.12em] transition ${filter === value ? "border-white bg-white text-black" : "border-white/10 text-white/45 hover:border-white/25 hover:text-white"}`}>
-            {value}
-          </button>)}
-        </div>
-      </header>
-
-      <div className="mt-8 flex items-center justify-between text-[10px] uppercase tracking-[.16em] text-white/25">
-        <span>{visible.length} stories</span>
-        <span>{loading ? "refreshing…" : "auto-refresh · 5 min"}</span>
+        <div className="hidden text-right text-[10px] uppercase tracking-[.14em] text-white/30 sm:block">{updated ? `UPDATED ${updated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "LIVE · LOADING"}</div>
       </div>
-
-      {visible.length === 0 && <div className="py-20 text-center text-sm text-white/35">No stories match this filter yet.</div>}
-
-      {featured.length > 0 && <section className="mt-5 grid gap-4 md:grid-cols-2">
-        {featured.map((item, index) => {
-          const liked = likes.includes(item.url);
-          return <article key={item.url} className="group rounded-3xl border border-white/10 bg-white/[.035] p-6 transition hover:border-white/20 sm:p-8">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-[10px] font-bold tracking-[.18em] text-[#ff9a70]">{laneFor(item)}</span>
-              <span className="text-[10px] text-white/25">0{index + 1}</span>
-            </div>
-            <h2 className="mt-8 font-serif text-3xl leading-tight tracking-[-.03em] sm:text-4xl">{item.title}</h2>
-            {item.summary && <p className="mt-5 text-sm leading-6 text-white/45">{item.summary}</p>}
-            <div className="mt-7 flex flex-wrap items-center gap-2">
-              <a href={item.url} target="_blank" rel="noreferrer" className="rounded-full bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-black transition hover:bg-[#ffdccb]">Read source ↗</a>
-              <LikeButton liked={liked} onClick={() => toggleLike(item.url)} />
-              <ShareButton item={item} />
-            </div>
-            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 text-[10px] uppercase tracking-[.12em] text-white/25">
-              <span>{item.source || "BitBuzz Radar"}</span><span>{formatDate(item.publishedAt)}</span>
-            </div>
-          </article>;
-        })}
-      </section>}
-
-      {stream.length > 0 && <section className="mt-14">
-        <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-3">
-          <h2 className="text-[10px] font-bold tracking-[.2em] text-white/45">THE STREAM</h2>
-          <span className="text-[10px] text-white/20">SCROLL</span>
-        </div>
-        <div className="divide-y divide-white/10">
-          {stream.map((item) => {
-            const liked = likes.includes(item.url);
-            return <article key={item.url} className="py-6 sm:py-7">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0 max-w-3xl">
-                  <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[.14em]">
-                    <span className="text-[#ff9a70]">{laneFor(item)}</span>
-                    <span className="text-white/20">·</span>
-                    <span className="text-white/30">{item.source || "Source"}</span>
-                    <span className="text-white/20">·</span>
-                    <span className="text-white/25">{formatDate(item.publishedAt)}</span>
-                  </div>
-                  <h3 className="mt-2 font-serif text-2xl leading-snug tracking-[-.02em] sm:text-3xl">{item.title}</h3>
-                  {item.summary && <p className="mt-2 max-w-2xl text-sm leading-6 text-white/40">{item.summary}</p>}
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <LikeButton liked={liked} onClick={() => toggleLike(item.url)} />
-                  <a href={item.url} target="_blank" rel="noreferrer" className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/50 transition hover:border-white/25 hover:text-white">Read ↗</a>
-                </div>
-              </div>
-            </article>;
-          })}
-        </div>
-      </section>}
-
-      <div className="mt-16 rounded-3xl border border-[#ff9a70]/20 bg-[#ff9a70]/[.04] p-6 sm:p-8">
-        <p className="text-[10px] font-bold tracking-[.18em] text-[#ff9a70]">BITBUZZ · DISCOVERY</p>
-        <h2 className="mt-2 font-serif text-2xl">Know something worth knowing?</h2>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-white/40">Radar filters noisy feeds through trusted sources and a kid-safe title and summary check before stories reach the page.</p>
-        <a href="/submit" className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-xs font-bold text-black transition hover:bg-[#ffdccb]">Submit to BitBuzz</a>
+      <div className="mx-auto mt-3 flex max-w-[1100px] gap-2 overflow-x-auto pb-0.5">
+        {FILTERS.map((value) => <button key={value} onClick={() => setFilter(value)} className={`shrink-0 rounded-full border px-3 py-1.5 text-[9px] font-bold tracking-[.12em] transition ${filter === value ? "border-white bg-white text-black" : "border-white/10 text-white/45 hover:border-white/25 hover:text-white"}`}>{value}</button>)}
       </div>
+    </header>
+
+    <div className="mx-auto max-w-[1100px] px-3 py-3 sm:px-6 sm:py-5">
+      {loading && <div className="mb-3 text-[9px] uppercase tracking-[.16em] text-white/25">Refreshing the feed…</div>}
+      {visible.length === 0 && <div className="flex min-h-[60svh] items-center justify-center text-sm text-white/35">No stories match this filter yet.</div>}
+
+      {visible.length > 0 && <section className="snap-y snap-mandatory space-y-3 overflow-visible">
+        {feed.map(({ item, key }) => <StoryCard key={key} item={item} liked={likes.includes(item.url)} onLike={() => toggleLike(item.url)} />)}
+        <div ref={sentinelRef} className="h-32 snap-start" aria-hidden="true" />
+      </section>}
     </div>
   </main>;
 }
