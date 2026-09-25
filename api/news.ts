@@ -6,7 +6,7 @@ const STARTER_HEADLINES = [
   { title: "Astronomy educators are bringing modern NASA resources into the classroom", url: "https://science.nasa.gov/learning-resources/science-activation/community-college-instructors-bring-astronomy-textbook-into-21st-century/", source: "science.nasa.gov", breaking: false },
 ];
 
-const TRUSTED_HOSTS = ["nasa.gov", "science.nasa.gov", "jpl.nasa.gov", "esa.int", "noaa.gov", "oceantoday.noaa.gov"];
+const TRUSTED_HOSTS = ["nasa.gov", "science.nasa.gov", "jpl.nasa.gov", "esa.int", "noaa.gov", "oceantoday.noaa.gov", "api.nasa.gov", "images.nasa.gov"];
 const BLOCKED_TERMS = /\b(?:adult|porn|sexual|sexually|explicit|graphic|gore|gruesome|murder|killed|killing|suicide|self-harm|terror|terrorist|bombing|weapon|weapons|shooting|gun|drug|cocaine|heroin|meth|fentanyl|gambling|casino|betting|politic|election|party|candidate|war|warfare|combat|military|invasion|crime|criminal)\b/i;
 
 function isTrustedUrl(value: string) {
@@ -32,7 +32,7 @@ function parseRss(xml: string, source: string) {
     const item = match[0];
     const read = (tag: string) => {
       const found = item.match(new RegExp("<" + tag + "[^>]*>([\\s\\S]*?)</" + tag + ">", "i"));
-      return found?.[1]?.replace(/<!\[CDATA\[|\]\]>/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, """).replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\s+/g, " ").trim();
+      return found?.[1]?.replace(/<!\[CDATA\[|\]\]>/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, "\"").replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\s+/g, " ").trim();
     };
     return { title: read("title"), url: read("link"), source, breaking: false };
   });
