@@ -211,7 +211,7 @@ export default function RadarPage() {
         <p className="text-[10px] font-bold tracking-[.18em] text-[#ff9a70]">BITBUZZ · DISCOVERY</p>
         <h2 className="mt-2 font-serif text-2xl">Know something worth knowing?</h2>
         <p className="mt-2 max-w-xl text-sm leading-6 text-white/40">Radar filters noisy feeds through trusted sources and a kid-safe title and summary check before stories reach the page.</p>
-        <a href="/submit" className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-xs font-bold text-black transition hover:bg-[#ffdccb)">Submit to BitBuzz</a>
+        <a href="/submit" className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-xs font-bold text-black transition hover:bg-[#ffdccb]">Submit to BitBuzz</a>
       </div>
     </div>
   </main>;
