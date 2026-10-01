@@ -7,7 +7,7 @@ import ChanakyaAssist from "./ChanakyaAssist";
 type Publication={id:string;slug:string;profile_name:string;school_name:string;description:string|null;logo_url:string|null;hero:any;organization_type:string;location:string|null;tags:string[];website_url:string|null;instagram_url:string|null;linkedin_url:string|null;contact_email:string|null};
 type Article={id:string;slug:string;headline:string;description:string|null;body:string;author_name:string|null;category:string|null;status:string;created_at:string;published_at:string|null};
 type Submission={id:string;author_name:string;headline:string;body:string;section:string|null;status:string;created_at:string;media?:{url:string;type?:string;name?:string;mime_type?:string;size?:number}[]};
-type Member={id:string;name:string;email:string|null;role:string;photo_url:string|null;is_active:boolean};
+type Member={id:string;name:string;email:string|null;role:string;photo_url:string|null;is_active:boolean;user_id?:string|null;bio?:string|null;instagram_url?:string|null;linkedin_url?:string|null;website_url?:string|null;second_pass_enabled?:boolean;second_pass_status?:string;second_pass_data?:any};
 const blank={headline:"",description:"",body:"",category:"News",cover_url:""};
 const slugify=(s:string)=>s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-").replace(/^-|-$/g,"");
 const date=(v:string)=>new Intl.DateTimeFormat("en-IN",{dateStyle:"medium"}).format(new Date(v));
