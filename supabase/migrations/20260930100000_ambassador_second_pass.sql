@@ -70,11 +70,11 @@ begin
 end;
 $$;
 
-revoke all on function public.bitbuzz_can_manage_second_pass(uuid) from public;
-revoke all on function public.bitbuzz_second_pass_access(uuid) from public;
-revoke all on function public.bitbuzz_set_second_pass_access(uuid,boolean) from public;
-revoke all on function public.bitbuzz_save_second_pass(uuid,jsonb) from public;
-revoke all on function public.bitbuzz_review_second_pass(uuid,text) from public;
+revoke all on function public.bitbuzz_can_manage_second_pass(uuid) from public, anon;
+revoke all on function public.bitbuzz_second_pass_access(uuid) from public, anon;
+revoke all on function public.bitbuzz_set_second_pass_access(uuid,boolean) from public, anon;
+revoke all on function public.bitbuzz_save_second_pass(uuid,jsonb) from public, anon;
+revoke all on function public.bitbuzz_review_second_pass(uuid,text) from public, anon;
 grant execute on function public.bitbuzz_can_manage_second_pass(uuid) to authenticated;
 grant execute on function public.bitbuzz_second_pass_access(uuid) to authenticated;
 grant execute on function public.bitbuzz_set_second_pass_access(uuid,boolean) to authenticated;
