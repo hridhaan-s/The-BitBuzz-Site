@@ -283,19 +283,73 @@ export default function AmbassadorsDashboardFinal(){
           </div>}
         </div>
 
-        <aside className="border-t border-white/10 bg-white/[.018] p-5 sm:p-7 lg:border-l lg:border-t-0">
-          <p className="text-[9px] font-bold uppercase tracking-[.18em] text-white/25">Review checklist</p>
-          <div className="mt-4 space-y-3">
-            <div className="rounded-xl border border-white/10 bg-black/20 p-3"><p className="text-[10px] font-bold text-white/60">1. Read the story</p><p className="mt-1 text-[10px] leading-4 text-white/25">Check that the submission is clear and complete.</p></div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-3"><p className="text-[10px] font-bold text-white/60">2. Check the details</p><p className="mt-1 text-[10px] leading-4 text-white/25">Look at the section, author and attachments if provided.</p></div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-3"><p className="text-[10px] font-bold text-white/60">3. Make a decision</p><p className="mt-1 text-[10px] leading-4 text-white/25">Approve to publish or reject if it needs changes.</p></div>
+        <aside className="border-t border-white/10 bg-[#0b0b0d] lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:border-l lg:border-t-0">
+          <div className="p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[.18em] text-white/25">Review</p>
+                <p className="mt-1 text-xs font-semibold text-white/65">Submission decision</p>
+              </div>
+              <span className="rounded-full border border-[#ffb84d]/20 bg-[#ffb84d]/10 px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-[#ffd27a]">Pending</span>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+              <p className="text-[9px] font-bold uppercase tracking-[.16em] text-white/25">Submitted by</p>
+              <p className="mt-2 text-sm font-semibold text-white/80">{s.author_name||"Unknown"}</p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <p className="text-[8px] font-bold uppercase tracking-[.14em] text-white/20">Section</p>
+                  <p className="mt-1 truncate text-[10px] text-white/55">{s.section||"Community"}</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <p className="text-[8px] font-bold uppercase tracking-[.14em] text-white/20">Received</p>
+                  <p className="mt-1 text-[10px] text-white/55">{date(s.created_at)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-[#83adff]/20 bg-[#83adff]/[.035] p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[.18em] text-[#83adff]">Chanakya</p>
+                  <p className="mt-1 text-[10px] text-white/30">Editorial review assistant</p>
+                </div>
+                <span className="rounded-full border border-[#83adff]/20 px-2 py-1 text-[7px] font-bold uppercase tracking-[.12em] text-[#9fc0ff]">AI</span>
+              </div>
+              <ChanakyaAssist
+                article={{
+                  title:s.headline,
+                  standfirst:"",
+                  body_md:s.body,
+                  cover_image_url:(Array.isArray(s.media)?s.media.find((m:any)=>m?.type==="image"||m?.mime_type?.startsWith("image"))?.url:"")||""
+                }}
+                onChange={next=>setSubmissionEdit(x=>({
+                  ...x,
+                  headline:next.title??x.headline,
+                  body:next.body_md??x.body,
+                  media:next.cover_image_url && !x.media.some((m:any)=>m?.url===next.cover_image_url)
+                    ? [...x.media,{url:next.cover_image_url,type:"image"}]
+                    : x.media
+                }))}
+              />
+            </div>
+
+            <div className="mt-5 space-y-2">
+              <button disabled={busy} type="button" onClick={()=>review(s,"approved")} className="w-full rounded-xl bg-white px-4 py-3 text-xs font-bold text-black transition hover:bg-white/90 disabled:opacity-50">Approve & publish</button>
+              <button disabled={busy} type="button" onClick={()=>review(s,"rejected")} className="w-full rounded-xl border border-red-400/20 bg-red-400/[.04] px-4 py-3 text-xs font-bold text-red-300 transition hover:bg-red-400/[.08] disabled:opacity-50">Reject submission</button>
+              <button disabled={busy} type="button" onClick={()=>beginSubmissionEdit(s)} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-[10px] font-bold text-white/55 hover:text-white">Edit submission</button>
+            </div>
+
+            <div className="mt-5 border-t border-white/10 pt-5">
+              <p className="text-[9px] font-bold uppercase tracking-[.18em] text-white/25">Reviewer flow</p>
+              <div className="mt-3 space-y-2">
+                <div className="flex gap-3 rounded-xl border border-white/10 bg-black/20 p-3"><span className="text-[9px] font-bold text-white/30">01</span><p className="text-[10px] leading-4 text-white/45">Read the full submission.</p></div>
+                <div className="flex gap-3 rounded-xl border border-white/10 bg-black/20 p-3"><span className="text-[9px] font-bold text-white/30">02</span><p className="text-[10px] leading-4 text-white/45">Use Chanakya for editorial checks.</p></div>
+                <div className="flex gap-3 rounded-xl border border-white/10 bg-black/20 p-3"><span className="text-[9px] font-bold text-white/30">03</span><p className="text-[10px] leading-4 text-white/45">Approve, reject, or edit before publishing.</p></div>
+              </div>
+            </div>
           </div>
-          <div className="mt-5 border-t border-white/10 pt-5">
-            <button type="button" onClick={()=>beginSubmissionEdit(s)} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-[10px] font-bold text-white/55 hover:text-white">Edit submission</button>
-            <button type="button" onClick={()=>beginSubmissionEdit(s)} className="mt-2 w-full rounded-xl border border-[#83adff]/20 bg-[#83adff]/[.05] px-4 py-2.5 text-[10px] font-bold text-[#9fc0ff] hover:bg-[#83adff]/[.09]">Open Chanakya Assist</button>
-          </div>
-        </aside>
-      </div>
+        </aside>     </div>
     </article>)}
     {submissions.filter(s=>s.status==="pending").length===0&&<div className="rounded-[26px] border border-dashed border-white/10 p-12 text-center"><p className="font-serif text-2xl font-black">No pending submissions.</p><p className="mt-2 text-sm text-white/25">You’re all caught up.</p></div>}
   </div>
