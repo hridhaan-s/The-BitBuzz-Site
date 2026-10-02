@@ -259,7 +259,7 @@ export default function AmbassadorsDashboardFinal(){
               </summary>
               <div className="border-t border-white/10 p-4">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {s.media.map((m,i)=>m?.url&&((m.type||"").startsWith("image")||/\.(png|jpe?g|webp|gif)(\?|$)/i.test(m.url))?
+                  {s.media.map((m,i)=>m?.url&&((m.type||"").startsWith("image")||(m.mime_type||"").startsWith("image/")||/\.(png|jpe?g|webp|gif)(\?|$)/i.test(m.url))?
                     <div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-black">
                       <img src={m.url} alt={m.name||`Submission image ${i+1}`} className="aspect-video w-full object-cover"/>
                       <a href={m.url} target="_blank" rel="noreferrer" className="block truncate px-3 py-2 text-[9px] text-white/35 hover:text-white/60">Open image ↗</a>
@@ -390,7 +390,7 @@ export default function AmbassadorsDashboardFinal(){
           {Array.isArray(s.media)&&s.media.length>0&&<details className="mt-7 rounded-2xl border border-white/10 bg-white/[.02]">
             <summary className="cursor-pointer list-none px-4 py-3 text-[10px] font-bold uppercase tracking-[.15em] text-white/45">Attachments <span className="ml-1 text-white/20">({s.media.length})</span></summary>
             <div className="border-t border-white/10 p-4"><div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {s.media.map((m,i)=>m?.url&&((m.type||"").startsWith("image")||/\.(png|jpe?g|webp|gif)(\?|$)/i.test(m.url))?<div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-black"><img src={m.url} alt={m.name||`Submission image ${i+1}`} className="aspect-video w-full object-cover"/><a href={m.url} target="_blank" rel="noreferrer" className="block truncate px-3 py-2 text-[9px] text-white/35">Open image ↗</a></div>:<a key={i} href={m.url} target="_blank" rel="noreferrer" className="rounded-xl border border-white/10 px-3 py-3 text-xs text-white/45">Open attachment ↗</a>)}
+              {s.media.map((m,i)=>m?.url&&((m.type||"").startsWith("image")||(m.mime_type||"").startsWith("image/")||/\.(png|jpe?g|webp|gif)(\?|$)/i.test(m.url))?<div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-black"><img src={m.url} alt={m.name||`Submission image ${i+1}`} className="aspect-video w-full object-cover"/><a href={m.url} target="_blank" rel="noreferrer" className="block truncate px-3 py-2 text-[9px] text-white/35">Open image ↗</a></div>:<a key={i} href={m.url} target="_blank" rel="noreferrer" className="rounded-xl border border-white/10 px-3 py-3 text-xs text-white/45">Open attachment ↗</a>)}
             </div></div>
           </details>}
         </div>
