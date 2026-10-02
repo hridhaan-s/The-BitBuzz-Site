@@ -202,7 +202,7 @@ export default function AmbassadorsDashboardFinal(){
               <span className="rounded-full bg-[#ff6a1f]/10 px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.14em] text-[#ff9d6d]">Pending review</span>
               <span className="text-[9px] text-white/30">{s.section||"Community"}</span>
             </div>
-            <h3 className="mt-3 max-w-4xl font-serif text-2xl font-black leading-tight sm:text-3xl">{s.headline}</h3>
+            {editingSubmissionId===s.id?<div className="mt-3 max-w-4xl"><Field label="Headline" value={submissionEdit.headline} onChange={v=>setSubmissionEdit(x=>({...x,headline:v}))}/></div>:<h3 className="mt-3 max-w-4xl font-serif text-2xl font-black leading-tight sm:text-3xl">{s.headline}</h3>}
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-white/30">
               <span><strong className="font-semibold text-white/50">Submitted by:</strong> {s.author_name||"Unknown"}</span>
               <span><strong className="font-semibold text-white/50">Received:</strong> {date(s.created_at)}</span>
@@ -221,33 +221,12 @@ export default function AmbassadorsDashboardFinal(){
             <span className="text-[9px] font-bold uppercase tracking-[.18em] text-white/25">Story</span>
             <span className="h-px flex-1 bg-white/10"/>
           </div>
-          <div className="max-w-4xl whitespace-pre-wrap text-[15px] leading-7 text-white/70">{s.body}</div>
-
-          {Array.isArray(s.media)&&s.media.length>0&&<details className="mt-7 rounded-2xl border border-white/10 bg-white/[.02]">
-            <summary className="cursor-pointer list-none px-4 py-3 text-[10px] font-bold uppercase tracking-[.15em] text-white/45">
-              Attachments <span className="ml-1 text-white/20">({s.media.length})</span>
-            </summary>
-            <div className="border-t border-white/10 p-4">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {s.media.map((m,i)=>m?.url&&((m.type||"").startsWith("image")||/\.(png|jpe?g|webp|gif)(\?|$)/i.test(m.url))?
-                  <div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-black">
-                    <img src={m.url} alt={m.name||`Submission image ${i+1}`} className="aspect-video w-full object-cover"/>
-                    <a href={m.url} target="_blank" rel="noreferrer" className="block truncate px-3 py-2 text-[9px] text-white/35 hover:text-white/60">Open image ↗</a>
-                  </div>:
-                  <a key={i} href={m.url} target="_blank" rel="noreferrer" className="rounded-xl border border-white/10 px-3 py-3 text-xs text-white/45 hover:text-white/70">Open attachment ↗</a>
-                )}
-              </div>
+          {editingSubmissionId===s.id?<div className="mt-5 space-y-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Section" value={submissionEdit.section} onChange={v=>setSubmissionEdit(x=>({...x,section:v}))}/>
+              <div className="hidden sm:block"/>
             </div>
-          </details>}
-
-          {editingSubmissionId===s.id&&<div className="mt-6 space-y-4 rounded-2xl border border-[#ff6a1f]/20 bg-[#ff6a1f]/5 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-[9px] font-bold uppercase tracking-[.16em] text-[#ff9d6d]">Edit submission</p>
-              <button type="button" onClick={()=>setEditingSubmissionId(null)} className="text-[10px] text-white/35">Close</button>
-            </div>
-            <Field label="Headline" value={submissionEdit.headline} onChange={v=>setSubmissionEdit(x=>({...x,headline:v}))}/>
-            <div className="grid gap-4 sm:grid-cols-2"><Field label="Section" value={submissionEdit.section} onChange={v=>setSubmissionEdit(x=>({...x,section:v}))}/><div/></div>
-            <Field label="Body" value={submissionEdit.body} onChange={v=>setSubmissionEdit(x=>({...x,body:v}))} multiline/>
+            <Field label="Story" value={submissionEdit.body} onChange={v=>setSubmissionEdit(x=>({...x,body:v}))} multiline/>
             <div>
               <p className="mb-2 text-[9px] font-bold uppercase tracking-[.16em] text-white/35">Images & attachments</p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -262,26 +241,29 @@ export default function AmbassadorsDashboardFinal(){
                 <button type="button" onClick={addSubmissionImageUrl} className="rounded-full border border-white/10 px-4 py-2 text-[10px] text-white/55">Add image URL</button>
               </div>
             </div>
-            <div className="rounded-[22px] border border-[#83adff]/20 bg-[#83adff]/[.035] p-4">
-              <p className="mb-3 text-[9px] font-bold uppercase tracking-[.18em] text-[#83adff]">AI editorial desk</p>
-              <ChanakyaAssist
-                article={{title:submissionEdit.headline,standfirst:"",body_md:submissionEdit.body,cover_image_url:(submissionEdit.media.find((m:any)=>m?.type==="image"||m?.mime_type?.startsWith("image"))?.url)||""}}
-                onChange={next=>setSubmissionEdit(x=>({
-                  ...x,
-                  headline:next.title??x.headline,
-                  body:next.body_md??x.body,
-                  media:next.cover_image_url && !x.media.some((m:any)=>m?.url===next.cover_image_url)
-                    ? [...x.media,{url:next.cover_image_url,type:"image"}]
-                    : x.media
-                }))}
-              />
+            <div className="flex flex-wrap gap-2 border-t border-white/10 pt-5">
+              <button type="button" onClick={saveSubmissionEdit} disabled={busy} className="rounded-full bg-white px-5 py-2.5 text-xs font-bold text-black">{busy?"Saving…":"Save changes"}</button>
+              <button type="button" onClick={()=>setEditingSubmissionId(null)} className="rounded-full border border-white/10 px-5 py-2.5 text-xs text-white/45">Cancel</button>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={saveSubmissionEdit} disabled={busy} className="rounded-full bg-white px-4 py-2.5 text-xs font-bold text-black">{busy?"Saving…":"Save changes"}</button>
-              <button type="button" onClick={()=>setEditingSubmissionId(null)} className="rounded-full border border-white/10 px-4 py-2.5 text-xs text-white/45">Cancel</button>
-            </div>
-          </div>}
-        </div>
+          </div>:<>
+            <div className="max-w-4xl whitespace-pre-wrap text-[15px] leading-7 text-white/70">{s.body}</div>
+            {Array.isArray(s.media)&&s.media.length>0&&<details className="mt-7 rounded-2xl border border-white/10 bg-white/[.02]">
+              <summary className="cursor-pointer list-none px-4 py-3 text-[10px] font-bold uppercase tracking-[.15em] text-white/45">
+                Attachments <span className="ml-1 text-white/20">({s.media.length})</span>
+              </summary>
+              <div className="border-t border-white/10 p-4">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {s.media.map((m,i)=>m?.url&&((m.type||"").startsWith("image")||/\.(png|jpe?g|webp|gif)(\?|$)/i.test(m.url))?
+                    <div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-black">
+                      <img src={m.url} alt={m.name||`Submission image ${i+1}`} className="aspect-video w-full object-cover"/>
+                      <a href={m.url} target="_blank" rel="noreferrer" className="block truncate px-3 py-2 text-[9px] text-white/35 hover:text-white/60">Open image ↗</a>
+                    </div>:
+                    <a key={i} href={m.url} target="_blank" rel="noreferrer" className="rounded-xl border border-white/10 px-3 py-3 text-xs text-white/45 hover:text-white/70">Open attachment ↗</a>
+                  )}
+                </div>
+              </div>
+            </details>}
+          </>}        </div>
 
         <aside className="border-t border-white/10 bg-[#0b0b0d] lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:border-l lg:border-t-0">
           <div className="p-5 sm:p-6">
