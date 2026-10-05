@@ -4,7 +4,7 @@ import { supabase } from "./lib/supabase";
 const SHOWCASE_GIF =
   "https://cdn.hackclub.com/01a09276-4d33-7dd7-8a3d-5645b3673a22/white_modern_business_startup_pitch_deck_presentation__3_.gif?v=2";
 const LOGO_IMAGE =
-  "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
+  "https://cdn.hackclub.com/01a10ac6-566f-7190-9790-e4629a0822ea/bitbuzz-pixel-oxblood-mint.svg";
 const EARTH_IMAGE = "https://spaceplace.nasa.gov/gallery-earth/en/ISS_earth.en.jpg";
 const NEWSROOM_URL = "/home";
 const ACCENT = { light: "#ffc48f", mid: "#ff7a3d", pale: "#ffe2c9" };
