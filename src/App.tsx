@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { applyTheme, getInitialTheme } from "./lib/theme";
 
 const LOGO_URL =
-  "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
+  "https://cdn.hackclub.com/01a10ac6-566f-7190-9790-e4629a0822ea/bitbuzz-pixel-oxblood-mint.svg";
 const HERO_GIF =
   "https://cdn.hackclub.com/01a0909a-4a98-7483-8658-3438faa0f2e0/a500cea59963d3187152da4b1b5d2981.gif";
 
