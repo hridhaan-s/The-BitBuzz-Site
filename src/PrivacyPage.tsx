@@ -1,4 +1,4 @@
-const LOGO_URL = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
+const LOGO_URL = "https://cdn.hackclub.com/01a10ac6-566f-7190-9790-e4629a0822ea/bitbuzz-pixel-oxblood-mint.svg";
 
 export default function PrivacyPage() {
   return (
