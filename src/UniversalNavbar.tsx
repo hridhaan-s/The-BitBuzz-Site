@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
-const LOGO_IMAGE="https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
+const LOGO_IMAGE="https://cdn.hackclub.com/01a10ac6-566f-7190-9790-e4629a0822ea/bitbuzz-pixel-oxblood-mint.svg";
 const NAV_LINKS=[{href:"/home",label:"Home"},{href:"/categories",label:"Categories"},{href:"/opportunities",label:"Opportunities"},{href:"/ambassadors",label:"Ambassadors"},{href:"/about",label:"About"}];
 function SearchIcon(){return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>}
 function MenuIcon(){return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>}
