@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./lib/supabase";
 import ChanakyaAssist from "./ChanakyaAssist";
 
-const LOGO_URL = "https://cdn.hackclub.com/019eb6cc-8925-7919-8d68-9add6a3d295f/bitbuzz_kids_logo.jpg";
+const LOGO_URL = "https://cdn.hackclub.com/01a10ac6-566f-7190-9790-e4629a0822ea/bitbuzz-pixel-oxblood-mint.svg";
 type Role = "admin" | "editor" | "member";
 type Category = { id: string; name: string; slug: string; blurb: string | null; sort_order: number };
 type Article = { id: string; title: string; slug: string; standfirst: string | null; body_md: string; category_id: string | null; author_id: string | null; cover_image_url: string | null; cover_alt: string | null; read_minutes: number | null; status: "draft" | "published"; published_at: string | null; is_lead: boolean; view_count: number; seo_title: string | null; seo_description: string | null; created_at: string; categories?: { name: string } | null };
