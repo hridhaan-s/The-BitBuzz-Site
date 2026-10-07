@@ -887,19 +887,23 @@ function FrontPage({
             ].filter(Boolean) as string[]),
           ).slice(0, 4);
 
+          // Polaroids sit in the gutters beside the centred copy and are anchored to it, so they never
+          // overlap the headline or get cut off by the screen edge. They only show where there is room.
+          const side = (i: number) => (i < 2 ? "left" : "right");
           const frames = [
-            { pos: "left-[-1.75rem] top-10", rotate: "-rotate-4", size: "w-44 sm:w-52", show: "hidden lg:block", tape: "left-7 -top-3 rotate-[-8deg]" },
-            { pos: "left-[-1rem] bottom-10", rotate: "rotate-3", size: "w-40 sm:w-48", show: "hidden lg:block", tape: "right-6 -top-3 rotate-[10deg]" },
-            { pos: "right-[-1.75rem] top-10", rotate: "rotate-4", size: "w-44 sm:w-52", show: "hidden lg:block", tape: "right-7 -top-3 rotate-[8deg]" },
-            { pos: "right-[-1rem] bottom-10", rotate: "-rotate-3", size: "w-40 sm:w-48", show: "hidden lg:block", tape: "left-6 -top-3 rotate-[-10deg]" },
+            { top: "2.5rem", rotate: "-4deg", width: "12rem", tape: "left-7 -top-3 rotate-[-8deg]" },
+            { bottom: "2.5rem", rotate: "3deg", width: "11rem", tape: "right-6 -top-3 rotate-[10deg]" },
+            { top: "2.5rem", rotate: "4deg", width: "12rem", tape: "right-7 -top-3 rotate-[8deg]" },
+            { bottom: "2.5rem", rotate: "-3deg", width: "11rem", tape: "left-6 -top-3 rotate-[-10deg]" },
           ];
-
           return frames.slice(0, frameImages.length).map((frame, i) => (
-            <div key={frame.pos} className={`pointer-events-none absolute z-0 ${frame.pos} ${frame.rotate} ${frame.size} ${frame.show}`}>
+            <div key={i} aria-hidden="true" className="pointer-events-none absolute z-0 hidden min-[1400px]:block"
+              style={{ top: frame.top, bottom: frame.bottom, width: frame.width, transform: `rotate(${frame.rotate})`,
+                [side(i)]: `max(1.25rem, calc(50% - 28rem - 2.5rem - ${frame.width}))` }}>
               <div className="relative rounded-[3px] bg-white p-2 pb-8 shadow-[0_18px_45px_rgba(0,0,0,.14)] ring-1 ring-black/10">
                 <div className={`absolute ${frame.tape} h-8 w-16 rounded-sm bg-[#e8d8ad]/75 shadow-sm`} />
                 <div className="aspect-[4/3] overflow-hidden bg-[#e9e6df]">
-                  <img src={frameImages[i]} alt="" className="h-full w-full object-cover" />
+                  <img src={frameImages[i]} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                 </div>
                 <div className="absolute bottom-2 left-3 right-3 h-3 rounded-full bg-black/[.025]" />
               </div>
