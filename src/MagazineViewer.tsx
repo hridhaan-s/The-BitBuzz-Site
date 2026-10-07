@@ -21,7 +21,46 @@ const READER_CSS = `
 .mz-reader .mz-paper hr{border-top-width:2px;width:60px;margin:18px 0}
 .mz-reader .mz-close{min-height:70vh}
 .mz-reader .mz-folio{bottom:22px}
-.mz-reader .mz-body{text-align:left}`;
+.mz-reader .mz-body{text-align:left}
+.mz-book-wrap{perspective:1800px}
+.mz-book{position:relative;margin-inline:auto;transform-style:preserve-3d}
+.mz-book-spread{width:min(100%,1400px);aspect-ratio:420/297}
+.mz-book-single{width:min(100%,700px);aspect-ratio:210/297}
+.mz-book-base{position:absolute;inset:0;display:flex;overflow:hidden;border-radius:2px;background:#171717;box-shadow:0 28px 90px rgba(0,0,0,.55)}
+.mz-book-page{position:relative;min-width:0;flex:1;overflow:hidden;background:#f4efe7}
+.mz-book-single .mz-book-page{width:100%}
+.mz-book-spread .mz-book-page:first-child{border-radius:3px 0 0 3px}
+.mz-book-spread .mz-book-page:last-child{border-radius:0 3px 3px 0}
+.mz-book-spread .mz-book-page:first-child::after,.mz-book-spread .mz-book-page:last-child::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:20}
+.mz-book-spread .mz-book-page:first-child::after{box-shadow:inset -1px 0 rgba(0,0,0,.14)}
+.mz-book-spread .mz-book-page:last-child::after{box-shadow:inset 1px 0 rgba(0,0,0,.14)}
+.mz-turn{position:absolute;inset:0;z-index:20;transform-style:preserve-3d;pointer-events:none;animation-duration:560ms;animation-timing-function:cubic-bezier(.22,.75,.2,1);animation-fill-mode:forwards}
+.mz-turn-single{left:0;right:auto;width:100%;transform-origin:left center}
+.mz-turn-spread{transform-origin:center center}
+.mz-turn-next{animation-name:mz-flip-next}
+.mz-turn-prev{animation-name:mz-flip-prev}
+.mz-turn-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:#f4efe7}
+.mz-turn-back{transform:rotateY(180deg)}
+.mz-turn-spread .mz-turn-page{width:50%;height:100%}
+.mz-turn-spread .mz-turn-front .mz-turn-page{margin-left:auto}
+.mz-turn-spread .mz-turn-back .mz-turn-page{margin-left:0}
+@keyframes mz-flip-next{
+  0%{transform:rotateY(0deg);filter:drop-shadow(0 18px 18px rgba(0,0,0,.05))}
+  45%{filter:drop-shadow(-22px 20px 22px rgba(0,0,0,.28))}
+  100%{transform:rotateY(-180deg);filter:drop-shadow(-2px 8px 10px rgba(0,0,0,.05))}
+}
+@keyframes mz-flip-prev{
+  0%{transform:rotateY(0deg);filter:drop-shadow(0 18px 18px rgba(0,0,0,.05))}
+  45%{filter:drop-shadow(22px 20px 22px rgba(0,0,0,.28))}
+  100%{transform:rotateY(180deg);filter:drop-shadow(2px 8px 10px rgba(0,0,0,.05))}
+}
+@media (max-width:640px){
+  .mz-book-wrap{margin-inline:-1rem;width:calc(100% + 2rem)}
+  .mz-book-single{width:100%;max-width:700px}
+  .mz-book-base{box-shadow:0 18px 50px rgba(0,0,0,.5)}
+  .mz-turn{animation-duration:520ms}
+}
+`;
 
 export default function MagazineViewer({ slug, id }: { slug: string; id?: string }) {
   const [pub, setPub] = useState<Publication | null>(null);
@@ -33,9 +72,12 @@ export default function MagazineViewer({ slug, id }: { slug: string; id?: string
   const [loading, setLoading] = useState(true);
   const [spreadIdx, setSpreadIdx] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [flip, setFlip] = useState<"next" | "prev" | null>(null);
+  const [flipBusy, setFlipBusy] = useState(false);
   const wide = useMedia("(min-width: 1180px)");
   const phone = useMedia("(max-width: 640px)");
   const touchX = useRef<number | null>(null);
+  const flipTimer = useRef<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -79,10 +121,23 @@ export default function MagazineViewer({ slug, id }: { slug: string; id?: string
   }, [spreads, pages.length]);
 
   const go = (to: number) => {
+    if (!spreads.length || flipBusy) return;
     const next = Math.max(0, Math.min(spreads.length - 1, to));
-    setSpreadIdx(next);
-    window.history.replaceState(null, "", `#p${(spreads[next]?.[0] ?? 0) + 1}`);
+    if (next === spreadIdx) return;
+    setFlip(next > spreadIdx ? "next" : "prev");
+    setFlipBusy(true);
+    if (flipTimer.current) window.clearTimeout(flipTimer.current);
+    flipTimer.current = window.setTimeout(() => {
+      setSpreadIdx(next);
+      setFlip(null);
+      setFlipBusy(false);
+      window.history.replaceState(null, "", `#p${(spreads[next]?.[0] ?? 0) + 1}`);
+    }, 560);
   };
+
+  useEffect(() => () => {
+    if (flipTimer.current) window.clearTimeout(flipTimer.current);
+  }, []);
 
   useEffect(() => {
     if (phone) return;
@@ -139,20 +194,55 @@ export default function MagazineViewer({ slug, id }: { slug: string; id?: string
       {phone ? <div className="mz-reader -mx-4 space-y-3">{pages.map((p) => <div key={p.id} id={`p${p.page_number}`}><MagazinePage page={p} pub={pub} articles={articles} /></div>)}</div>
       : <>
         <div
-          className="relative flex select-none justify-center"
+          className="mz-book-wrap relative mx-auto w-full select-none"
           onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
-          onTouchEnd={(e) => { if (touchX.current == null) return; const dx = e.changedTouches[0].clientX - touchX.current; if (Math.abs(dx) > 50) go(spreadIdx + (dx < 0 ? 1 : -1)); touchX.current = null; }}
+          onTouchEnd={(e) => {
+            if (touchX.current == null) return;
+            const dx = e.changedTouches[0].clientX - touchX.current;
+            if (Math.abs(dx) > 50) go(spreadIdx + (dx < 0 ? 1 : -1));
+            touchX.current = null;
+          }}
         >
-          <button onClick={() => go(spreadIdx - 1)} aria-label="Previous page" className="absolute inset-y-0 left-0 z-10 w-[12%] cursor-w-resize" disabled={spreadIdx === 0} />
-          <div className={`flex w-full justify-center ${current.length > 1 ? "max-w-[1400px]" : "max-w-[700px]"}`}>
-            {current.map((n, k) => <div key={pages[n].id} className="min-w-0 flex-1" style={{ maxWidth: 700, boxShadow: current.length > 1 ? (k === 0 ? "inset -18px 0 24px -20px rgba(0,0,0,.6)" : "inset 18px 0 24px -20px rgba(0,0,0,.6)") : undefined }}>
-              <MagazinePage page={pages[n]} pub={pub} articles={articles} />
-            </div>)}
+          <button onClick={() => go(spreadIdx - 1)} aria-label="Previous page"
+            className="absolute inset-y-0 left-0 z-30 w-[14%] cursor-w-resize disabled:cursor-default"
+            disabled={spreadIdx === 0 || flipBusy} />
+          <div className={`mz-book mx-auto ${current.length > 1 ? "mz-book-spread" : "mz-book-single"}`}>
+            <div className="mz-book-base">
+              {current.map((n, k) => (
+                <div key={pages[n].id} className="mz-book-page" style={{
+                  zIndex: k + 1,
+                  boxShadow: current.length > 1
+                    ? (k === 0 ? "inset -24px 0 32px -28px rgba(0,0,0,.72)" : "inset 24px 0 32px -28px rgba(0,0,0,.72)")
+                    : "inset -18px 0 28px -24px rgba(0,0,0,.55)"
+                }}>
+                  <MagazinePage page={pages[n]} pub={pub} articles={articles} />
+                </div>
+              ))}
+            </div>
+            {flip && (() => {
+              const target = spreads[spreadIdx + (flip === "next" ? 1 : -1)] || current;
+              const frontPage = current[flip === "next" ? current.length - 1 : 0];
+              const backPage = target[flip === "next" ? 0 : target.length - 1];
+              return (
+                <div className={`mz-turn mz-turn-${flip} ${current.length > 1 ? "mz-turn-spread" : "mz-turn-single"}`}>
+                  <div className="mz-turn-face mz-turn-front">
+                    <div className="mz-turn-page"><MagazinePage page={pages[frontPage]} pub={pub} articles={articles} /></div>
+                  </div>
+                  <div className="mz-turn-face mz-turn-back">
+                    <div className="mz-turn-page"><MagazinePage page={pages[backPage]} pub={pub} articles={articles} /></div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
-          <button onClick={() => go(spreadIdx + 1)} aria-label="Next page" className="absolute inset-y-0 right-0 z-10 w-[12%] cursor-e-resize" disabled={spreadIdx >= spreads.length - 1} />
+          <button onClick={() => go(spreadIdx + 1)} aria-label="Next page"
+            className="absolute inset-y-0 right-0 z-30 w-[14%] cursor-e-resize disabled:cursor-default"
+            disabled={spreadIdx >= spreads.length - 1 || flipBusy} />
         </div>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">{spreads.map((s, n) => <button key={n} onClick={() => go(n)} className={`h-2 rounded-full transition-all ${n === spreadIdx ? "w-8 bg-[#ff6a1f]" : "w-2 bg-white/20 hover:bg-white/40"}`} aria-label={`Page ${s[0] + 1}`} />)}</div>
-        <p className="mt-3 text-center text-[10px] text-white/25">Use ← → keys or click the page edges</p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">{spreads.map((s, n) => <button key={n} onClick={() => go(n)} disabled={flipBusy}
+          className={`h-2 rounded-full transition-all disabled:opacity-50 ${n === spreadIdx ? "w-8 bg-[#ff6a1f]" : "w-2 bg-white/20 hover:bg-white/40"}`}
+          aria-label={`Page ${s[0] + 1}`} />)}</div>
+        <p className="mt-3 text-center text-[10px] text-white/25">{phone ? "Swipe left or right, or tap the page edges" : "Swipe, click the page edges, or use ← → keys to turn the pages"}</p>
       </>}
 
       {others.length > 0 && <section className="mt-16 border-t border-white/10 pt-8">
