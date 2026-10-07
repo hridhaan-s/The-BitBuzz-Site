@@ -876,38 +876,74 @@ function FrontPage({
   return (
     <main>
       {/* masthead */}
-      <section className="border-b border-black/10">
-        <div className="mx-auto max-w-6xl px-5 pb-10 pt-10 sm:px-8 sm:pb-14 sm:pt-14">
-          {heroImage && (
-            <div className="mb-8 aspect-[3/1] overflow-hidden rounded-3xl bg-black/5 sm:mb-10">
-              <img src={heroImage} alt="" className="h-full w-full object-cover" />
+      <section className="relative isolate overflow-hidden border-b border-black/10">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.75),transparent_58%)]" />
+        {(() => {
+          const frameImages = Array.from(
+            new Set([
+              ...stories.map((s) => s.cover_url),
+              ...members.map((m) => m.photo_url),
+              heroImage,
+            ].filter(Boolean) as string[]),
+          ).slice(0, 6);
+
+          const frames = [
+            { pos: "left-[-2.5rem] top-8", rotate: "-rotate-6", size: "w-40 sm:w-48", show: "hidden lg:block" },
+            { pos: "left-[-1.5rem] bottom-10", rotate: "rotate-5", size: "w-36 sm:w-44", show: "hidden md:block" },
+            { pos: "right-[-2.5rem] top-6", rotate: "rotate-6", size: "w-40 sm:w-48", show: "hidden lg:block" },
+            { pos: "right-[-1.5rem] bottom-8", rotate: "-rotate-5", size: "w-36 sm:w-44", show: "hidden md:block" },
+            { pos: "left-[8%] top-[-2.5rem]", rotate: "rotate-3", size: "w-28", show: "hidden xl:block" },
+            { pos: "right-[8%] top-[-2.25rem]", rotate: "-rotate-4", size: "w-28", show: "hidden xl:block" },
+          ];
+
+          return frames.slice(0, frameImages.length).map((frame, i) => (
+            <div
+              key={frame.pos}
+              className={`pointer-events-none absolute z-0 ${frame.pos} ${frame.rotate} ${frame.size} ${frame.show} rounded-[2px] bg-white p-2 pb-8 shadow-[0_14px_35px_rgba(0,0,0,.16)] ring-1 ring-black/10 transition-transform duration-500`}
+            >
+              <div className="aspect-[4/3] overflow-hidden bg-[#e9e6df]">
+                <img src={frameImages[i]} alt="" className="h-full w-full object-cover" />
+              </div>
             </div>
-          )}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="rounded-full px-3 py-1 font-bold uppercase tracking-[.12em]" style={{ background: accent, color: onAccent }}>
-              {p.organization_type || "Publication"}
-            </span>
-            {p.location && <span className="rounded-full border border-black/15 px-3 py-1 text-black/65">{p.location}</span>}
-          </div>
-          <h1 className="mt-5 max-w-4xl font-serif text-[clamp(2.6rem,7vw,5.25rem)] font-bold leading-[.95] tracking-[-.04em]">
-            {p.hero?.headline || p.profile_name}
-          </h1>
-          <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <p className="text-base text-black/60">
-              {p.school_name}
-              {stories[0]?.published_at && <> · Last updated {fmtDate(stories[0].published_at)}</>}
-            </p>
-            <dl className="flex gap-8">
-              {[
-                [stories.length, stories.length === 1 ? "Story" : "Stories"],
-                [members.length, members.length === 1 ? "Member" : "Members"],
-              ].map(([n, l]) => (
-                <div key={String(l)}>
-                  <dd className="font-serif text-3xl font-bold leading-none">{n}</dd>
-                  <dt className="mt-1 text-xs text-black/55">{l}</dt>
-                </div>
-              ))}
-            </dl>
+          ));
+        })()}
+
+        <div className="relative z-10 mx-auto max-w-6xl px-5 pb-12 pt-12 sm:px-8 sm:pb-16 sm:pt-16">
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
+              <span className="rounded-full px-3 py-1 font-bold uppercase tracking-[.12em]" style={{ background: accent, color: onAccent }}>
+                {p.organization_type || "Publication"}
+              </span>
+              {p.location && <span className="rounded-full border border-black/15 bg-white/70 px-3 py-1 text-black/65 backdrop-blur-sm">{p.location}</span>}
+            </div>
+
+            <h1 className="mt-6 font-serif text-[clamp(2.8rem,7vw,5.5rem)] font-bold leading-[.92] tracking-[-.045em]">
+              {p.hero?.headline || p.profile_name}
+            </h1>
+
+            {p.description && (
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-black/60 sm:text-lg">
+                {p.description}
+              </p>
+            )}
+
+            <div className="mt-7 flex flex-col items-center justify-center gap-5 sm:flex-row">
+              <p className="text-sm text-black/55">
+                {p.school_name}
+                {stories[0]?.published_at && <> · Updated {fmtDate(stories[0].published_at)}</>}
+              </p>
+              <dl className="flex gap-6 rounded-2xl border border-black/10 bg-white/70 px-5 py-3 backdrop-blur-sm">
+                {[
+                  [stories.length, stories.length === 1 ? "Story" : "Stories"],
+                  [members.length, members.length === 1 ? "Member" : "Members"],
+                ].map(([n, l]) => (
+                  <div key={String(l)} className="text-left">
+                    <dd className="font-serif text-2xl font-bold leading-none">{n}</dd>
+                    <dt className="mt-1 text-[11px] text-black/50">{l}</dt>
+                  </div>
+                ))}
+              </dl>
+            </div>
           </div>
         </div>
       </section>
