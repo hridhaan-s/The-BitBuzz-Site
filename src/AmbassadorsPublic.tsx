@@ -1062,15 +1062,30 @@ function FrontPage({
             {canReport && (
               <a
                 href={`/ambassadors/${p.slug}/report`}
-                className="group block rounded-3xl border border-black/10 bg-white p-6 transition hover:border-black/30"
+                className="group relative block overflow-hidden rounded-3xl border border-[#ff6a1f]/30 bg-[#fff8f2] p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#ff6a1f]/60 hover:shadow-md"
               >
-                <p className="font-serif text-xl font-bold leading-tight">Something not okay?</p>
-                <p className="mt-1 text-sm leading-6 text-black/60">
-                  Report bullying or a safety concern anonymously. Only trusted staff at {p.school_name} can read it.
-                </p>
-                <p className="mt-3 text-sm font-semibold">
-                  Report a concern <span className="inline-block transition group-hover:translate-x-1">→</span>
-                </p>
+                <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ff6a1f]/10" aria-hidden />
+                <div className="relative">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-[#ff6a1f]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.14em] text-[#a33b08]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#ff6a1f]" aria-hidden />
+                      Safety · Anonymous
+                    </span>
+                    <span className="text-lg" aria-hidden>↗</span>
+                  </div>
+                  <p className="mt-4 font-serif text-2xl font-bold leading-tight tracking-[-.02em]">Need to speak up?</p>
+                  <p className="mt-2 text-sm leading-6 text-black/65">
+                    Report bullying or another safety concern privately. You don't need to give your name, and only trusted staff at {p.school_name} can read the report.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-black/55">
+                    <span className="rounded-full bg-white/80 px-2.5 py-1">Anonymous</span>
+                    <span className="rounded-full bg-white/80 px-2.5 py-1">Trusted staff only</span>
+                    <span className="rounded-full bg-white/80 px-2.5 py-1">Private tracking code</span>
+                  </div>
+                  <p className="mt-5 text-sm font-bold text-[#a33b08]">
+                    Report a concern <span className="inline-block transition group-hover:translate-x-1">→</span>
+                  </p>
+                </div>
               </a>
             )}
           </aside>
@@ -1316,3 +1331,37 @@ function StoryView({
             </button>
           </div>
         </header>
+        {story.cover_url && (
+          <div className="mx-auto mt-8 max-w-5xl px-5 sm:px-8">
+            <img src={story.cover_url} alt="" className="max-h-[620px] w-full rounded-2xl object-cover" />
+          </div>
+        )}
+        <div className="amb-prose mx-auto max-w-[680px] px-5 py-10 sm:px-8 sm:py-14">
+          <Markdown value={story.body} />
+        </div>
+      </article>
+
+      <section className="border-t border-black/10 bg-[#eeebe4]">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1fr_340px]">
+          <div>
+            <h2 className="font-serif text-2xl font-bold tracking-[-.02em]">More from {p.profile_name}</h2>
+            {more.length ? (
+              <ul className="mt-4 divide-y divide-black/10">
+                {more.map((s) => (
+                  <li key={s.id}>
+                    <StoryRow pub={p.slug} story={s} accent={accent} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 text-black/55">This is the only story so far.</p>
+            )}
+          </div>
+          <div className="lg:pt-12">
+            <Subscribe publication={p} accent={accent} onAccent={onAccent} dark />
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
