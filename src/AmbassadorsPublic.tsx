@@ -876,8 +876,8 @@ function FrontPage({
   return (
     <main>
       {/* masthead */}
-      <section className="relative isolate overflow-hidden border-b border-black/10">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,.75),transparent_58%)]" />
+      <section className="relative isolate overflow-hidden border-b border-black/10 bg-[#f6f4ef]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,.8),transparent_62%)]" />
         {(() => {
           const frameImages = Array.from(
             new Set([
@@ -885,24 +885,23 @@ function FrontPage({
               ...members.map((m) => m.photo_url),
               heroImage,
             ].filter(Boolean) as string[]),
-          ).slice(0, 6);
+          ).slice(0, 4);
 
           const frames = [
-            { pos: "left-[-2.5rem] top-8", rotate: "-rotate-6", size: "w-40 sm:w-48", show: "hidden lg:block" },
-            { pos: "left-[-1.5rem] bottom-10", rotate: "rotate-5", size: "w-36 sm:w-44", show: "hidden md:block" },
-            { pos: "right-[-2.5rem] top-6", rotate: "rotate-6", size: "w-40 sm:w-48", show: "hidden lg:block" },
-            { pos: "right-[-1.5rem] bottom-8", rotate: "-rotate-5", size: "w-36 sm:w-44", show: "hidden md:block" },
-            { pos: "left-[8%] top-[-2.5rem]", rotate: "rotate-3", size: "w-28", show: "hidden xl:block" },
-            { pos: "right-[8%] top-[-2.25rem]", rotate: "-rotate-4", size: "w-28", show: "hidden xl:block" },
+            { pos: "left-[-1.75rem] top-10", rotate: "-rotate-4", size: "w-44 sm:w-52", show: "hidden lg:block", tape: "left-7 -top-3 rotate-[-8deg]" },
+            { pos: "left-[-1rem] bottom-10", rotate: "rotate-3", size: "w-40 sm:w-48", show: "hidden lg:block", tape: "right-6 -top-3 rotate-[10deg]" },
+            { pos: "right-[-1.75rem] top-10", rotate: "rotate-4", size: "w-44 sm:w-52", show: "hidden lg:block", tape: "right-7 -top-3 rotate-[8deg]" },
+            { pos: "right-[-1rem] bottom-10", rotate: "-rotate-3", size: "w-40 sm:w-48", show: "hidden lg:block", tape: "left-6 -top-3 rotate-[-10deg]" },
           ];
 
           return frames.slice(0, frameImages.length).map((frame, i) => (
-            <div
-              key={frame.pos}
-              className={`pointer-events-none absolute z-0 ${frame.pos} ${frame.rotate} ${frame.size} ${frame.show} rounded-[2px] bg-white p-2 pb-8 shadow-[0_14px_35px_rgba(0,0,0,.16)] ring-1 ring-black/10 transition-transform duration-500`}
-            >
-              <div className="aspect-[4/3] overflow-hidden bg-[#e9e6df]">
-                <img src={frameImages[i]} alt="" className="h-full w-full object-cover" />
+            <div key={frame.pos} className={`pointer-events-none absolute z-0 ${frame.pos} ${frame.rotate} ${frame.size} ${frame.show}`}>
+              <div className="relative rounded-[3px] bg-white p-2 pb-8 shadow-[0_18px_45px_rgba(0,0,0,.14)] ring-1 ring-black/10">
+                <div className={`absolute ${frame.tape} h-8 w-16 rounded-sm bg-[#e8d8ad]/75 shadow-sm`} />
+                <div className="aspect-[4/3] overflow-hidden bg-[#e9e6df]">
+                  <img src={frameImages[i]} alt="" className="h-full w-full object-cover" />
+                </div>
+                <div className="absolute bottom-2 left-3 right-3 h-3 rounded-full bg-black/[.025]" />
               </div>
             </div>
           ));
@@ -947,7 +946,6 @@ function FrontPage({
           </div>
         </div>
       </section>
-
       {/* stories + sidebar */}
       <section id="stories" className="scroll-mt-16">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1fr_320px]">
@@ -1318,37 +1316,3 @@ function StoryView({
             </button>
           </div>
         </header>
-        {story.cover_url && (
-          <div className="mx-auto mt-8 max-w-5xl px-5 sm:px-8">
-            <img src={story.cover_url} alt="" className="max-h-[620px] w-full rounded-2xl object-cover" />
-          </div>
-        )}
-        <div className="amb-prose mx-auto max-w-[680px] px-5 py-10 sm:px-8 sm:py-14">
-          <Markdown value={story.body} />
-        </div>
-      </article>
-
-      <section className="border-t border-black/10 bg-[#eeebe4]">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1fr_340px]">
-          <div>
-            <h2 className="font-serif text-2xl font-bold tracking-[-.02em]">More from {p.profile_name}</h2>
-            {more.length ? (
-              <ul className="mt-4 divide-y divide-black/10">
-                {more.map((s) => (
-                  <li key={s.id}>
-                    <StoryRow pub={p.slug} story={s} accent={accent} />
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-4 text-black/55">This is the only story so far.</p>
-            )}
-          </div>
-          <div className="lg:pt-12">
-            <Subscribe publication={p} accent={accent} onAccent={onAccent} dark />
-          </div>
-        </div>
-      </section>
-    </main>
-  );
-}
