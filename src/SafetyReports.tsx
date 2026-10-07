@@ -17,7 +17,6 @@ export const SAFETY_CATEGORIES: { value: string; label: string; hint: string }[]
   { value: "discrimination", label: "Discrimination", hint: "Treated badly because of who you are" },
   { value: "threat_or_violence", label: "Threat or violence", hint: "Fights, weapons, or someone threatening to hurt others" },
   { value: "self_harm_concern", label: "Worried about someone", hint: "You think a student might hurt themselves" },
-  { value: "substance", label: "Drugs, alcohol or vaping", hint: "Use or selling on or around campus" },
   { value: "other", label: "Something else", hint: "Anything else that doesn't feel safe or right" },
 ];
 const categoryLabel = (v: string) => SAFETY_CATEGORIES.find((c) => c.value === v)?.label || v;
