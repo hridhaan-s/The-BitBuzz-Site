@@ -18,6 +18,8 @@ function useMedia(q: string) {
 // On phones a fixed A4 page is unreadable, so template pages reflow into a scrolling article.
 // Free-design pages (.mz-fixed) keep their exact layout, since moving elements would break the design.
 const TURN_MS = 700;
+type Spread = (number | null)[];
+type Turn = { dir: "next" | "prev"; from: number; to: number };
 
 const READER_CSS = `
 .mz-reader .mz-paper:not(.mz-fixed){--fs-kick:10px;--fs-h1:46px;--fs-h2:38px;--fs-h3:17px;--fs-h4:20px;--fs-body:16.5px;--fs-quote:40px;--fs-pull:22px;--fs-small:11px;--pad:26px;aspect-ratio:auto;container-type:normal;width:100%;box-shadow:none}
@@ -110,7 +112,7 @@ export default function MagazineViewer({ slug, id }: { slug: string; id?: string
         <div className="mz-stage" style={{["--mz-chrome" as string]:spreadMode?"300px":"250px"}} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}><div className={`mz-book ${spreadMode?"is-spread":"is-single"}`}><div className="mz-slot l">{sheet(baseL)}</div>{spreadMode&&<div className="mz-slot r">{sheet(baseR)}</div>}{leaf}<button className="mz-edge l" aria-label="Previous page" disabled={atStart||!!turn} onClick={()=>go(idx-1)}/><button className="mz-edge r" aria-label="Next page" disabled={atEnd||!!turn} onClick={()=>go(idx+1)}/></div></div>
         <div className="mt-3 flex items-center justify-center gap-2 sm:mt-4 sm:gap-3"><button onClick={()=>go(idx-1)} disabled={atStart||!!turn} className={ctl} aria-label="Previous">← <span className="hidden sm:inline">Prev</span></button><span className="min-w-20 text-center text-xs tabular-nums text-white/50">{label} / {pages.length}</span><button onClick={()=>go(idx+1)} disabled={atEnd||!!turn} className={ctl} aria-label="Next"><span className="hidden sm:inline">Next</span> →</button><button onClick={()=>setZoom(first(cur))} className={ctl} aria-label="Zoom in to read">⤢ <span className="hidden sm:inline">Zoom</span></button></div>
         <div className="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-1.5">{spreads.map((s,n)=><button key={n} onClick={()=>go(n)} disabled={!!turn} className={`h-1.5 rounded-full transition-all ${n===idx?"w-7 bg-[#ff6a1f]":"w-1.5 bg-white/20 hover:bg-white/45"}`} aria-label={`Go to page ${first(s)+1}`}/>)}</div><p className="mt-3 text-center text-[10px] text-white/30">{wide?"Click the page edges or use ← → to turn pages · Zoom to read up close":"Swipe to turn pages · Double-tap or Zoom to read up close"}</p></>}
-      {others.length > 0 && <section className="mt-16 border-t border-white/10 pt-8">      {others.length > 0 && <section className="mt-16 border-t border-white/10 pt-8">
+      {others.length > 0 && <section className="mt-16 border-t border-white/10 pt-8">
         <p className="mb-4 text-[10px] font-bold uppercase tracking-[.25em] text-white/35">More issues</p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{others.map((m) => <a key={m.id} href={`/ambassadors/${slug}/magazine/${m.id}`} className="rounded-2xl border border-white/10 p-4 transition hover:border-[#ff6a1f]/50">
           <p className="font-serif text-xl font-black">{m.title}</p><p className="mt-1 text-xs text-white/35">{m.subtitle || "Digital magazine"}</p>
