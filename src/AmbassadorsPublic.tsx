@@ -257,7 +257,8 @@ export function AmbassadorApplyModal({ onClose }: { onClose: () => void }) {
       website_url: form.website.trim() || null,
       instagram_url: form.instagram.trim() || null,
       linkedin_url: form.linkedin.trim() || null,
-      organization_type: form.type,      location: form.location.trim() || null,
+      organization_type: form.type,
+      location: form.location.trim() || null,
       tags,
       status: "pending",
     });
@@ -516,7 +517,8 @@ export default function AmbassadorsPublicHome() {
                   <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by type">
                     {types.map((t) => (
                       <button
-                        key={t}                        onClick={() => setFilter(t)}
+                        key={t}
+                        onClick={() => setFilter(t)}
                         aria-pressed={filter === t}
                         className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
                           filter === t ? "bg-white text-black" : "border border-white/15 text-white/60 hover:text-white"
@@ -661,6 +663,7 @@ export function AmbassadorOrganizationPage({ slug, storySlug }: { slug: string; 
   const [stories, setStories] = useState<Story[]>([]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
+  const [canReport, setCanReport] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -673,7 +676,7 @@ export function AmbassadorOrganizationPage({ slug, storySlug }: { slug: string; 
         setState("missing");
         return;
       }
-      const [{ data: m }, { data: a }] = await Promise.all([
+      const [{ data: m }, { data: a }, { data: rs }] = await Promise.all([
         supabase.rpc("bitbuzz_public_ambassadors", { target_publication: p.id }),
         supabase
           .from("bitbuzz_articles")
@@ -681,8 +684,11 @@ export function AmbassadorOrganizationPage({ slug, storySlug }: { slug: string; 
           .eq("publication_id", p.id)
           .eq("status", "published")
           .order("published_at", { ascending: false }),
+        // Fails harmlessly (→ hidden) until the safety-reports migration is deployed.
+        supabase.rpc("bitbuzz_safety_reporting_status", { p_slug: slug }).then((r) => r, () => ({ data: null })),
       ]);
       if (!live) return;
+      setCanReport(!!((rs as any[] | null)?.[0]?.enabled));
       setPublication(p as Publication);
       setMembers((m || []) as Member[]);
       setStories((a || []) as Story[]);
@@ -754,6 +760,7 @@ export function AmbassadorOrganizationPage({ slug, storySlug }: { slug: string; 
             setQuery={setQuery}
             category={category}
             setCategory={setCategory}
+            canReport={canReport}
           />
         )}
       </div>
@@ -762,9 +769,14 @@ export function AmbassadorOrganizationPage({ slug, storySlug }: { slug: string; 
           <span>
             © {new Date().getFullYear()} {publication.profile_name} · {publication.school_name}
           </span>
-          <a href="/ambassadors" className="hover:text-black">
-            Part of the BitBuzz Ambassadors network ↗
-          </a>
+          <span className="flex flex-wrap gap-x-5 gap-y-2">
+            <a href={`/ambassadors/${publication.slug}/report`} className="hover:text-black">
+              Report a concern
+            </a>
+            <a href="/ambassadors" className="hover:text-black">
+              Part of the BitBuzz Ambassadors network ↗
+            </a>
+          </span>
         </div>
       </footer>
     </div>
@@ -775,7 +787,8 @@ function NotFound({ title, body, href, cta, light = false }: { title: string; bo
   return (
     <div className={`${light ? "" : "min-h-screen"} bg-[#f6f4ef] px-5 py-28 text-center text-[#161616]`}>
       <p className="font-serif text-6xl text-black/15">✦</p>
-      <h1 className="mt-6 font-serif text-4xl font-bold tracking-[-.03em] sm:text-5xl">{title}</h1>      <p className="mx-auto mt-3 max-w-md text-black/60">{body}</p>
+      <h1 className="mt-6 font-serif text-4xl font-bold tracking-[-.03em] sm:text-5xl">{title}</h1>
+      <p className="mx-auto mt-3 max-w-md text-black/60">{body}</p>
       <a href={href} className="mt-8 inline-block rounded-full bg-[#161616] px-6 py-3 text-sm font-bold text-white">
         {cta}
       </a>
@@ -835,7 +848,9 @@ function FrontPage({
   setQuery,
   category,
   setCategory,
+  canReport,
 }: {
+  canReport: boolean;
   publication: Publication;
   members: Member[];
   stories: Story[];
@@ -983,306 +998,3 @@ function FrontPage({
                       {t}
                     </span>
                   ))}
-                </div>
-              )}
-              {(p.website_url || p.instagram_url || p.linkedin_url || p.contact_email) && (
-                <ul className="mt-5 space-y-1 border-t border-black/10 pt-4 text-sm">
-                  {[
-                    ["Website", p.website_url],
-                    ["Instagram", p.instagram_url],
-                    ["LinkedIn", p.linkedin_url],
-                    ["Email", p.contact_email ? `mailto:${p.contact_email}` : null],
-                  ]
-                    .filter(([, href]) => href)
-                    .map(([label, href]) => (
-                      <li key={label}>
-                        <a
-                          href={href!}
-                          target={label === "Email" ? undefined : "_blank"}
-                          rel="noreferrer"
-                          className="flex items-center justify-between rounded-lg py-1.5 text-black/70 hover:text-black"
-                        >
-                          {label} <span className="text-black/35">↗</span>
-                        </a>
-                      </li>
-                    ))}
-                </ul>
-              )}
-            </div>
-            <Subscribe publication={p} accent={accent} onAccent={onAccent} />
-          </aside>
-        </div>
-      </section>
-
-      {/* team */}
-      {members.length > 0 && (
-        <section id="team" className="scroll-mt-16 border-t border-black/10 bg-[#eeebe4]">
-          <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
-            <div className="flex items-end justify-between gap-4">
-              <h2 className="font-serif text-3xl font-bold tracking-[-.03em] sm:text-4xl">The team</h2>
-              <span className="text-sm text-black/55">
-                {members.length} {members.length === 1 ? "person" : "people"}
-              </span>
-            </div>
-            <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {members.map((m) => (
-                <li key={m.id} className="flex flex-col rounded-2xl border border-black/10 bg-white p-5">
-                  <div className="flex items-center gap-3">
-                    <Avatar
-                      src={m.photo_url}
-                      name={m.name}
-                      className="h-12 w-12 shrink-0 rounded-full text-base"
-                      fallbackClass="!bg-black/[.07] text-black/70"
-                    />
-                    <div className="min-w-0">                      <h3 className="truncate font-semibold">{m.name}</h3>
-                      <p className="text-xs capitalize text-black/55">{m.role?.toLowerCase()}</p>
-                    </div>
-                  </div>
-                  {m.bio && <p className="mt-3 line-clamp-3 text-sm leading-6 text-black/60">{m.bio}</p>}
-                  {(m.instagram_url || m.linkedin_url || m.website_url) && (
-                    <div className="mt-auto flex gap-3 pt-3 text-xs font-semibold text-black/55">
-                      {m.instagram_url && (
-                        <a href={m.instagram_url} target="_blank" rel="noreferrer" className="hover:text-black">
-                          Instagram
-                        </a>
-                      )}
-                      {m.linkedin_url && (
-                        <a href={m.linkedin_url} target="_blank" rel="noreferrer" className="hover:text-black">
-                          LinkedIn
-                        </a>
-                      )}
-                      {m.website_url && (
-                        <a href={m.website_url} target="_blank" rel="noreferrer" className="hover:text-black">
-                          Website
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-    </main>
-  );
-}
-
-function StoryMeta({ story, accent }: { story: Story; accent: string }) {
-  return (
-    <p className="text-xs font-semibold">
-      <span className="uppercase tracking-[.12em]" style={{ color: accent }}>
-        {story.category || "News"}
-      </span>
-      {story.published_at && <span className="text-black/50"> · {fmtDate(story.published_at)}</span>}
-    </p>
-  );
-}
-
-function CoverOrPlaceholder({ story, accent, className, small = false }: { story: Story; accent: string; className: string; small?: boolean }) {
-  const [broken, setBroken] = useState(false);
-  if (story.cover_url && !broken)
-    return (
-      <img
-        src={story.cover_url}
-        alt=""
-        loading="lazy"
-        onError={() => setBroken(true)}
-        className={`h-full w-full object-cover transition duration-500 group-hover:scale-[1.03] ${className}`}
-      />
-    );
-  return (
-    <div
-      className={`flex h-full w-full items-end font-serif font-bold leading-tight text-black/70 ${small ? "p-2.5 text-sm" : "p-5 text-2xl"} ${className}`}
-      style={{ background: `linear-gradient(135deg, ${accent}26, ${accent}0d)` }}
-    >
-      <span className="line-clamp-3">{story.category || "Story"}</span>
-    </div>
-  );
-}
-
-function LeadStory({ pub, story, accent, label }: { pub: string; story: Story; accent: string; label: string }) {
-  return (
-    <a href={storyHref(pub, story.slug)} className={`group mt-6 block rounded-3xl ${ring} focus-visible:ring-black/40`}>
-      <div className="aspect-[16/9] overflow-hidden rounded-3xl bg-black/5">
-        <CoverOrPlaceholder story={story} accent={accent} className="" />
-      </div>
-      <div className="mt-5">
-        <p className="mb-2 text-[11px] font-bold uppercase tracking-[.16em] text-black/45">{label}</p>
-        <StoryMeta story={story} accent={accent} />
-        <h3 className="mt-2 font-serif text-3xl font-bold leading-[1.05] tracking-[-.03em] group-hover:underline group-hover:decoration-black/25 group-hover:underline-offset-4 sm:text-4xl">
-          {story.headline}
-        </h3>
-        <p className="mt-3 max-w-2xl text-base leading-7 text-black/60">{excerpt(summary(story), 220)}</p>
-        <p className="mt-3 text-sm text-black/50">
-          {story.author_name && <>By {story.author_name}</>}
-          {story.reading_time ? <> · {story.reading_time} min read</> : null}
-        </p>
-      </div>
-    </a>
-  );
-}
-
-function StoryRow({ pub, story, accent }: { pub: string; story: Story; accent: string }) {
-  return (
-    <a href={storyHref(pub, story.slug)} className={`group grid grid-cols-[1fr_96px] gap-4 py-5 sm:grid-cols-[1fr_160px] sm:gap-6 ${ring} focus-visible:ring-black/40`}>
-      <div className="min-w-0">
-        <StoryMeta story={story} accent={accent} />
-        <h3 className="mt-1.5 font-serif text-xl font-bold leading-snug tracking-[-.02em] group-hover:underline group-hover:decoration-black/25 group-hover:underline-offset-4 sm:text-2xl">
-          {story.headline}
-        </h3>
-        <p className="mt-1.5 hidden text-sm leading-6 text-black/60 sm:block">{excerpt(summary(story), 150)}</p>
-      </div>
-      <div className="aspect-[4/3] overflow-hidden rounded-xl bg-black/5">
-        <CoverOrPlaceholder story={story} accent={accent} className="" small />
-      </div>
-    </a>
-  );
-}
-
-function Subscribe({ publication, accent, onAccent, dark = false }: { publication: Publication; accent: string; onAccent: string; dark?: boolean }) {
-  const [email, setEmail] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [subscribed, setSubscribed] = useState(false);
-  const [error, setError] = useState("");
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setBusy(true);
-    const { error } = await supabase.from("bitbuzz_newsletter_subscribers").insert({ publication_id: publication.id, email: email.trim().toLowerCase() });
-    setBusy(false);
-    if (error && error.code !== "23505") {
-      setError(error.message);
-      return;
-    }
-    setSubscribed(true);
-    setEmail("");
-  };
-  return (
-    <div className={`rounded-3xl p-6 ${dark ? "bg-[#161616] text-white" : "border border-black/10 bg-white"}`}>
-      <p className="font-serif text-xl font-bold leading-tight">Get new stories by email</p>
-      <p className={`mt-1 text-sm ${dark ? "text-white/60" : "text-black/55"}`}>From {publication.profile_name}. No spam, unsubscribe anytime.</p>
-      {subscribed ? (
-        <p className="mt-4 rounded-xl bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-700">You're subscribed ✓</p>
-      ) : (
-        <form onSubmit={submit} className="mt-4 flex gap-2">
-          <input
-            required
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            aria-label="Email address"
-            className={`min-w-0 flex-1 rounded-full border px-4 py-2.5 text-sm outline-none ${
-              dark ? "border-white/15 bg-white/5 placeholder:text-white/35 focus:border-white/40" : "border-black/15 bg-[#f6f4ef] placeholder:text-black/35 focus:border-black/40"
-            }`}
-          />
-          <button disabled={busy} className="shrink-0 rounded-full px-4 py-2.5 text-sm font-bold disabled:opacity-60" style={{ background: accent, color: onAccent }}>
-            {busy ? "…" : "Subscribe"}
-          </button>
-        </form>
-      )}
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
-    </div>
-  );
-}
-
-function StoryView({
-  publication: p,
-  story,
-  stories,
-  accent,
-  onAccent,
-}: {
-  publication: Publication;
-  story: Story;
-  stories: Story[];
-  accent: string;
-  onAccent: string;
-}) {
-  const [copied, setCopied] = useState(false);
-  const more = stories.filter((s) => s.id !== story.id && s.headline !== story.headline).slice(0, 3);
-  const share = async () => {
-    const url = window.location.href;
-    try {
-      if (navigator.share) await navigator.share({ title: story.headline, url });
-      else {
-        await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1800);
-      }
-    } catch {
-      /* user cancelled */
-    }
-  };
-  // Many stories repeat the standfirst as the first paragraph — don't show it twice.
-  const standfirst = story.description && !plain(story.body).startsWith(plain(story.description).slice(0, 60)) ? plain(story.description) : "";
-
-  return (
-    <main>
-      <style>{LIGHT_PROSE}</style>
-      <article>
-        <header className="mx-auto max-w-3xl px-5 pt-10 sm:px-8 sm:pt-14">
-          <a href={`/ambassadors/${p.slug}`} className="text-sm text-black/55 hover:text-black">
-            ← {p.profile_name}
-          </a>
-          <div className="mt-8">
-            <StoryMeta story={story} accent={accent} />
-          </div>
-          <h1 className="mt-3 font-serif text-[clamp(2.25rem,6vw,3.75rem)] font-bold leading-[1.02] tracking-[-.035em]">{story.headline}</h1>
-          {standfirst && <p className="mt-5 text-lg leading-8 text-black/60 sm:text-xl">{excerpt(standfirst, 260)}</p>}
-          <div className="mt-7 flex items-center justify-between gap-4 border-y border-black/10 py-4">
-            <div className="flex min-w-0 items-center gap-3">
-              <Avatar
-                src={null}
-                name={story.author_name || p.profile_name}
-                className="h-10 w-10 shrink-0 rounded-full text-sm"
-                fallbackClass="!bg-black/[.07] text-black/70"
-              />
-              <div className="min-w-0 text-sm">
-                <p className="truncate font-semibold">{story.author_name || p.profile_name}</p>
-                <p className="text-black/50">
-                  {fmtDate(story.published_at)}
-                  {story.reading_time ? ` · ${story.reading_time} min read` : ""}
-                </p>
-              </div>
-            </div>
-            <button onClick={share} className="shrink-0 rounded-full border border-black/15 px-4 py-2 text-xs font-semibold hover:border-black/40">
-              {copied ? "Link copied ✓" : "Share"}
-            </button>
-          </div>
-        </header>
-        {story.cover_url && (
-          <div className="mx-auto mt-8 max-w-5xl px-5 sm:px-8">
-            <img src={story.cover_url} alt="" className="max-h-[620px] w-full rounded-2xl object-cover" />
-          </div>
-        )}
-        <div className="amb-prose mx-auto max-w-[680px] px-5 py-10 sm:px-8 sm:py-14">
-          <Markdown value={story.body} />
-        </div>
-      </article>
-
-      <section className="border-t border-black/10 bg-[#eeebe4]">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1fr_340px]">
-          <div>
-            <h2 className="font-serif text-2xl font-bold tracking-[-.02em]">More from {p.profile_name}</h2>
-            {more.length ? (
-              <ul className="mt-4 divide-y divide-black/10">
-                {more.map((s) => (
-                  <li key={s.id}>
-                    <StoryRow pub={p.slug} story={s} accent={accent} />
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-4 text-black/55">This is the only story so far.</p>
-            )}
-          </div>
-          <div className="lg:pt-12">
-            <Subscribe publication={p} accent={accent} onAccent={onAccent} dark />
-          </div>
-        </div>
-      </section>
-    </main>
-  );
-}
